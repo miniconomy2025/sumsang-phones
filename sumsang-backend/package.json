@@ -1,0 +1,27 @@
+{
+  "name": "sumsang-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "clean-linux": "rm -rf dist",
+    "clean-windows": "rmdir /S /Q dist",
+    "build-linux": "npm run clean-linux && npx tsc",
+    "build-windows": "npm run clean-windows && npx tsc",
+    "dev": "nodemon --exec node --loader ts-node/esm src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.7",
+    "dotenv": "^17.0.0",
+    "express": "^5.1.0",
+    "install": "^0.13.0",
+    "nodemon": "^3.1.10",
+    "npm": "^11.4.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}
