@@ -5,7 +5,7 @@ export class StockRepository {
     static async getStock() {
     try {
         const result = await db.query(
-        `SELECT `
+        `SELECT * FROM stock`
         );
         return result.rows[0];
     } catch (error) {
