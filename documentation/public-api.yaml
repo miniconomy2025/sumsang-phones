@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: SumSang Phones API
+  version: 1.0.0
+  description: |
+    Public endpoints used for communication to SumSang Phones
+
+servers:
+  - url: https://localhost:8080/public-api
+
+components:
+  schemas:
+    Order:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: 
+              - phone_id
+              - quantity
+            properties:
+              phone_id: 
+                type: number
+              quantity: 
+                type: number
+
+    Stock:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: 
+              - phone_id
+              - name
+              - quantity
+              - price
+            properties:
+              phone_id: 
+                type: number
+              name:
+                type: string
+              quantity: 
+                type: number
+              price:
+                type: number
+                format: float
+
+
+
+paths:
+  /simulation/start:
+    post:
+      summary: Start a new simulation
+      responses:
+        '200':
+          description: Simulation started
+
+  /simulation/tick:
+    post:
+      summary: Progress simulation by one tick
+      responses:
+        '200':
+          description: Simulation tick processed
+          
+  /stock:
+    get:
+      summary: Get current phone stock
+      responses:
+        '200':
+          description: List of phones with stock availability and price per phone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stock'
+                      
+  /order:
+    post:
+      summary: Make an order for phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order placed successfully. Items reserved for 24 hours awaiting payment.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - order_id
+                  - price
+                properties:
+                  order_id:
+                    type: number
+                    description: Reference number to use for payment
+                  price:
+                    type: number
+                    format: float
+                    description: Total price of the order
+        '400':
+          description: Invalid order data
+
+  /payment-made:
+    post:
+      summary: Notify that payment has been made to SumSang phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reference
+                - amount
+              properties:
+                reference:
+                  type: number
+                  description: Order id
+                amount:
+                  type: number
+                  format: float
+                  description: Payment amount
+      responses:
+        '200':
+          description: Payment accepted
+        '400':
+          description: Invalid payment data
+
+
+  /goods-delivered:
+    post:
+      summary: Confirm delivery of bulk goods to SumSang phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delivery_reference
+              properties:
+                delivery_reference:
+                  type: number
+                  description: Delivery reference number
+      responses:
+        '200':
+          description: Bulk delivery recorded
+        '400':
+          description: Invalid delivery data
+
+  /goods-collection:
+    post:
+      summary: Confirm consumer goods have been collected from SumSang phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delivery_reference
+              properties:
+                delivery_reference:
+                  type: number
+                  description: Delivery reference number
+      responses:
+        '200':
+          description: Consumer delivery recorded
+        '400':
+          description: Invalid delivery data
