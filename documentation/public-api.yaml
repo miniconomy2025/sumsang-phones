@@ -27,9 +27,58 @@ components:
                 type: number
               quantity: 
                 type: number
-      
+
+    Stock:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: 
+              - phone_id
+              - name
+              - quantity
+              - price
+            properties:
+              phone_id: 
+                type: number
+              name:
+                type: string
+              quantity: 
+                type: number
+              price:
+                type: number
+                format: float
+
+
 
 paths:
+  /simulation/start:
+    post:
+      summary: Start a new simulation
+      responses:
+        '200':
+          description: Simulation started
+
+  /simulation/tick:
+    post:
+      summary: Progress simulation by one tick
+      responses:
+        '200':
+          description: Simulation tick processed
+          
+  /stock:
+    get:
+      summary: Get current phone stock
+      responses:
+        '200':
+          description: List of phones with stock availability and price per phone
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stock'
+                      
   /order:
     post:
       summary: Make an order for phones
@@ -60,309 +109,9 @@ paths:
         '400':
           description: Invalid order data
 
-  /account/me:
-    get:
-      summary: Get your account number
-      responses:
-        '200':
-          description: Account number
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  account_number:
-                    type: string
-
-  /account/me/notify:
+  /payment-made:
     post:
-      summary: Set/Update your notification URL
-      description: |
-        If set, when a payment is received in your account, a callback request will be sent to this URL to notify you that you've received a payment
-        (See [**POST** `/transaction`](#/default/post_transaction) for more details)
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                notification_url:
-                  type: string
-      responses:
-        '200':
-          description: Notification URL updated
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-
-  /account/me/balance:
-    get:
-      summary: Get your account balance
-      responses:
-        '200':
-          description: Current balance
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  balance:
-                    type: number
-
-  /account/me/frozen:
-    get:
-      summary: Check if account is frozen
-      responses:
-        '200':
-          description: Frozen status
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  frozen:
-                    type: boolean
-
-  /account/me/loans:
-    get:
-      summary: Get outstanding loans
-      responses:
-        '200':
-          description: Outstanding loan info
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  total_due:
-                    type: number
-                  loans:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        loan_number:
-                          type: string
-                        due:
-                          type: number
-
-  /transaction:
-    post:
-      summary: Create a transaction
-      description: |
-        If the transaction is successful and the recipient account has a registered `notification_url`,
-        a `POST` request will be sent to that URL with the following payload:
-
-        ### Payment Notification Payload:
-        ```json
-        {
-          "transaction_number": "string",
-          "status": "string",
-          "amount": 123.45,
-          "timestamp": "2025-01-01T00:00:00Z",
-          "description": "string",
-          "from": "sender_account_number",
-          "to": "recipient_account_number"
-        }
-        ```
-
-        The receiving server must respond with `200 OK` to acknowledge the notification.
-
-        (See [**POST** `/account/me/notify`](#/default/post_account_me_notify) for setting your notification URL)
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                to_account_number:
-                  type: string
-                to_bank_id:
-                  type: integer
-                amount:
-                  type: number
-                description:
-                  type: string
-      responses:
-        '200':
-          description: Transaction result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  transaction_number:
-                    type: string
-                  status:
-                    type: string
-
-    get:
-      summary: Get bank statement
-      parameters:
-        - name: from
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date-time
-        - name: to
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date-time
-        - name: only_successful
-          in: query
-          required: false
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: List of transactions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Order'
-
-  /transaction/{transaction_number}:
-    get:
-      summary: Get transaction details
-      parameters:
-        - name: transaction_number
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Transaction details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-
-  /loan:
-    post:
-      summary: Take out a loan
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-                interest_rate:
-                  type: number
-      responses:
-        '200':
-          description: Loan creation result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  loan_number:
-                    type: string
-    get:
-      summary: List all loans
-      responses:
-        '200':
-          description: List of loans
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Loan'
-
-  /loan/{loan_number}/pay:
-    post:
-      summary: Repay loan
-      parameters:
-        - name: loan_number
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-      responses:
-        '200':
-          description: Payment result
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                  paid:
-                    type: number
-                  overpayment:
-                    type: number
-
-
-  /loan/{loan_number}:
-    get:
-      summary: Get specific loan details
-      parameters:
-        - name: loan_number
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Loan details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  loan_number:
-                    type: string
-                  initial_amount:
-                    type: number
-                  outstanding:
-                    type: number
-                  interest_rate:
-                    type: number
-                  started_at:
-                    type: string
-                    format: date-time
-                  write_off:
-                    type: boolean
-                  payments:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/LoanPayment'
-
-  /interbank/transfer:
-    post:
-      summary: Notify of incoming inter-bank transfer
-      description: |
-        Used by foreign banks to notify this system that a transfer has been initiated from one of their accounts to a local account.
-        The request must include a valid bank API key and sufficient details to record the transaction.
+      summary: Notify that payment has been made to SumSang phones
       requestBody:
         required: true
         content:
@@ -370,69 +119,61 @@ paths:
             schema:
               type: object
               required:
-                - transaction_number
-                - from_account_number
-                - from_bank_id
-                - to_account_number
+                - reference
                 - amount
-                - description
               properties:
-                transaction_number:
-                  type: string
-                  description: Unique transaction reference number from the sending bank.
-                from_account_number:
-                  type: string
-                  description: Foreign sender's account number.
-                to_account_number:
-                  type: string
-                  description: Local recipient account number.
+                reference:
+                  type: number
+                  description: Order id
                 amount:
                   type: number
                   format: float
-                  description: Amount being transferred.
-                description:
-                  type: string
-                  description: Optional description for the transfer.
-                timestamp:
-                  type: string
-                  format: date-time
+                  description: Payment amount
       responses:
         '200':
-          description: Notification accepted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  message:
-                    type: string
-                    example: Transfer recorded successfully.
+          description: Payment accepted
         '400':
-          description: Validation or processing error
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: Unknown recipient account.
-        '409':
-          description: Duplicate transaction number
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: false
-                  error:
-                    type: string
-                    example: Transaction number already exists.
+          description: Invalid payment data
+
+
+  /goods-delivered:
+    post:
+      summary: Confirm delivery of bulk goods to SumSang phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delivery_reference
+              properties:
+                delivery_reference:
+                  type: number
+                  description: Delivery reference number
+      responses:
+        '200':
+          description: Bulk delivery recorded
+        '400':
+          description: Invalid delivery data
+
+  /goods-collection:
+    post:
+      summary: Confirm consumer goods have been collected from SumSang phones
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delivery_reference
+              properties:
+                delivery_reference:
+                  type: number
+                  description: Delivery reference number
+      responses:
+        '200':
+          description: Consumer delivery recorded
+        '400':
+          description: Invalid delivery data
