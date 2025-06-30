@@ -11,5 +11,4 @@ export class StockController {
             handleFailure(res, error, 'Error fetching stock');
         }
     }
-
 }
