@@ -8,7 +8,7 @@ export class PaymentRepository {
 
             return 'Payment accepted';
         } catch (error) {
-            throw new DatabaseError(`Failed to get stock: ${(error as Error).message}`);
+            throw new DatabaseError(`Failed to update payment: ${(error as Error).message}`);
         }
     }
 }
