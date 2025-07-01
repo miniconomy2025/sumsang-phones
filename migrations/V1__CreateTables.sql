@@ -1,117 +1,116 @@
-Table orders {
-  order_id int [pk, not null, increment]
+CREATE TABLE status (
+    status_id SERIAL PRIMARY KEY,
+    description VARCHAR(30) NOT NULL
+);
 
-  price decimal [not null]
-  status int [not null, ref: > status.status_id]
-  created_at datetime [not null]
-}
+CREATE TABLE accounts (
+    account_id SERIAL PRIMARY KEY,
+    account_name VARCHAR(20) NOT NULL,
+    account_number VARCHAR(10) NOT NULL
+);
 
-Table consumer_deliveries {
-  consumer_delivery_id int [pk, not null, increment]
-  order_id int [not null, ref: > orders.order_id]
-  delivery_reference int [not null, unique]
-  cost decimal [not null]
-  status int [not null, ref: > status.status_id]
-  account_id int [not null, ref: > accounts.account_id]
-}
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    price DECIMAL NOT NULL,
+    status INT NOT NULL REFERENCES status(status_id),
+    created_at TIMESTAMP NOT NULL
+);
 
-Table order_items {
-  order_item_id int [pk, not null, increment]
-  order_id int [not null, ref: > orders.order_id]
-  phone_id int [not null, ref: > phones.phone_id]
-  quantity int [not null]
-}
+CREATE TABLE phones (
+    phone_id SERIAL PRIMARY KEY,
+    model VARCHAR(30) NOT NULL,
+    price DECIMAL NOT NULL
+);
 
-Table phones {
-  phone_id int [pk, not null, increment]
-  model varchar(30) [not null]
-  price decimal [not null]
-}
+CREATE TABLE order_items (
+    order_item_id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL REFERENCES orders(order_id),
+    phone_id INT NOT NULL REFERENCES phones(phone_id),
+    quantity INT NOT NULL
+);
 
-Table stock {
-  stock_id int [pk, not null, increment]
-  phone_id int [not null, ref: > phones.phone_id]
-  quantity_available int [not null]
-  quantity_reserved int [not null]
-  updated_at datetime [not null]
-}
+CREATE TABLE stock (
+    stock_id SERIAL PRIMARY KEY,
+    phone_id INT NOT NULL REFERENCES phones(phone_id),
+    quantity_available INT NOT NULL,
+    quantity_reserved INT NOT NULL,
+    updated_at TIMESTAMP NOT NULL
+);
 
-Table machines {
-  machine_id int [pk, not null, increment]
-  phone_id int [not null, ref: > phones.phone_id]
-  rate_per_day int [not null]
-}
+CREATE TABLE machines (
+    machine_id SERIAL PRIMARY KEY,
+    phone_id INT NOT NULL REFERENCES phones(phone_id),
+    rate_per_day INT NOT NULL
+);
 
-Table machine_ratios {
-  machine_ratio_id int [pk, not null, increment]
-  machine_id int [not null, ref: > machines.machine_id]
-  part_id int [not null, ref: > parts.part_id]
-  quantity int [not null]
-}
+CREATE TABLE parts (
+    part_id SERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL
+);
 
-Table parts {
-  part_id int [pk, not null, increment]
-  name varchar(30) [not null]
-}
+CREATE TABLE machine_ratios (
+    machine_ratio_id SERIAL PRIMARY KEY,
+    machine_id INT NOT NULL REFERENCES machines(machine_id),
+    part_id INT NOT NULL REFERENCES parts(part_id),
+    quantity INT NOT NULL
+);
 
-Table inventory {
-  inventory_id int [pk, not null, increment]
-  part_id int [not null, ref: > parts.part_id]
-  quantity_available int [not null]
-}
+CREATE TABLE inventory (
+    inventory_id SERIAL PRIMARY KEY,
+    part_id INT NOT NULL REFERENCES parts(part_id),
+    quantity_available INT NOT NULL
+);
 
-Table suppliers {
-  supplier_id int [pk, not null, increment]
-  name varchar(30) [not null]
-  account_id int [not null, ref: > accounts.account_id]
-  address varchar(50) [not null]
-}
+CREATE TABLE suppliers (
+    supplier_id SERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    account_id INT NOT NULL REFERENCES accounts(account_id),
+    address VARCHAR(50) NOT NULL
+);
 
-Table parts_supplier {
-  parts_supplier_id int [pk, not null, increment]
-  part_id int [not null, ref: > parts.part_id]
-  supplier_id int [not null, ref: > suppliers.supplier_id]
-  cost decimal [not null]
-}
+CREATE TABLE parts_supplier (
+    parts_supplier_id SERIAL PRIMARY KEY,
+    part_id INT NOT NULL REFERENCES parts(part_id),
+    supplier_id INT NOT NULL REFERENCES suppliers(supplier_id),
+    cost DECIMAL NOT NULL
+);
 
-Table parts_purchases {
-  parts_purchase_id int [pk, not null, increment]
-  reference_number int [not null]
-  cost decimal [not null]
-  status int [not null, ref: > status.status_id]
-  purchased_at datetime [not null]
-}
+CREATE TABLE parts_purchases (
+    parts_purchase_id SERIAL PRIMARY KEY,
+    reference_number INT NOT NULL,
+    cost DECIMAL NOT NULL,
+    status INT NOT NULL REFERENCES status(status_id),
+    purchased_at TIMESTAMP NOT NULL
+);
 
-Table parts_purchases_items {
-  parts_purchases_items_id int [pk, not null, increment]
-  part_supplier_id int [not null, ref: > parts_supplier.parts_supplier_id]
-  parts_purchase_id int [not null, ref: > parts_purchases.parts_purchase_id]
-  quantity int [not null]
-}
+CREATE TABLE parts_purchases_items (
+    parts_purchases_items_id SERIAL PRIMARY KEY,
+    part_supplier_id INT NOT NULL REFERENCES parts_supplier(parts_supplier_id),
+    parts_purchase_id INT NOT NULL REFERENCES parts_purchases(parts_purchase_id),
+    quantity INT NOT NULL
+);
 
-Table bulk_deliveries {
-  bulk_delivery_id int [pk, not null, increment]
-  parts_purchase_id int [not null, ref: > parts_purchases.parts_purchase_id]
-  delivery_reference int [not null, unique]
-  cost decimal [not null]
-  status int [not null, ref: > status.status_id]
-  address varchar(50) [not null]
-  account_id int [not null, ref: > accounts.account_id]
-}
+CREATE TABLE bulk_deliveries (
+    bulk_delivery_id SERIAL PRIMARY KEY,
+    parts_purchase_id INT NOT NULL REFERENCES parts_purchases(parts_purchase_id),
+    delivery_reference INT NOT NULL UNIQUE,
+    cost DECIMAL NOT NULL,
+    status INT NOT NULL REFERENCES status(status_id),
+    address VARCHAR(50) NOT NULL,
+    account_id INT NOT NULL REFERENCES accounts(account_id)
+);
 
-Table status {
-  status_id int [pk, not null, increment]
-  description varchar(30) [not null]
-}
+CREATE TABLE consumer_deliveries (
+    consumer_delivery_id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL REFERENCES orders(order_id),
+    delivery_reference INT NOT NULL UNIQUE,
+    cost DECIMAL NOT NULL,
+    status INT NOT NULL REFERENCES status(status_id),
+    account_id INT NOT NULL REFERENCES accounts(account_id)
+);
 
-Table system_settings {
-  system_setting_id int [pk, not null, increment]
-  key varchar(30) [not null]
-  value varchar(30) [not null]
-}
-
-Table accounts {
-  account_id int [pk, not null, increment]
-  account_name varchar(20) [not null]
-  account_number varchar(10) [not null]
-}
+CREATE TABLE system_settings (
+    system_setting_id SERIAL PRIMARY KEY,
+    key VARCHAR(30) NOT NULL,
+    value VARCHAR(30) NOT NULL
+);
