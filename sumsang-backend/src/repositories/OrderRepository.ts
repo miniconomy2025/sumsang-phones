@@ -2,6 +2,7 @@ import db from '../config/DatabaseConfig.js';
 import { DatabaseError } from '../utils/errors.js';
 import { Order } from '../types/OrderType.js';
 import { OrderItem } from '../types/OrderItemType.js';
+import { Status } from '../types/Status.js';
 
 export class OrderRepository {
     static async getOrders(): Promise<Order[]> {
@@ -25,7 +26,7 @@ export class OrderRepository {
                 `INSERT INTO orders (price, status, created_at)
                 VALUES ($1, $2, NOW()) 
                 RETURNING order_id`,
-                [price, 1]
+                [price, Status.PendingPayment]
             );
 
             const orderId = orderResult.rows[0].order_id;
