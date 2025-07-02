@@ -4,15 +4,6 @@ import {handleSuccess, handleFailure} from '../utils/handleResponses.js';
 import { BadRequestError } from '../utils/errors.js';
 
 export class OrderController {
-    static async getOrders(req: Request, res: Response): Promise<void> {
-        try {
-            const orders = await OrderService.getOrders();
-            handleSuccess(res, orders);
-        } catch (error) {
-            handleFailure(res, error, 'Error fetching orders');
-        }
-    }
-
     static async placeOrder(req: Request, res: Response): Promise<void> {
         try {
             const { items } = req.body;

@@ -6,7 +6,7 @@ const app = express();
 const PORT = 5000;
 
 app.use('/public-api/', StockRoutes);
-app.use('public-api', OrderRoutes);
+app.use('/public-api/', OrderRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)

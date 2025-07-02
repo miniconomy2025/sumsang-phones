@@ -1,15 +1,9 @@
 import { OrderRepository } from '../repositories/OrderRepository.js';
-import { Order } from '../types/OrderType.js';
 import { OrderItem } from '../types/OrderItemType.js';
 import { PhoneRepository } from '../repositories/PhoneRepository.js';
 import { ValidationError } from '../utils/errors.js';
 
 export class OrderService {
-    static async getOrders(): Promise<Order[]> {
-        const orders = await OrderRepository.getOrders();
-        return orders;
-    }
-
     static async placeOrder(items: OrderItem[]) {
         if (!items || items.length === 0) {
             throw new ValidationError('Order must include at least one item.');

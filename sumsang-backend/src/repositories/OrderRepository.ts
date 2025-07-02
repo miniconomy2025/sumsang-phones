@@ -5,18 +5,6 @@ import { OrderItem } from '../types/OrderItemType.js';
 import { Status } from '../types/Status.js';
 
 export class OrderRepository {
-    static async getOrders(): Promise<Order[]> {
-        try {
-            const result = await db.query(
-                `SELECT *
-                FROM orders`
-            );
-            return result.rows;
-        } catch (error) {
-            throw new DatabaseError(`Failed to get orders: ${(error as Error).message}`);
-        }
-    }
-
     static async createOrder(price: number, items: OrderItem[]) {
         try {
             await db.query('BEGIN');
