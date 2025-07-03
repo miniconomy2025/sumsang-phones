@@ -1,0 +1,14 @@
+{
+  "bulkTransfersIn": [
+    { "date": "2025-06-30", "volumeMoved": 2500, "cost": 18750 },
+    { "date": "2025-07-01", "volumeMoved": 2500, "cost": 18750 },
+    { "date": "2025-07-02", "volumeMoved": 2500, "cost": 18750 },
+    { "date": "2025-07-03", "volumeMoved": 2500, "cost": 18750 }
+  ],
+  "consumerTransfersOut": [
+    { "date": "2025-06-30", "phonesDelivered": 2125, "cost": 15000 },
+    { "date": "2025-07-01", "phonesDelivered": 2125, "cost": 15000 },
+    { "date": "2025-07-02", "phonesDelivered": 2125, "cost": 15000 },
+    { "date": "2025-07-03", "phonesDelivered": 2125, "cost": 15000 }
+  ]
+}

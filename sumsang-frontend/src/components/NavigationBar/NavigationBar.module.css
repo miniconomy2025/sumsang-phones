@@ -1,0 +1,44 @@
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background-color: var(--nav-bg-colour);
+}
+
+ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    list-style: none;
+}
+
+li {
+    position: relative;
+    width: 12vmin;
+    height: 8vmin;
+    transition: background-color 100ms ease-in-out;
+}
+
+li::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: block;
+    border-radius: 50%;
+    height: 60%;
+    aspect-ratio: 1;
+    background-color: var(--nav-item-icon-colour);
+    transition: background-color 100ms ease-in-out;
+}
+
+li.active {
+    background-color: var(--nav-item-selected-bg-colour);
+}
+
+li.active::after {
+    background-color: var(--nav-item-selected-icon-colour);
+}

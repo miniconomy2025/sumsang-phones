@@ -1,0 +1,12 @@
+{
+  "toalPhonesSold": {
+    "Z25 FE": 300,
+    "Z25": 500,
+    "Z25 Ultra": 450
+  },
+  "phoneModelRevenue": {
+    "Z25 FE": 1500000,
+    "Z25": 2750000,
+    "Z25 Ultra": 3600000
+  }
+}

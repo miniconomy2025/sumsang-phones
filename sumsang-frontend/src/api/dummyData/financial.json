@@ -1,0 +1,17 @@
+{
+  "totalRevenue": 7850000,
+  "totalExpenses": {
+    "manufacturing": 2500000,
+    "logistics": 1200000,
+    "equipment": 750000
+  },
+  "netProfit": 2900000,
+  "loanStatus": {
+    "amountBorrowed": 1000000,
+    "repaymentsMade": 500000
+  },
+  "costVsSellingPrice": {
+    "costPerUnit": 300,
+    "sellingPricePerUnit": 500
+  }
+}

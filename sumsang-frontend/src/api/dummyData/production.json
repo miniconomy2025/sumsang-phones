@@ -1,0 +1,47 @@
+{
+  "totalPhonesProduced": {
+    "Z25 FE": 300,
+    "Z25": 450,
+    "Z25 Ultra": 500
+  },
+  "productionCapacity": {
+    "Z25 FE": [
+      { "date": "2025-06-29", "value": 100 },
+      { "date": "2025-06-30", "value": 120 },
+      { "date": "2025-07-01", "value": 110 },
+      { "date": "2025-07-02", "value": 130 },
+      { "date": "2025-07-03", "value": 140 }
+    ],
+    "Z25": [
+      { "date": "2025-06-29", "value": 100 },
+      { "date": "2025-06-30", "value": 120 },
+      { "date": "2025-07-01", "value": 110 },
+      { "date": "2025-07-02", "value": 130 },
+      { "date": "2025-07-03", "value": 140 }
+    ],
+    "Z25 Ultra": [
+      { "date": "2025-06-29", "value": 100 },
+      { "date": "2025-06-30", "value": 120 },
+      { "date": "2025-07-01", "value": 110 },
+      { "date": "2025-07-02", "value": 130 },
+      { "date": "2025-07-03", "value": 140 }
+    ]
+  },
+  "totalManufacturingCosts": {
+    "Z25 FE": {
+      "electronics": 50000,
+      "screens": 35000,
+      "cases": 20000
+    },
+    "Z25": {
+      "electronics": 50000,
+      "screens": 35000,
+      "cases": 20000
+    },
+    "Z25 Ultra": {
+      "electronics": 50000,
+      "screens": 35000,
+      "cases": 20000
+    }    
+  }
+}
