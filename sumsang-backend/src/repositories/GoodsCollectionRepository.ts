@@ -1,11 +1,7 @@
 import db from '../config/DatabaseConfig.js';
+import { OrderDetails } from '../types/OrderDetails.js';
 import { DatabaseError } from '../utils/errors.js';
 import { Status } from '../types/Status.js';
-
-type OrderDetails = {
-    order_id: number;
-    status: number;
-};
 
 export class GoodsCollectionRepository {
 
