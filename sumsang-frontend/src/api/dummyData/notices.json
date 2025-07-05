@@ -1,0 +1,9 @@
+{
+  "THoHUpdates": ["Routine maintenance completed."],
+  "priceChanges": ["Z25 FE increased by 5%"],
+  "logistics": ["Route change due to weather conditions"],
+  "supplies": ["Delay in screen shipment"],
+  "rawMaterials": ["Copper cost increased"],
+  "simulationResets": ["System reset at 12:00 on 2025-07-01"],
+  "currentDate": "2025-01-01"
+}

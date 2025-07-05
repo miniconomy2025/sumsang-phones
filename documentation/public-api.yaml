@@ -20,10 +20,10 @@ components:
           items:
             type: object
             required: 
-              - phone_id
+              - phoneId
               - quantity
             properties:
-              phone_id: 
+              phoneId: 
                 type: number
               quantity: 
                 type: number
@@ -36,12 +36,12 @@ components:
           items:
             type: object
             required: 
-              - phone_id
+              - phoneId
               - name
               - quantity
               - price
             properties:
-              phone_id: 
+              phoneId: 
                 type: number
               name:
                 type: string
@@ -79,7 +79,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Stock'
                       
-  /order:
+  /orders:
     post:
       summary: Make an order for phones
       requestBody:
@@ -96,10 +96,10 @@ paths:
               schema:
                 type: object
                 required:
-                  - order_id
+                  - orderId
                   - price
                 properties:
-                  order_id:
+                  orderId:
                     type: number
                     description: Reference number to use for payment
                   price:
@@ -146,9 +146,9 @@ paths:
             schema:
               type: object
               required:
-                - delivery_reference
+                - deliveryReference
               properties:
-                delivery_reference:
+                deliveryReference:
                   type: number
                   description: Delivery reference number
       responses:
@@ -167,9 +167,9 @@ paths:
             schema:
               type: object
               required:
-                - delivery_reference
+                - deliveryReference
               properties:
-                delivery_reference:
+                deliveryReference:
                   type: number
                   description: Delivery reference number
       responses:
