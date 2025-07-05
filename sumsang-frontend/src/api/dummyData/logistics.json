@@ -1,14 +1,36 @@
 {
-  "bulkTransfersIn": [
-    { "date": "2025-06-30", "volumeMoved": 2500, "cost": 18750 },
-    { "date": "2025-07-01", "volumeMoved": 2500, "cost": 18750 },
-    { "date": "2025-07-02", "volumeMoved": 2500, "cost": 18750 },
-    { "date": "2025-07-03", "volumeMoved": 2500, "cost": 18750 }
-  ],
-  "consumerTransfersOut": [
-    { "date": "2025-06-30", "phonesDelivered": 2125, "cost": 15000 },
-    { "date": "2025-07-01", "phonesDelivered": 2125, "cost": 15000 },
-    { "date": "2025-07-02", "phonesDelivered": 2125, "cost": 15000 },
-    { "date": "2025-07-03", "phonesDelivered": 2125, "cost": 15000 }
-  ]
+	"bulkTransfersIn": [
+		{
+			"date": "2025-06-30",
+			"electronics": {
+				"volumeMoved": 50000,
+				"cost": 12500
+			},
+			"screens": {
+				"volumeMoved": 35000,
+				"cost": 4000
+			},
+			"cases": {
+				"volumeMoved": 20000,
+				"cost": 2250
+			}
+		}
+	],
+	"consumerTransfersOut": [
+		{
+			"date": "2025-06-30",
+			"Z25 FE": {
+				"phonesDelivered": 150,
+				"cost": 12000
+			},
+			"Z25": {
+				"phonesDelivered": 200,
+				"cost": 16000
+			},
+			"Z25 Ultra": {
+				"phonesDelivered": 180,
+				"cost": 16200
+			}
+		}
+	]
 }

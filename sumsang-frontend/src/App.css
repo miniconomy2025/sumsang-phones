@@ -4,9 +4,11 @@
     gap: 2vmin;
     padding: 2vmin;
     display: grid;
+    flex: 1;
 }
 
-.grid-item {
+.grid-panel {
+    padding: 2vmin;
     border-radius: 5vmin;
-    background-color: var(--grid-item-bg-colour);
+    background-color: var(--grid-panel-bg-colour);
 }
