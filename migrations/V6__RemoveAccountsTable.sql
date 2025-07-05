@@ -10,4 +10,4 @@ DROP COLUMN account_id;
 ALTER TABLE parts_purchases
 ADD COLUMN account_number varchar(12) NOT NULL;
 
-DROP TABLE acccounts;
+DROP TABLE accounts;
