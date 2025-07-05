@@ -19,4 +19,23 @@ export class StockRepository {
             throw new DatabaseError(`Failed to get stock: ${(error as Error).message}`);
         }
     }
+
+    static async getCurrentStockMap(): Promise<Map<number, { quantityAvailable: number }>> {
+        const result = await db.query(`SELECT phone_id, quantity_available FROM stock`);
+        const map = new Map();
+        for (const row of result.rows) {
+            map.set(row.phone_id, { quantityAvailable: row.quantity_available });
+        }
+        return map;
+    }
+
+    static async reserveStock(phoneId: number, quantity: number): Promise<void> {
+        await db.query(`
+            UPDATE stock
+            SET quantity_available = quantity_available - $1,
+                quantity_reserved = quantity_reserved + $1,
+                updated_at = NOW()
+            WHERE phone_id = $2 AND quantity_available >= $1
+        `, [quantity, phoneId]);
+    }
 }

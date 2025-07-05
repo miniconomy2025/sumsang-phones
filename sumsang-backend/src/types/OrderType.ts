@@ -1,4 +1,7 @@
 export type Order = {
-    phoneId: number;
-    quantity: number;
+    orderId: number;
+    price: number;
+    amountPaid: number;
+    status: number;
+    createdAt: Date;
 };
