@@ -21,8 +21,8 @@ export class DashboardService {
         return sales;
     }
 
-    static async getNotices() {
-        const sales = await DashboardRepository.getNotices();
+    static async getStockStats() {
+        const sales = await DashboardRepository.getStockStats();
         return sales;
     }
 }

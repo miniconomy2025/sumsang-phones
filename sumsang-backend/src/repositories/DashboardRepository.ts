@@ -5,56 +5,101 @@ import { DatabaseError } from '../utils/errors.js';
 export class DashboardRepository {
     static async getSupplyChain() {
         try {
-            const currentPartsInventory = await db.query(
+            const currentPartsInventoryResult = await db.query(
                 `SELECT p.name AS part_name, i.quantity_available
-                FROM inventory i
-                JOIN parts p ON i.part_id = p.part_id
-                ORDER BY p.name;`
+             FROM inventory i
+             JOIN parts p ON i.part_id = p.part_id
+             ORDER BY p.name;`
             );
 
-            const currentPhoneInventory = await db.query(
+            const currentPartsInventory: Record<string, number> = {};
+            for (const row of currentPartsInventoryResult.rows) {
+                currentPartsInventory[row.part_name] = Number(row.quantity_available);
+            }
+
+            const currentPhoneInventoryResult = await db.query(
                 `SELECT p.model, s.quantity_available
-                FROM stock s
-                JOIN phones p ON s.phone_id = p.phone_id
-                ORDER BY p.model;`
+             FROM stock s
+             JOIN phones p ON s.phone_id = p.phone_id
+             ORDER BY p.model;`
             );
 
-            const partCostOverTime = await db.query(
+            const currentPhonesInventory: Record<string, number> = {};
+            for (const row of currentPhoneInventoryResult.rows) {
+                currentPhonesInventory[row.model] = Number(row.quantity_available);
+            }
+
+            const partCostOverTimeResult = await db.query(
                 `SELECT pa.name AS part_name, DATE(pp.purchased_at) AS purchase_date, ps.cost AS unit_price
-                    FROM parts_purchases_items ppi
-                    JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
-                    JOIN parts pa ON ps.part_id = pa.part_id
-                    JOIN parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
-                    GROUP BY pa.name, DATE(pp.purchased_at), ps.cost
-                    ORDER BY pa.name, purchase_date;`
+             FROM parts_purchases_items ppi
+             JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
+             JOIN parts pa ON ps.part_id = pa.part_id
+             JOIN parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
+             GROUP BY pa.name, DATE(pp.purchased_at), ps.cost
+             ORDER BY pa.name, purchase_date;`
             );
 
+            const partCostsOverTime: Record<string, { date: string; value: number }[]> = {};
+            for (const row of partCostOverTimeResult.rows) {
+                const partName = row.part_name;
+                if (!partCostsOverTime[partName]) {
+                    partCostsOverTime[partName] = [];
+                }
+
+                partCostsOverTime[partName].push({
+                    date: row.purchase_date,
+                    value: Number(row.unit_price)
+                });
+            }
+
+            return {
+                currentPartsInventory,
+                currentPhonesInventory,
+                partCostsOverTime
+            };
 
         } catch (error) {
             throw new DatabaseError(`Failed to get supply chain information: ${(error as Error).message}`);
         }
     }
 
+
     static async getSales() {
         try {
             const totalPhoneOrders = await db.query(
                 `SELECT p.model, SUM(oi.quantity) AS totalPhonesSold
-                 FROM order_items oi
-                 JOIN phones p ON oi.phone_id = p.phone_id
-                 GROUP BY p.model;`
+             FROM order_items oi
+             JOIN phones p ON oi.phone_id = p.phone_id
+             GROUP BY p.model;`
             );
 
             const revenuePerModel = await db.query(
-                `SELECT p.model, SUM(oi.quantity * p.price) AS phoneModelRevnue
-                FROM order_items oi
-                JOIN phones p ON oi.phone_id = p.phone_id
-                GROUP BY p.model;`
+                `SELECT p.model, SUM(oi.quantity * p.price) AS phoneModelRevenue
+             FROM order_items oi
+             JOIN phones p ON oi.phone_id = p.phone_id
+             GROUP BY p.model;`
             );
+
+            const totalPhonesSold: Record<string, number> = {};
+            for (const row of totalPhoneOrders.rows) {
+                totalPhonesSold[row.model] = Number(row.totalphonessold);
+            }
+
+            const phoneModelRevenue: Record<string, number> = {};
+            for (const row of revenuePerModel.rows) {
+                phoneModelRevenue[row.model] = Number(row.phonemodelrevenue);
+            }
+
+            return {
+                toalPhonesSold: totalPhonesSold,
+                phoneModelRevenue
+            };
 
         } catch (error) {
             throw new DatabaseError(`Failed to get sales information: ${(error as Error).message}`);
         }
     }
+
 
     static async getFinancials() {
         try {
@@ -152,63 +197,109 @@ export class DashboardRepository {
 
     static async getLogistics() {
         try {
-            const bulkTransfersIn = await db.query(
-                `
-                SELECT p.name AS part_name,
-                    DATE(pp.purchased_at) AS delivery_date,
+
+            const bulkTransfersInResult = await db.query(
+                `SELECT 
+                    p.name AS part_name,
+                    DATE(bd.date_created) AS delivery_date,
                     SUM(ppi.quantity) AS total_quantity_received,
                     ROUND(SUM(ppi.quantity::decimal / total.total_quantity * bd.cost), 2) AS allocated_delivery_cost
-                    FROM 
-                    parts_purchases_items ppi
-                    JOIN 
-                    parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
-                    JOIN 
-                    parts p ON ps.part_id = p.part_id
-                    JOIN 
-                    parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
-                    JOIN 
-                    bulk_deliveries bd ON pp.parts_purchase_id = bd.parts_purchase_id
+                    FROM parts_purchases_items ppi
+                    JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
+                    JOIN parts p ON ps.part_id = p.part_id
+                    JOIN parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
+                    JOIN bulk_deliveries bd ON pp.parts_purchase_id = bd.parts_purchase_id
                     JOIN (
-                        SELECT 
-                            ppi.parts_purchase_id,
-                            SUM(ppi.quantity) AS total_quantity
-                        FROM 
-                            parts_purchases_items ppi
-                        GROUP BY 
-                            ppi.parts_purchase_id
+                        SELECT parts_purchase_id, SUM(quantity) AS total_quantity
+                        FROM parts_purchases_items
+                        GROUP BY parts_purchase_id
                     ) total ON ppi.parts_purchase_id = total.parts_purchase_id
-                    GROUP BY 
-                    p.name, DATE(pp.purchased_at), bd.cost
-                    ORDER BY 
-                    delivery_date, p.name;
-               `
+                    GROUP BY p.name, DATE(bd.date_created), bd.cost
+                    ORDER BY delivery_date, p.name;`
             );
+        
+            
+            const bulkTransfersInMap: Record<string, any> = {};
 
-            const consumerTransfersOut = await db.query(
-                `
-                SELECT p.model AS phone_model, DATE(cd.created_at) AS delivery_date, SUM(oi.quantity) AS phones_delivered, SUM(cd.cost) AS total_delivery_cost
+            for (const row of bulkTransfersInResult.rows) {
+                const date = row.delivery_date;
+                const part = row.part_name;
+                const volume = Number(row.total_quantity_received);
+                const cost = Number(row.allocated_delivery_cost);
+
+                if (!bulkTransfersInMap[date]) {
+                    bulkTransfersInMap[date] = {};
+                }
+
+                bulkTransfersInMap[date][part] = {
+                    volumeMoved: volume,
+                    cost: cost
+                };
+            }
+
+            
+
+            const bulkTransfersIn = Object.entries(bulkTransfersInMap).map(([date, parts]) => ({
+                date: new Date(date).toISOString().split('T')[0],
+                ...parts
+            }));
+
+
+            const consumerTransfersOutResult = await db.query(
+                `SELECT 
+                p.model AS phone_model, 
+                DATE(cd.date_created) AS delivery_date, 
+                SUM(oi.quantity) AS phones_delivered, 
+                SUM(cd.cost) AS total_delivery_cost
                 FROM consumer_deliveries cd
                 JOIN orders o ON cd.order_id = o.order_id
                 JOIN order_items oi ON o.order_id = oi.order_id
                 JOIN phones p ON oi.phone_id = p.phone_id
-                GROUP BY 
-                p.model, DATE(cd.created_at)
-                ORDER BY delivery_date, p.model;
-               `
+                GROUP BY p.model, DATE(cd.date_created)
+                ORDER BY delivery_date, p.model;`
             );
 
+
+            const consumerTransfersOutMap: Record<string, any> = {};
+
+            for (const row of consumerTransfersOutResult.rows) {
+                const date = row.delivery_date;
+                const model = row.phone_model;
+                const delivered = Number(row.phones_delivered);
+                const cost = Number(row.total_delivery_cost);
+
+                if (!consumerTransfersOutMap[date]) {
+                    consumerTransfersOutMap[date] = {};
+                }
+
+                consumerTransfersOutMap[date][model] = {
+                    phonesDelivered: delivered,
+                    cost: cost
+                };
+            }
+
+            const consumerTransfersOut = Object.entries(consumerTransfersOutMap).map(([date, models]) => ({
+                date: new Date(date).toISOString().split('T')[0],
+                ...models
+            }));
+
+            return {
+                bulkTransfersIn,
+                consumerTransfersOut
+            };
 
         } catch (error) {
             throw new DatabaseError(`Failed to get logistic information: ${(error as Error).message}`);
         }
     }
 
-    static async getNotices() {
+
+    static async getStockStats() {
         try {
             //TO DO: Write queries
 
         } catch (error) {
-            throw new DatabaseError(`Failed to get notice information: ${(error as Error).message}`);
+            throw new DatabaseError(`Failed to get stock information: ${(error as Error).message}`);
         }
     }
 }

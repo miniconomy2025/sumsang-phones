@@ -39,17 +39,17 @@ export class DashboardController {
             const logisticsData = await DashboardService.getLogistics();
             handleSuccess(res, logisticsData);
         } catch (error) {
-            handleFailure(res, error, 'Could not get financial information');
+            handleFailure(res, error, 'Could not get logistics information');
         }
     }
 
-    static async getNotices(req: Request, res: Response): Promise<void> {
+    static async getStockStats(req: Request, res: Response): Promise<void> {
         try {
             
-            const noticeData = await DashboardService.getNotices();
+            const noticeData = await DashboardService.getStockStats();
             handleSuccess(res, noticeData);
         } catch (error) {
-            handleFailure(res, error, 'Could not get notice information');
+            handleFailure(res, error, 'Could not get stock information');
         }
     }
 }
