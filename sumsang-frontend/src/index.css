@@ -1,13 +1,47 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --body-bg-colour: #ccc;
+
+  --nav-bg-colour: #555;
+
+  --nav-item-icon-colour: #888;
+  --nav-item-selected-bg-colour: #444;
+  --nav-item-selected-icon-colour: #ddd;
+
+  --grid-panel-bg-colour: #eee;
+
+  --nav-icon-text-colour: #888;
+  --nav-icon-text-colour-active: #fff;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+#root {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+nav {
+  flex: 0 0 auto;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  /* outline: 1px solid yellow; */
+}
+
+body {
+  display: flex;
+  align-items: flex-start;
+  height: 100vh;
+  background-color: var(--body-bg-colour);
 }
