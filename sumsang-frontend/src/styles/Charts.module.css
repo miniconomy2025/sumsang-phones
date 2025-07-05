@@ -1,0 +1,51 @@
+/* Chart-specific styles */
+.chartContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chartTitle {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modelSelector {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.9rem;
+}
+
+.modelSelector:focus {
+  outline: none;
+  border-color: #8884d8;
+}
+
+.errorBanner {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background-color: #ff4d4d;
+    opacity: 0.8;
+    backdrop-filter: blur(100px);
+	color: white;
+	text-align: center;
+	padding: 1rem;
+	font-weight: bold;
+	z-index: 1000;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+	animation: dropDown 0.3s ease-out;
+}

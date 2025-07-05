@@ -1,0 +1,32 @@
+{
+  "currentPartsInventory": {
+    "electronics": 1200,
+    "screens": 950,
+    "cases": 1050
+  },
+  "currentPhonesInventory": {
+    "Z25 FE": 150,
+    "Z25": 200,
+    "Z25 Ultra": 180
+  },
+  "partCostsOverTime": {
+    "electronics": [
+      { "date": "2025-06-30", "value": 10 },
+      { "date": "2025-07-01", "value": 11 },
+      { "date": "2025-07-02", "value": 10.5 },
+      { "date": "2025-07-03", "value": 12 }
+    ],
+    "screens": [
+      { "date": "2025-06-30", "value": 20 },
+      { "date": "2025-07-01", "value": 19 },
+      { "date": "2025-07-02", "value": 21 },
+      { "date": "2025-07-03", "value": 20.5 }
+    ],
+    "cases": [
+      { "date": "2025-06-30", "value": 5 },
+      { "date": "2025-07-01", "value": 5.5 },
+      { "date": "2025-07-02", "value": 6 },
+      { "date": "2025-07-03", "value": 5.8 }
+    ]
+  }
+}

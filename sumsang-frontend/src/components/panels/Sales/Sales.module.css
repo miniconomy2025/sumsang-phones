@@ -1,0 +1,14 @@
+.gridContainer {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+}
+
+.unitsSold {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+}
+
+.revenue {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
