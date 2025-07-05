@@ -43,13 +43,13 @@ export class DashboardController {
         }
     }
 
-    static async getStockStats(req: Request, res: Response): Promise<void> {
+    static async getProductionStats(req: Request, res: Response): Promise<void> {
         try {
             
-            const noticeData = await DashboardService.getStockStats();
+            const noticeData = await DashboardService.getProductionStats();
             handleSuccess(res, noticeData);
         } catch (error) {
-            handleFailure(res, error, 'Could not get stock information');
+            handleFailure(res, error, 'Could not get production information');
         }
     }
 }

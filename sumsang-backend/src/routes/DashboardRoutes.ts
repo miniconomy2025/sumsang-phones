@@ -6,6 +6,6 @@ router.get('/supply-chain', DashboardController.getSupplyChain);
 router.get('/sales', DashboardController.getSales);
 router.get('/financial', DashboardController.getFinancials);
 router.get('/logistics', DashboardController.getLogistics);
-router.get('/stock-stats', DashboardController.getStockStats);
+router.get('/production', DashboardController.getProductionStats);
 
 export default router;
