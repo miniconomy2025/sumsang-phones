@@ -114,7 +114,52 @@ export class DashboardRepository {
 
     static async getProductionStats() {
         try {
-            // TODO: Implement production stats queries
+            const totalProducedRows = await this.fetchPhonesProduced();
+
+            const totalPhonesProduced: Record<string, number> = {};
+            for (const row of totalProducedRows) {
+                const model = row.phone_model;
+                const produced = Number(row.total_produced);
+                totalPhonesProduced[model] = (totalPhonesProduced[model] || 0) + produced;
+            }
+
+            const productionCapacityRows = await this.fetchPhonesProducedPerDay();
+            const productionCapacity: Record<string, { date: string; value: number }[]> = {};
+
+            for (const row of productionCapacityRows) {
+                const model = row.phone_model;
+                if (!productionCapacity[model]) {
+                    productionCapacity[model] = [];
+                }
+                const rawDate = row.production_date;
+                const formattedDate = new Date(rawDate).toISOString().split('T')[0];
+                productionCapacity[model].push({
+                    date: formattedDate,
+                    value: Number(row.produced_on_date)
+                });
+            }
+
+
+            const partCostsRows = await this.fetchPartCostPerModel();
+            const totalManufacturingCosts: Record<string, Record<string, number>> = {};
+
+            for (const row of partCostsRows) {
+                const model = row.phone_model;
+                const partName = row.part_name;
+                const cost = Number(row.total_part_cost);
+
+                if (!totalManufacturingCosts[model]) {
+                    totalManufacturingCosts[model] = {};
+                }
+                totalManufacturingCosts[model][partName] = cost;
+            }
+
+            return {
+                totalPhonesProduced,
+                productionCapacity,
+                totalManufacturingCosts
+            };
+
         } catch (error) {
             throw new DatabaseError(`Failed to get production information: ${(error as Error).message}`);
         }
@@ -342,6 +387,55 @@ export class DashboardRepository {
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch consumer transfers out: ${(error as Error).message}`);
+        }
+    }
+
+    private static async fetchPhonesProduced() {
+        try {
+            const res = await db.query(`
+                SELECT ph.model AS phone_model, DATE(s.updated_at) AS production_date, 
+                    SUM(s.quantity_available + s.quantity_reserved) AS total_produced
+                FROM stock s
+                JOIN phones ph ON s.phone_id = ph.phone_id
+                GROUP BY ph.model, DATE(s.updated_at)
+                ORDER BY production_date, ph.model;
+            `);
+            return res.rows;
+        } catch (error) {
+            throw new DatabaseError(`Failed to fetch number of phones produced: ${(error as Error).message}`);
+        }
+    }
+
+    private static async fetchPhonesProducedPerDay() {
+        try {
+            const res = await db.query(`
+                SELECT ph.model AS phone_model, DATE(s.updated_at) AS production_date, 
+                    SUM(s.quantity_available + s.quantity_reserved) AS produced_on_date
+                FROM stock s
+                JOIN phones ph ON s.phone_id = ph.phone_id
+                GROUP BY ph.model, DATE(s.updated_at)
+                ORDER BY production_date, ph.model;
+            `);
+            return res.rows;
+        } catch (error) {
+            throw new DatabaseError(`Failed to fetch phones produced per day: ${(error as Error).message}`);
+        }
+    }
+
+    private static async fetchPartCostPerModel() {
+        try {
+            const res = await db.query(`
+                SELECT ph.model AS phone_model, p.name AS part_name, ROUND(mr.quantity * ps.cost, 2) AS total_part_cost
+                FROM phones ph
+                JOIN machines m ON ph.phone_id = m.phone_id
+                JOIN machine_ratios mr ON m.machine_id = mr.machine_id
+                JOIN parts p ON mr.part_id = p.part_id
+                JOIN parts_supplier ps ON mr.part_id = ps.part_id
+                ORDER BY ph.model, total_part_cost DESC;
+            `);
+            return res.rows;
+        } catch (error) {
+            throw new DatabaseError(`Failed to fetch cost of components for phones produced: ${(error as Error).message}`);
         }
     }
 }
