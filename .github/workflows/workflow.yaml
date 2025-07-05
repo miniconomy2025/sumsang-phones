@@ -277,7 +277,7 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       with:
         secret-ids: |
-          EC2_PRIVATE_KEY, privatekey
+          EC2_PRIVATE_KEY, apiprivatekey
 
     - name: Setup private key
       run: |
