@@ -230,11 +230,11 @@ resource "aws_eip" "sumsang_web_ec2_eip" {
 }
 
 output "api_ec2_host" {
-  value = sumsang_api_ec2_eip.sumsang_ec2_api_eip.public_dns
+  value = aws_eip.sumsang_ec2_api_eip.public_dns
   description = "The endpoint of the EC2 instance for API"
 }
 
 output "web_ec2_host" {
-  value = sumsang_web_ec2_eip.sumsang_ec2_web_eip.public_dns
+  value = aws_eip.sumsang_ec2_web_eip.public_dns
   description = "The endpoint of the EC2 instance for WebApp"
 }
