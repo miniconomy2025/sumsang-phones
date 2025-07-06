@@ -8,10 +8,6 @@ import TransfersOutChart from './charts/TransfersOutChart';
 function LogisticsFlow() {
 	const { data, loading, error } = usePollingFetch(getLogisticsData, 15000);
 
-	useEffect(() => {
-		if (data) console.log(data);
-	}, [data]);
-
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>{error}</p>;
 

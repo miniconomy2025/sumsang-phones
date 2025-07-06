@@ -6,13 +6,10 @@ import TotalRevenueChart from './charts/TotalRevenueChart';
 import NetProfitChart from './charts/NetProfitChart';
 import TotalExpensesChart from './charts/TotalExpensesChart';
 import LoanStatusChart from './charts/LoanStatusChart';
+import CostVsSellingPriceChart from './charts/CostVsSellingPriceChart';
 
 function FinancialPerformance() {
 	const { data, loading, error } = usePollingFetch(getFinancialData, 15000);
-
-	useEffect(() => {
-		if (data) console.log(data);
-	}, [data]);
 
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>{error}</p>;
@@ -32,6 +29,9 @@ function FinancialPerformance() {
 				</section>
 				<section className={`grid-panel ${styles.loanStatus}`}>
 					<LoanStatusChart data={data} />
+				</section>
+				<section className={`grid-panel ${styles.costVsSelling}`}>
+					<CostVsSellingPriceChart data={data} />
 				</section>
 			</main>
 		</>

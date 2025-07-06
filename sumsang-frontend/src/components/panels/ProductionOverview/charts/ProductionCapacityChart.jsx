@@ -14,7 +14,7 @@ function ProductionCapacityChart({ data }) {
 	const transformProductionCapacityData = (data) => {
 		if (!data?.productionCapacity) return [];
 
-		const dates = data.productionCapacity['Z25 FE']?.map((item) => item.date) || [];
+		const dates = data.productionCapacity['Cosmos Z25 FE']?.map((item) => item.date) || [];
 
 		return dates.map((date) => {
 			const result = { date: date.split('-').slice(1).join('/') }; // Format: MM/DD
@@ -40,9 +40,19 @@ function ProductionCapacityChart({ data }) {
 					<YAxis />
 					<Tooltip />
 					<Legend />
-					<Line type="monotone" dataKey="Z25 FE" stroke="#8884d8" strokeWidth={2} />
-					<Line type="monotone" dataKey="Z25" stroke="#82ca9d" strokeWidth={2} />
-					<Line type="monotone" dataKey="Z25 Ultra" stroke="#ffc658" strokeWidth={2} />
+					<Line
+						type="monotone"
+						dataKey="Cosmos Z25 FE"
+						stroke="#8884d8"
+						strokeWidth={2}
+					/>
+					<Line type="monotone" dataKey="Cosmos Z25" stroke="#82ca9d" strokeWidth={2} />
+					<Line
+						type="monotone"
+						dataKey="Cosmos Z25 ultra"
+						stroke="#ffc658"
+						strokeWidth={2}
+					/>
 				</LineChart>
 			</ResponsiveContainer>
 		</div>

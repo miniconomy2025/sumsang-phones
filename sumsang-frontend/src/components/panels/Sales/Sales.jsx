@@ -8,10 +8,6 @@ import RevenueChart from './charts/RevenueChart';
 function Sales() {
 	const { data, loading, error } = usePollingFetch(getSalesData, 15000);
 
-	useEffect(() => {
-		if (data) console.log(data);
-	}, [data]);
-
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>{error}</p>;
 
