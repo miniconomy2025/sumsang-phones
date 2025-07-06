@@ -9,7 +9,7 @@ CREATE TABLE machine_purchases (
 
 
 ALTER TABLE machine_deliveries
-ADD COLUMN total_units INT NOT NULL;
+ADD COLUMN units_received INT NOT NULL;
 
 ALTER TABLE machine_deliveries
 DROP COLUMN machine_id;
