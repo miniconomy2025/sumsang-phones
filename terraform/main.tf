@@ -107,14 +107,14 @@ resource "aws_security_group" "ec2_security_group" {
   }
 }
 
-resource "aws_security_group_rule" "allow_port_444_from_web" {
-  type                     = "ingress"
-  from_port                = 444
-  to_port                  = 444
-  protocol                 = "tcp"
-  security_group_id        = aws_security_group.ec2_security_group.id
-  source_security_group_id = aws_instance.sumsang_web_ec2_instance.security_groups[0]
-  depends_on = [aws_instance.sumsang_web_ec2_instance]
+resource "aws_security_group_rule" "allow_port_444_from_web_private_ip" {
+  type              = "ingress"
+  from_port         = 444
+  to_port           = 444
+  protocol          = "tcp"
+  security_group_id = aws_security_group.ec2_security_group.id
+
+  cidr_blocks = [ "${aws_instance.sumsang_web_ec2_instance.private_ip}/32" ]
 }
 
 resource "aws_instance" "sumsang_api_ec2_instance" {
