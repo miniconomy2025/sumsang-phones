@@ -216,6 +216,8 @@ jobs:
             API_EC2_PRIVATE_KEY, apiprivatekey
             POSTGRES_USER, postgresuser
             POSTGRES_PASS, postgrespass
+            DB_HOST, dbhost
+            DB_NAME, dbname
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -234,6 +236,8 @@ jobs:
                 echo "Exporting environment variables"
                 echo "DB_USER=${{ env.POSTGRES_USER }}" | sudo tee -a /etc/environment
                 echo "DB_PASSWORD=${{ env.POSTGRES_PASS }}" | sudo tee -a /etc/environment
+                echo "DB_HOST=${{ env.DB_HOST }}" | sudo tee -a /etc/environment
+                echo "DB_NAME=${{ env.DB_NAME }}" | sudo tee -a /etc/environment
               '
       
       - name: Deploy
@@ -284,44 +288,33 @@ jobs:
         echo "${{ env.EC2_PRIVATE_KEY }}" > privatekey.pem
         chmod 0500 privatekey.pem
 
-    - name: Setup nginx proxy
+    - name: Setup nginx proxy on API EC2
       run: |
         EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
 
         ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
         server {
-        listen 80;
-        server_name bbd-grad-project.co.za www.bbd-grad-project.co.za;
-
-        # Required for Certbot's HTTP-01 challenge
-        location /.well-known/acme-challenge/ {
-            root /var/www/html;
+            listen 80;
+            server_name ec2-13-244-196-99.af-south-1.compute.amazonaws.com www.ec2-13-244-196-99.af-south-1.compute.amazonaws.com;
+            return 301 https://$host$request_uri;
         }
 
-        location / {
-            proxy_pass http://localhost:3000; # Front-end
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+        server {
+            listen 443 ssl;
+            server_name ec2-13-244-196-99.af-south-1.compute.amazonaws.com www.ec2-13-244-196-99.af-south-1.compute.amazonaws.com;
 
-        location /api/ {
-            proxy_pass http://localhost:5000; # API
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+            #Server TLS certificate (client must have CA cert to connect)
+            ssl_certificate         /etc/nginx/certificates/sumsang-company.crt;
+            ssl_certificate_key     /etc/nginx/certificates/sumsang-company.key;
+
+            #Cert for mTLS
+            ssl_client_certificate /etc/nginx/certificates/miniconomy-root-ca.crt;
+            ssl_verify_client on;
+
+            location / {
+                proxy_pass http://localhost:3000;
+            }
         }
         NGINX_CONF
         EOF
@@ -335,10 +328,10 @@ jobs:
 
     # - name: Cerbot
     #   run: |
-    #     EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+    #     EC2_HOST=${{ needs.terraform.outputs.webec2host }}
     #     ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
     #       sudo apt install certbot python3-certbot-nginx -y &&
-    #       sudo certbot --nginx -d bbd-grad-project.co.za -d www.bbd-grad-project.co.za --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+    #       sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com -d www.sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
     #     '
             
   flyway:
