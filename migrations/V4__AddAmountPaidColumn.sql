@@ -1,0 +1,2 @@
+ALTER TABLE orders
+ADD COLUMN amount_paid DECIMAL NOT NULL;

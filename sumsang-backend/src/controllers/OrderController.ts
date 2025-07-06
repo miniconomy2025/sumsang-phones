@@ -4,15 +4,6 @@ import {handleSuccess, handleFailure} from '../utils/handleResponses.js';
 import { BadRequestError } from '../utils/errors.js';
 
 export class OrderController {
-    static async getOrders(req: Request, res: Response): Promise<void> {
-        try {
-            const orders = await OrderService.getOrders();
-            handleSuccess(res, orders);
-        } catch (error) {
-            handleFailure(res, error, 'Error fetching orders');
-        }
-    }
-
     static async placeOrder(req: Request, res: Response): Promise<void> {
         try {
             const { items } = req.body;
@@ -39,6 +30,25 @@ export class OrderController {
         }
         catch (error) {
             handleFailure(res, error, 'Error placing order');
+        }
+    }
+
+    static async paymentMade(req: Request, res: Response): Promise<void> {
+        try {
+            const { reference, amount } = req.body;
+
+            if (typeof reference !== 'number' || typeof amount !== 'number' || amount <= 0) {
+                throw new BadRequestError('Invalid payment data');
+            }
+            
+            const order = await OrderService.getOrder(reference);
+
+            await OrderService.processPayment(order, amount);
+
+            handleSuccess(res, { message: 'Payment accepted' });
+        } 
+        catch (error) {
+            handleFailure(res, error, 'Error processing payment');
         }
     }
 }

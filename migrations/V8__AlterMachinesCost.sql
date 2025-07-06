@@ -1,0 +1,1 @@
+ALTER TABLE machines ADD cost DECIMAL NOT NULL;

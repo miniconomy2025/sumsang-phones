@@ -1,0 +1,19 @@
+.gridContainer {
+    grid-template-columns: 2fr 1fr 2fr;
+    grid-template-rows: 3fr 2fr;
+}
+
+.partCosts {
+    grid-column: 1 / 3;
+    grid-row: 1 / 2;
+}
+
+.partsInventory {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+}
+
+.goodsInventory {
+    grid-column: 3 / 4;
+    grid-row: 1 / 3;
+}
