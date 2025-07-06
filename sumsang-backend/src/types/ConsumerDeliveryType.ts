@@ -4,5 +4,6 @@ export interface ConsumerDelivery {
     deliveryReference: number;
     cost: number;
     unitsCollected: number;
-    account_number: string;
+    accountNumber: string;
+    createdAt: Date;
 }
