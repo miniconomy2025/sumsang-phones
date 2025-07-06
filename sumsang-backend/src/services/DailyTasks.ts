@@ -2,15 +2,13 @@ import { OrderRepository } from '../repositories/OrderRepository.js';
 import { StockRepository } from '../repositories/StockRepository.js';
 import { MachineRepository } from '../repositories/MachineRepository.js';
 import { InventoryRepository } from '../repositories/InventoryRepository.js';
-import { PartsSupplierRepository } from '../repositories/PartsSupplierRepository.js';
 import { PartsPurchaseRepository } from '../repositories/PartsPurchaseRepository.js';
-import { SystemSettingsRepository } from '../repositories/SystemSettingsRepository.js';
 import { Status } from '../types/Status.js';
 import { OrderService } from './OrderService.js';
 import { CommercialBankAPI, BulkDeliveriesAPI, CaseSuppliers, ScreenSuppliers, ElectronicsSuppliers } from '../utils/externalApis.js';
-import { stripTypeScriptTypes } from 'module';
 import { SupplierRepository } from '../repositories/SupplierRepository.js';
 import { PartsPurchase } from '../types/PartsPurchaseType.js';
+import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository.js';
 
 export class DailyTasksService {
     static async executeDailyTasks(): Promise<void> {
@@ -25,6 +23,9 @@ export class DailyTasksService {
         
         // 4. Order parts based on inventory levels and production needs
         await this.orderParts();
+
+        // 5. Process any pending parts purchases
+        await this.processPendingPartsPurchases();
     }
 
     static async cancelOutstandingOrders(): Promise<void> {
@@ -216,7 +217,8 @@ export class DailyTasksService {
         
         const pendingParts = await this.getPendingPartsOrders();
         
-        const minStockDays = await SystemSettingsRepository.getSetting('min_stock_days') || 7;
+        // const minStockDays = await SystemSettingsRepository.getSetting('min_stock_days') || 7;
+        const minStockDays = 7;
         
         const expectedDailyUsage = await this.calculateExpectedPartsUsage();
         
@@ -229,7 +231,8 @@ export class DailyTasksService {
             
             if (effectiveStock < minStockLevel) {
                 // Order enough for 30 days (configurable)
-                const orderDays = await SystemSettingsRepository.getSetting('order_days') || 30;
+                // const orderDays = await SystemSettingsRepository.getSetting('order_days') || 30;
+                const orderDays = 30;
                 const targetStock = dailyUsage * orderDays;
                 const quantityToOrder = targetStock - effectiveStock;
                 
@@ -306,65 +309,73 @@ export class DailyTasksService {
             purchaseOrder = await ElectronicsSuppliers.purchaseElectronics(quantity);
         }
 
-        return await PartsPurchaseRepository.createPartsPurchaseOrder({partId: partId, referenceNumber: purchaseOrder?.reference_number!, cost: purchaseOrder?.cost!, quantity: quantity, accountNumber: purchaseOrder?.account_number!, status: Status.PendingPayment});
+        return await PartsPurchaseRepository.createPartsPurchase({partId: partId, referenceNumber: purchaseOrder?.reference_number!, cost: purchaseOrder?.cost!, quantity: quantity, accountNumber: purchaseOrder?.account_number!, status: Status.PendingPayment});
     }
 
-    static async processPartsPurchaseOrder(partsPurchaseId: number) {
-        
+    static async processPendingPartsPurchases() {
+        const pendingPartsPurchases = await PartsPurchaseRepository.getPurchasesByStatus([Status.PendingPayment, Status.PendingDeliveryRequest, Status.PendingDeliveryPayment]);
+
+        for (const partsPurchase of pendingPartsPurchases) {
+            await this.processPartsPurchase(partsPurchase.partsPurchaseId!);
+        }
     }
 
-    static async makePartsPurchasePayment(partsPurchase: PartsPurchase) {
-                    // Make payment
-            const paymentResult = await CommercialBankAPI.makePayment(
-                purchaseOrder.referenceNumber,
-                totalCost,
-                purchaseOrder.accountNumber
-            );
+    static async processPartsPurchase(partsPurchaseId: number) {
+        let partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+
+        if (partsPurchase.status === Status.PendingPayment) {
+            await this.makePartsPurchasePayment(partsPurchase);
             
-            if (paymentResult.success) {
-                await PartsPurchaseRepository.updateStatus(
-                    purchaseOrder.purchaseId,
-                    Status.PendingDelivery
-                );
-                
-                // Request delivery for this purchase
-                await this.requestBulkDelivery(purchaseOrder.purchaseId, quantity);
-                
-                console.log(`Purchase order ${purchaseOrder.purchaseId} for part ${partId} (${quantity} units) placed successfully`);
-            } else {
-                console.error(`Payment failed for purchase order ${purchaseOrder.purchaseId}`);
-            }
+            partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+        }
+
+        if (partsPurchase.status === Status.PendingDeliveryRequest) {
+            await this.makeBulkDeliveryRequest(partsPurchase);
+
+            partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+        }
+
+        if (partsPurchase.status === Status.PendingDeliveryPayment) {
+            await this.makeBulkDeliveryPayment(partsPurchase);
+
+            partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+        }
+    }
+    
+
+    static async makePartsPurchasePayment(partsPurchase: PartsPurchase): Promise<void> {        
+        const result = await CommercialBankAPI.makePayment(partsPurchase.referenceNumber, partsPurchase.cost, partsPurchase.accountNumber);
+
+        if (result.success) {
+            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryRequest); 
+        }
+        else {
+            // no money probably - try again later when not broke I guess
+        }
     }
 
     static async makeBulkDeliveryRequest(partsPurchase: PartsPurchase) {
-    /**
-     * Request bulk delivery for parts purchase
-     */
-    static async requestBulkDelivery(purchaseId: number, quantity: number): Promise<void> {
-        const deliveryAddress = await SystemSettingsRepository.getSetting('delivery_address');
-        
-        const deliveryResult = await BulkDeliveriesAPI.requestDelivery(
-            purchaseId,
-            quantity, // Use the actual quantity from the purchase
-            deliveryAddress
-        );
-        
-        if (deliveryResult.success) {
-            await PartsPurchaseRepository.createBulkDelivery(
-                purchaseId,
-                deliveryResult.delivery_reference,
-                deliveryResult.cost,
-                quantity,
-                deliveryAddress,
-                deliveryResult.account_number
-            );
+        const supplier = await SupplierRepository.getSupplierByPartId(partsPurchase.partId);
+
+        const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name);
+
+        if (result.success && result.delivery_reference && result.cost && result.account_number) {
+            await BulkDeliveryRepository.insertBulkDelivery(partsPurchase.partsPurchaseId!, result.delivery_reference, result.cost, supplier.address, result.account_number);
+
+            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryPayment);
         }
-    }
     }
 
     static async makeBulkDeliveryPayment(partsPurchase: PartsPurchase) {
+        const bulkDelivery = await BulkDeliveryRepository.getDeliveryByPartsPurchaseId(partsPurchase.partsPurchaseId!);
 
+        const result = await CommercialBankAPI.makePayment(bulkDelivery.deliveryReference, bulkDelivery.cost, bulkDelivery.accountNumber);
+
+        if (result.success) {
+            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryDropOff); 
+        }
+        else {
+            // no money probably - try again later when not broke I guess
+        }
     }
-
-
 }

@@ -14,6 +14,6 @@ INSERT INTO inventory (part_id, quantity_available) VALUES
   (3, 0);
 
 INSERT INTO stock (phone_id, quantity_available, quantity_reserved, updated_at) VALUES
-  (1, 0, 0, now),
-  (2, 0, 0, now),
-  (3, 0, 0, now);
+  (1, 0, 0, NOW()),
+  (2, 0, 0, NOW()),
+  (3, 0, 0, NOW());

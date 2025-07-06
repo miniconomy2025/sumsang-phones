@@ -1,5 +1,4 @@
 import db from '../config/DatabaseConfig.js';
-import { DatabaseError } from '../utils/errors.js';
 import { ConsumerDelivery } from '../types/ConsumerDeliveryType.js';
 
 export class ConsumerDeliveryRepository {
@@ -11,8 +10,8 @@ export class ConsumerDeliveryRepository {
     ): Promise<void> {
         await db.query(
             `INSERT INTO consumer_deliveries 
-            (order_id, delivery_reference, cost, units_collected, account_number)
-            VALUES ($1, $2, $3, $4, $5)`,
+            (order_id, delivery_reference, cost, units_collected, account_number, created_at)
+            VALUES ($1, $2, $3, $4, $5, NOW())`,
             [orderId, deliveryReference, cost, 0, accountNumber]
         );
     }

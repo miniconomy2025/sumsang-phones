@@ -3,6 +3,42 @@ import { Status } from '../types/Status.js';
 import { PartsPurchase } from '../types/PartsPurchaseType.js';
 
 export class PartsPurchaseRepository {
+    static async getPartsPurchaseById(partsPurchaseId: number): Promise<PartsPurchase> {
+        const result = await db.query(
+            `SELECT 
+                parts_purchase_id,
+                part_id,
+                reference_number,
+                cost,
+                quantity,
+                account_number,
+                status,
+                purchased_at
+            FROM parts_purchase 
+            WHERE parts_purchase_id = $1`,
+            [partsPurchaseId]
+        );
+        return {
+            partsPurchaseId: result.rows[0].parts_purchase_id,
+            partId: result.rows[0].part_id,
+            referenceNumber: result.rows[0].reference_number,
+            cost: result.rows[0].cost,
+            quantity: result.rows[0].quantity,
+            accountNumber: result.rows[0].account_number,
+            status: result.rows[0].status,
+            purchasedAt: result.rows[0].purchased_at
+        };
+    }
+
+    static async updateStatus(partsPurchaseId: number, status: number) {
+        await db.query(
+            `UPDATE parts_purchase 
+            SET status = $1 
+            WHERE parts_purchase_id = $2`,
+            [status, partsPurchaseId]
+        );
+    }
+
     static async getPurchasesByStatus(statuses: Status[]): Promise<PartsPurchase[]> {
         if (!statuses.length) return [];
 
@@ -35,7 +71,7 @@ export class PartsPurchaseRepository {
         }));
     }
 
-    static async createPartsPurchaseOrder(partsPurchase: PartsPurchase): Promise<number> {
+    static async createPartsPurchase(partsPurchase: PartsPurchase): Promise<number> {
         const query = `
         INSERT INTO parts_purchases (
             part_id,
