@@ -8,7 +8,7 @@ const db = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: parseInt(process.env.PORT || '5433'),
+    port: parseInt(process.env.PORT || '5432'),
     ssl: false
 });
 
