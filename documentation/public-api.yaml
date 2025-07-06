@@ -54,19 +54,12 @@ components:
 
 
 paths:
-  /simulation/start:
+  /simulations:
     post:
       summary: Start a new simulation
       responses:
         '200':
           description: Simulation started
-
-  /simulation/tick:
-    post:
-      summary: Progress simulation by one tick
-      responses:
-        '200':
-          description: Simulation tick processed
           
   /stock:
     get:
@@ -98,6 +91,7 @@ paths:
                 required:
                   - orderId
                   - price
+                  - accountNumber
                 properties:
                   orderId:
                     type: number
@@ -106,10 +100,14 @@ paths:
                     type: number
                     format: float
                     description: Total price of the order
+                  accountNumber:
+                    type: string
+                    example: "123456789012"
+                    description: Bank account number for SumSang phones
         '400':
           description: Invalid order data
 
-  /payment-made:
+  /pop:
     post:
       summary: Notify that payment has been made to SumSang phones
       requestBody:
@@ -136,9 +134,9 @@ paths:
           description: Invalid payment data
 
 
-  /goods-delivered:
+  /logistics:
     post:
-      summary: Confirm delivery of bulk goods to SumSang phones
+      summary: Confirm delivery or pickup
       requestBody:
         required: true
         content:
@@ -146,34 +144,22 @@ paths:
             schema:
               type: object
               required:
-                - deliveryReference
+                - id
+                - type
+                - quantity
               properties:
-                deliveryReference:
+                id:
                   type: number
-                  description: Delivery reference number
+                  description: orderId or pickuprequestId
+                type:
+                  type: string
+                  description: PICKUP/DELIVERY
+                  example: PICKUP/DELIVERY
+                quantity:
+                  type: number
+                  description: The amount being picked up or being delivered
       responses:
         '200':
-          description: Bulk delivery recorded
-        '400':
-          description: Invalid delivery data
-
-  /goods-collection:
-    post:
-      summary: Confirm consumer goods have been collected from SumSang phones
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - deliveryReference
-              properties:
-                deliveryReference:
-                  type: number
-                  description: Delivery reference number
-      responses:
-        '200':
-          description: Consumer delivery recorded
+          description: Delivery request accepted
         '400':
           description: Invalid delivery data
