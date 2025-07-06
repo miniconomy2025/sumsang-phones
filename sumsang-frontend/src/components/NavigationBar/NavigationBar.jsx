@@ -5,7 +5,6 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import MenuIcon from '@mui/icons-material/Menu';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import styles from './NavigationBar.module.css';
@@ -13,7 +12,6 @@ import styles from './NavigationBar.module.css';
 function NavigationBar() {
 	const [isExpanded, setIsExpanded] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
-	const [expandedWidth, setExpandedWidth] = useState(0);
 	const navRef = useRef(null);
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -24,7 +22,6 @@ function NavigationBar() {
 		{ label: 'Logistics Flow', href: '/logistics', icon: LocalShippingIcon },
 		{ label: 'Sales', href: '/sales', icon: PointOfSaleIcon },
 		{ label: 'Financial Performance', href: '/financial', icon: AccountBalanceIcon },
-		{ label: 'Operational Notices', href: '/notices', icon: NotificationsIcon },
 	];
 
 	const handleClick = (href) => {
@@ -43,13 +40,9 @@ function NavigationBar() {
 			nav.style.position = 'absolute';
 			nav.style.visibility = 'hidden';
 
-			const measuredWidth = nav.offsetWidth;
-
 			nav.style.width = originalWidth;
 			nav.style.position = '';
 			nav.style.visibility = '';
-
-			setExpandedWidth(measuredWidth);
 		}
 	}, []);
 

@@ -9,12 +9,6 @@ import CostBreakdownChart from './charts/CostBreakdownChart';
 function ProductionOverview() {
 	const { data, loading, error } = usePollingFetch(getProductionData, 15000);
 
-	useEffect(() => {
-		if (data) {
-			console.log(data);
-		}
-	}, [data]);
-
 	if (loading) return <p>Loading...</p>;
 	if (error && error === 'Failed to fetch') return <p>Failed to fetch</p>;
 

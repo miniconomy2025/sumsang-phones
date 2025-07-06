@@ -18,7 +18,6 @@ function App() {
 				<Route path="/logistics" element={<LogisticsFlow />} />
 				<Route path="/sales" element={<Sales />} />
 				<Route path="/financial" element={<FinancialPerformance />} />
-				<Route path="/notices" element={<OperationalNotices />} />
 				<Route path="*" element={<h1>Not Found</h1>} />
 			</Routes>
 		</Router>

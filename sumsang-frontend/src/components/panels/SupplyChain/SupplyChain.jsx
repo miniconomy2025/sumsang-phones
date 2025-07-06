@@ -9,10 +9,6 @@ import GoodsInventoryChart from './charts/GoodsInventoryChart';
 function SupplyChain() {
 	const { data, loading, error } = usePollingFetch(getSupplyChainData, 15000);
 
-	useEffect(() => {
-		if (data) console.log(data);
-	}, [data]);
-
 	if (loading) return <p>Loading...</p>;
 	if (error) return <p>{error}</p>;
 

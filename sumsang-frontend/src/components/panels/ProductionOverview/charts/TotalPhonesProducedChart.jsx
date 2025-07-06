@@ -17,7 +17,12 @@ function TotalPhonesProducedChart({ data }) {
 		return Object.entries(data.totalPhonesProduced).map(([model, count]) => ({
 			model,
 			count,
-			fill: model === 'Z25 FE' ? '#8884d8' : model === 'Z25' ? '#82ca9d' : '#ffc658',
+			fill:
+				model === 'Cosmos Z25 FE'
+					? '#8884d8'
+					: model === 'Cosmos Z25'
+					? '#82ca9d'
+					: '#ffc658',
 		}));
 	};
 	const chartData = transformPhonesProducedData(data);
