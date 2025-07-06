@@ -27,7 +27,11 @@ export class PhoneRepository {
                 throw new ValidationError(`Phone with ID ${phoneId} not found.`);
             }
 
-            return result.rows[0];
+            return {
+                phoneId: result.rows[0].phone_id,
+                model: result.rows[0].model,
+                price: result.rows[0].price
+            };
         } catch (error) {
             throw new DatabaseError(`Failed to fetch phone by ID: ${(error as Error).message}`);
         }

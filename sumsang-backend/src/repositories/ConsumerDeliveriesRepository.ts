@@ -1,5 +1,4 @@
 import db from '../config/DatabaseConfig.js';
-import { DatabaseError } from '../utils/errors.js';
 import { ConsumerDelivery } from '../types/ConsumerDeliveryType.js';
 
 export class ConsumerDeliveryRepository {
@@ -9,30 +8,30 @@ export class ConsumerDeliveryRepository {
         cost: number,
         accountNumber: string
     ): Promise<void> {
-        try {
-            await db.query(
-                `INSERT INTO consumer_deliveries 
-                (order_id, delivery_reference, cost, units_collected, account_number)
-                VALUES ($1, $2, $3, $4, $5)`,
-                [orderId, deliveryReference, cost, 0, accountNumber]
-            );
-        } catch (error) {
-            throw new DatabaseError(`Failed to insert consumer delivery: ${(error as Error).message}`);
-        }
+        await db.query(
+            `INSERT INTO consumer_deliveries 
+            (order_id, delivery_reference, cost, units_collected, account_number, created_at)
+            VALUES ($1, $2, $3, $4, $5, NOW())`,
+            [orderId, deliveryReference, cost, 0, accountNumber]
+        );
     }
 
     static async getDeliveryByOrderId(orderId: number): Promise< ConsumerDelivery> {
-        try {
-            const result = await db.query(
-                `SELECT delivery_reference, cost, account_id, units_collected
-                 FROM consumer_deliveries
-                 WHERE order_id = $1`,
-                [orderId]
-            );
+        const result = await db.query(
+            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, created_at
+                FROM consumer_deliveries
+                WHERE order_id = $1`,
+            [orderId]
+        );
 
-            return result.rows[0];
-        } catch (error) {
-            throw new DatabaseError(`Failed to get delivery by order ID: ${(error as Error).message}`);
+        return {
+            consumerDeliveryId: result.rows[0].consumer_delivery_id,
+            orderId: result.rows[0].order_id,
+            deliveryReference: result.rows[0].delivery_reference,
+            cost: result.rows[0].cost,
+            unitsCollected: result.rows[0].units_collected,
+            accountNumber: result.rows[0].account_number,
+            createdAt: result.rows[0].created_at
         }
     }
 }
