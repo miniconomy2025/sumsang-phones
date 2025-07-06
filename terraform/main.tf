@@ -98,13 +98,6 @@ resource "aws_security_group" "ec2_security_group" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  ingress {
-    from_port   = 444
-    to_port     = 444
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
   
   egress {
     from_port   = 0
@@ -112,6 +105,16 @@ resource "aws_security_group" "ec2_security_group" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+resource "aws_security_group_rule" "allow_port_444_from_web" {
+  type                     = "ingress"
+  from_port                = 444
+  to_port                  = 444
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.ec2_security_group.id
+  source_security_group_id = aws_instance.sumsang_web_ec2_instance.security_groups[0]
+  depends_on = [aws_instance.sumsang_web_ec2_instance]
 }
 
 resource "aws_instance" "sumsang_api_ec2_instance" {
