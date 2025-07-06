@@ -6,7 +6,7 @@ INSERT INTO parts (name) VALUES
 INSERT INTO suppliers (part_id, cost, name, address) VALUES
   (1, 0, 'case-supplier', 'case-supplier'),
   (2, 0, 'screen-supplier', 'screen-supplier'),
-  (3, 0, 'electronics-supplier', 'electronics-supplier'),
+  (3, 0, 'electronics-supplier', 'electronics-supplier');
 
 INSERT INTO inventory (part_id, quantity_available) VALUES
   (1, 0),

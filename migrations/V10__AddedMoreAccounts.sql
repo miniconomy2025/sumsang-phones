@@ -20,13 +20,6 @@ CREATE TABLE machine_deliveries (
     created_at TIMESTAMP NOT NULL
 );
 
-CREATE TABLE orders (
-    order_id SERIAL PRIMARY KEY,
-    price DECIMAL NOT NULL,
-    status INT NOT NULL REFERENCES status(status_id),
-    created_at TIMESTAMP NOT NULL
-);
-
 INSERT INTO status (description) VALUES
   ('Cancelled');
 
@@ -39,7 +32,8 @@ ADD COLUMN part_id INT NOT NULL REFERENCES parts(part_id),
 ADD COLUMN quantity INT NOT NULL;
 
 ALTER TABLE suppliers
-ADD COLUMN part_id INT NOT NULL REFERENCES parts(part_id);
+ADD COLUMN part_id INT NOT NULL REFERENCES parts(part_id),
+ADD COLUMN cost DECIMAL NOT NULL;
 
 INSERT INTO status (description) VALUES
   ('PendingDeliveryDropOff');
