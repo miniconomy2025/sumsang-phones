@@ -202,13 +202,14 @@ export class DashboardRepository {
     private static async fetchPartCostsOverTime() {
         try {
             const res = await db.query(`
-                SELECT pa.name AS part_name, DATE(pp.purchased_at) AS purchase_date, ps.cost AS unit_price
-                FROM parts_purchases_items ppi
-                JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
-                JOIN parts pa ON ps.part_id = pa.part_id
-                JOIN parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
-                GROUP BY pa.name, DATE(pp.purchased_at), ps.cost
-                ORDER BY pa.name, purchase_date;
+                SELECT
+                    p.name AS part_name,
+                    TO_CHAR(pp.purchased_at, 'YYYY-MM-DD') AS purchase_date,
+                    ROUND(AVG(pp.cost), 2) AS unit_price
+                FROM parts_purchases pp
+                JOIN parts p ON pp.part_id = p.part_id
+                GROUP BY p.name, TO_CHAR(pp.purchased_at, 'YYYY-MM-DD')
+                ORDER BY purchase_date, part_name;
             `);
             const result: Record<string, { date: string, value: number }[]> = {};
             for (const row of res.rows) {
@@ -273,9 +274,8 @@ export class DashboardRepository {
     private static async fetchPartsCosts() {
         try {
             const res = await db.query(`
-                SELECT SUM(ppi.quantity * ps.cost) AS total_parts_cost
-                FROM parts_purchases_items ppi
-                JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id;
+                SELECT SUM(cost * quantity) AS total_parts_cost
+                FROM parts_purchases;
             `);
             return Number(res.rows[0]?.total_parts_cost || 0);
         } catch (error) {
@@ -296,13 +296,12 @@ export class DashboardRepository {
         try {
             const res = await db.query(`
                 SELECT ph.model AS phone_model, 
-                    ROUND(SUM(mr.quantity * ps.cost) / m.rate_per_day, 2) AS cost_per_phone
-                FROM machines m
-                JOIN phones ph ON m.phone_id = ph.phone_id
+                    SUM(mr.quantity * s.cost) AS cost_per_phone
+                FROM phones ph
+                JOIN machines m ON ph.phone_id = m.phone_id
                 JOIN machine_ratios mr ON m.machine_id = mr.machine_id
-                JOIN parts_supplier ps ON mr.part_id = ps.part_id
-                GROUP BY ph.model, m.rate_per_day
-                ORDER BY cost_per_phone DESC;
+                JOIN suppliers s ON mr.part_id = s.part_id
+                GROUP BY ph.model;
             `);
             return res.rows;
         } catch (error) {
@@ -347,20 +346,13 @@ export class DashboardRepository {
             const res = await db.query(`
                 SELECT 
                     p.name AS part_name,
-                    DATE(bd.date_created) AS delivery_date,
-                    SUM(ppi.quantity) AS total_quantity_received,
-                    ROUND(SUM(ppi.quantity::decimal / total.total_quantity * bd.cost), 2) AS allocated_delivery_cost
-                FROM parts_purchases_items ppi
-                JOIN parts_supplier ps ON ppi.part_supplier_id = ps.parts_supplier_id
-                JOIN parts p ON ps.part_id = p.part_id
-                JOIN parts_purchases pp ON ppi.parts_purchase_id = pp.parts_purchase_id
-                JOIN bulk_deliveries bd ON pp.parts_purchase_id = bd.parts_purchase_id
-                JOIN (
-                    SELECT parts_purchase_id, SUM(quantity) AS total_quantity
-                    FROM parts_purchases_items
-                    GROUP BY parts_purchase_id
-                ) total ON ppi.parts_purchase_id = total.parts_purchase_id
-                GROUP BY p.name, DATE(bd.date_created), bd.cost
+                    DATE(bd.created_at) AS delivery_date,
+                    SUM(bd.units_received) AS total_quantity_received,
+                    SUM(bd.cost) AS allocated_delivery_cost
+                FROM bulk_deliveries bd
+                JOIN parts_purchases pp ON bd.parts_purchase_id = pp.parts_purchase_id
+                JOIN parts p ON pp.part_id = p.part_id
+                GROUP BY p.name, DATE(bd.created_at)
                 ORDER BY delivery_date, p.name;
             `);
             return res.rows;
@@ -425,13 +417,15 @@ export class DashboardRepository {
     private static async fetchPartCostPerModel() {
         try {
             const res = await db.query(`
-                SELECT ph.model AS phone_model, p.name AS part_name, ROUND(mr.quantity * ps.cost, 2) AS total_part_cost
-                FROM phones ph
+                SELECT ph.model AS phone_model, pt.name AS part_name, SUM(oi.quantity * mr.quantity * s.cost) AS total_part_cost
+                FROM order_items oi
+                JOIN phones ph ON oi.phone_id = ph.phone_id
                 JOIN machines m ON ph.phone_id = m.phone_id
                 JOIN machine_ratios mr ON m.machine_id = mr.machine_id
-                JOIN parts p ON mr.part_id = p.part_id
-                JOIN parts_supplier ps ON mr.part_id = ps.part_id
-                ORDER BY ph.model, total_part_cost DESC;
+                JOIN parts pt ON mr.part_id = pt.part_id
+                JOIN suppliers s ON pt.part_id = s.part_id
+                GROUP BY ph.model, pt.name
+                ORDER BY ph.model, pt.name;
             `);
             return res.rows;
         } catch (error) {
