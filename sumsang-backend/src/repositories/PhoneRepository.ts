@@ -2,38 +2,61 @@ import db from '../config/DatabaseConfig.js';
 import { DatabaseError, ValidationError } from '../utils/errors.js';
 
 export class PhoneRepository {
-    static async phoneExists(phoneId: number): Promise<boolean> {
-        try {
-            const result = await db.query(
-                `SELECT 1 FROM phones WHERE phone_id = $1 LIMIT 1`,
-                [phoneId]
-            );
-            return (result.rowCount ?? 0) > 0;
-        } catch (error) {
-            throw new DatabaseError(`Failed to check phone existence: ${(error as Error).message}`);
-        }
-    }
+	static async phoneExists(phoneId: number): Promise<boolean> {
+		try {
+			const result = await db.query(`SELECT 1 FROM phones WHERE phone_id = $1 LIMIT 1`, [
+				phoneId,
+			]);
+			return (result.rowCount ?? 0) > 0;
+		} catch (error) {
+			throw new DatabaseError(`Failed to check phone existence: ${(error as Error).message}`);
+		}
+	}
 
-    static async getPhoneById(phoneId: number) {
-        try {
-            const result = await db.query(
-                `SELECT phone_id, model, price 
+	static async getPhoneById(phoneId: number) {
+		try {
+			const result = await db.query(
+				`SELECT phone_id, model, price 
                 FROM phones 
                 WHERE phone_id = $1`,
-                [phoneId]
-            );
+				[phoneId]
+			);
 
-            if ((result.rowCount ?? 0) === 0) {
-                throw new ValidationError(`Phone with ID ${phoneId} not found.`);
-            }
+			if ((result.rowCount ?? 0) === 0) {
+				throw new ValidationError(`Phone with ID ${phoneId} not found.`);
+			}
 
-            return {
-                phoneId: result.rows[0].phone_id,
-                model: result.rows[0].model,
-                price: result.rows[0].price
-            };
-        } catch (error) {
-            throw new DatabaseError(`Failed to fetch phone by ID: ${(error as Error).message}`);
-        }
-    }
+			return {
+				phoneId: result.rows[0].phone_id,
+				model: result.rows[0].model,
+				price: result.rows[0].price,
+			};
+		} catch (error) {
+			throw new DatabaseError(`Failed to fetch phone by ID: ${(error as Error).message}`);
+		}
+	}
+
+	static async getPhoneByModel(model: string) {
+		try {
+			const result = await db.query(
+				`SELECT phone_id, model, price 
+             FROM phones 
+             WHERE LOWER(model) = LOWER($1)
+             LIMIT 1`,
+				[model]
+			);
+
+			if ((result.rowCount ?? 0) === 0) {
+				throw new ValidationError(`Phone with model "${model}" not found.`);
+			}
+
+			return {
+				phoneId: result.rows[0].phone_id,
+				model: result.rows[0].model,
+				price: result.rows[0].price,
+			};
+		} catch (error) {
+			throw new DatabaseError(`Failed to fetch phone by name: ${(error as Error).message}`);
+		}
+	}
 }
