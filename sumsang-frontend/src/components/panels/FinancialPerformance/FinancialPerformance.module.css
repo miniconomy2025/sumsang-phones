@@ -1,5 +1,5 @@
 .gridContainer {
-    grid-template-columns: 4fr 1fr 3fr;
+    grid-template-columns: 2fr 1fr 1fr 3fr;
     grid-template-rows: 3fr 4fr;
 }
 
@@ -19,6 +19,11 @@
 }
 
 .loanStatus {
-    grid-column: 3 / 4;
+    grid-column: 4 / 5;
+    grid-row: 1 / 2;
+}
+
+.costVsSelling {
+    grid-column: 3 / 5;
     grid-row: 2 / 3;
 }

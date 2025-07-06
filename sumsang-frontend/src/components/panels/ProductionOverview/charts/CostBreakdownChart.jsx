@@ -3,9 +3,9 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import styles from '../../../../styles/Charts.module.css';
 
 function CostBreakdownChart({ data }) {
-	const [selectedModel, setSelectedModel] = useState('Z25');
+	const [selectedModel, setSelectedModel] = useState('Cosmos Z25');
 
-	const transformCostBreakdownData = (data, selectedModel = 'Z25') => {
+	const transformCostBreakdownData = (data, selectedModel = 'Cosmos Z25') => {
 		if (!data?.totalManufacturingCosts?.[selectedModel]) return [];
 
 		const costs = data.totalManufacturingCosts[selectedModel];
@@ -29,9 +29,9 @@ function CostBreakdownChart({ data }) {
 					onChange={(e) => setSelectedModel(e.target.value)}
 					className={styles.modelSelector}
 				>
-					<option value="Z25 FE">Z25 FE</option>
-					<option value="Z25">Z25</option>
-					<option value="Z25 Ultra">Z25 Ultra</option>
+					<option value="Cosmos Z25 FE">Cosmos Z25 FE</option>
+					<option value="Cosmos Z25">Cosmos Z25</option>
+					<option value="Cosmos Z25 ultra">Z25 Ultra</option>
 				</select>
 			</div>
 			<ResponsiveContainer width="100%" height="100%">

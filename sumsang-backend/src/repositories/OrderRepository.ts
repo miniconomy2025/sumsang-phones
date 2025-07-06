@@ -82,7 +82,11 @@ export class OrderRepository {
             FROM order_items
             WHERE order_id = $1
         `, [orderId]);
-        return result.rows;
+        return result.rows.map(row => ({
+            phoneId: row.phone_id,
+            quantity: row.quantity,
+            orderId: row.order_id
+        }));
     }
 
     static async getOrderItemsCount(orderId: number): Promise<number> {
@@ -92,5 +96,67 @@ export class OrderRepository {
             WHERE order_id = $1
         `, [orderId]);
         return result.rows[0];
+    }
+
+    static async getOrdersWithInsufficientPayment(cutoffDate: Date): Promise<Order[]> {
+        const result = await db.query(
+            `SELECT 
+            order_id, price, amount_paid, status, created_at
+            FROM orders 
+            WHERE created_at < $1 
+            AND amount_paid < price
+            AND status != $2`,
+            [cutoffDate, Status.PendingPayment]
+        );
+        return result.rows.map(row => ({
+            orderId: row.order_id,
+            price: row.price,
+            amountPaid: row.amount_paid,
+            status: row.status,
+            createdAt: row.created_at
+        }));
+    }
+
+    static async getPendingOrders(): Promise<Order[]> {
+        const result = await db.query(
+            `SELECT order_id, price, amount_paid, status, created_at
+            FROM orders 
+            WHERE status IN ($1, $2, $3, $4)
+            ORDER BY created_at ASC`,
+            [
+                Status.PendingStock,
+                Status.PendingDeliveryRequest,
+                Status.PendingDeliveryPayment
+            ]
+        );
+        return result.rows.map(row => ({
+            orderId: row.order_id,
+            price: row.price,
+            amountPaid: row.amount_paid,
+            status: row.status,
+            createdAt: row.created_at
+        }));
+    }
+
+    static async getPendingOrderDemand(): Promise<Map<number, number>> {
+        const result = await db.query(
+            `SELECT oi.phone_id, SUM(oi.quantity) as total_demand
+            FROM order_items oi
+            INNER JOIN orders o ON oi.order_id = o.order_id
+            WHERE o.status IN ($1, $2, $3, $4)
+            GROUP BY oi.phone_id`,
+            [
+                Status.PendingStock,
+                Status.PendingDeliveryRequest,
+                Status.PendingDeliveryPayment,
+                Status.PendingDeliveryCollection
+            ]
+        );
+        
+        const demandMap = new Map<number, number>();
+        for (const row of result.rows) {
+            demandMap.set(row.phone_id, parseInt(row.total_demand));
+        }
+        return demandMap;
     }
 }

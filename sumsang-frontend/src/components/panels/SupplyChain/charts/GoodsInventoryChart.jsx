@@ -10,26 +10,31 @@ import {
 } from 'recharts';
 import styles from '../../../../styles/Charts.module.css';
 
-function PartsInventoryChart({ data }) {
-	const transformPartsInventoryData = (data) => {
-		if (!data?.currentPartsInventory) return [];
+function GoodsInventoryChart({ data }) {
+	const transformPhonesInventoryData = (data) => {
+		if (!data?.currentPhonesInventory) return [];
 
-		return Object.entries(data.currentPartsInventory).map(([part, count]) => ({
-			part: part.charAt(0).toUpperCase() + part.slice(1),
+		return Object.entries(data.currentPhonesInventory).map(([model, count]) => ({
+			model,
 			count,
-			fill: part === 'electronics' ? '#8884d8' : part === 'screens' ? '#82ca9d' : '#ffc658',
+			fill:
+				model === 'Cosmos Z25 FE'
+					? '#8884d8'
+					: model === 'Cosmos Z25'
+					? '#82ca9d'
+					: '#ffc658',
 		}));
 	};
 
-	const chartData = transformPartsInventoryData(data);
+	const chartData = transformPhonesInventoryData(data);
 
 	return (
 		<div className={styles.chartContainer}>
-			<h3 className={styles.chartTitle}>Current Parts Inventory</h3>
+			<h3 className={styles.chartTitle}>Current Phones Inventory</h3>
 			<ResponsiveContainer width="100%" height="100%">
 				<BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
 					<CartesianGrid strokeDasharray="3 3" />
-					<XAxis dataKey="part" />
+					<XAxis dataKey="model" />
 					<YAxis />
 					<Tooltip isAnimationActive={false} />
 					<Bar dataKey="count" isAnimationActive={true}>
@@ -43,4 +48,4 @@ function PartsInventoryChart({ data }) {
 	);
 }
 
-export default PartsInventoryChart;
+export default GoodsInventoryChart;

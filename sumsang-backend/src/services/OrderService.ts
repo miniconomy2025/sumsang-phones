@@ -110,7 +110,7 @@ export class OrderService {
     static async makeDeliveryPayment(order: Order): Promise<void> {
         const delivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(order.orderId);
 
-        const result = await CommercialBankAPI.makePayment(delivery.deliveryReference, delivery.cost, delivery.account_number);
+        const result = await CommercialBankAPI.makePayment(delivery.deliveryReference, delivery.cost, delivery.accountNumber);
 
         if (result.success) {
             await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection); 

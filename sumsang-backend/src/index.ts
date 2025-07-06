@@ -7,17 +7,13 @@ import OrderRoutes from './routes/OrderRoutes.js';
 const app = express();
 const PORT = 3000;
 
-
+app.use(cors());
 app.use('/public-api/', StockRoutes);
-app.use('/public-api/', DashboardRoutes);
+app.use('/internal-api/', DashboardRoutes);
 app.use('/public-api', OrderRoutes);
 
-app.use(cors());
 app.use(express.json());
 
-
-
-
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+	console.log(`Server running on port ${PORT}`);
 });
