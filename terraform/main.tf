@@ -103,7 +103,7 @@ resource "aws_security_group" "ec2_security_group" {
     from_port   = 444
     to_port     = 444
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["${aws_instance.sumsang_web_ec2_instance.private_ip}/32"]
   }
   
   egress {
