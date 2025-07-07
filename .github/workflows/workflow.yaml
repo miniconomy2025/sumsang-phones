@@ -267,6 +267,9 @@ jobs:
         - terraform
         - deploy-frontend
     name: Setup reverse proxies
+    permissions:
+        id-token: write
+        contents: read
     runs-on: ubuntu-latest
     steps:
     - name: Configure AWS credentials
