@@ -352,23 +352,17 @@ jobs:
         ssh -o StrictHostKeyChecking=no -i webprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
         server {
-            listen 80;
-            server_name sumsang-phones.projects.bbdgrad.com www.sumsang-phones.projects.bbdgrad.com;
-            return 301 https://$host$request_uri;
+          listen 80;
+          server_name sumsang-phones.projects.bbdgrad.com www.sumsang-phones.projects.bbdgrad.com;
+
+        # Required for Certbot's HTTP-01 challenge
+        location /.well-known/acme-challenge/ {
+            root /var/www/html;
         }
 
-        server {
-            listen 443 ssl;
-            server_name sumsang-phones.projects.bbdgrad.com www.sumsang-phones.projects.bbdgrad.com;
-
-            # Required for Certbot's HTTP-01 challenge
-            location /.well-known/acme-challenge/ {
-                root /var/www/html;
-            }
-
-            location / {
-                proxy_pass http://localhost:5173;
-            }
+        location / {
+            proxy_pass http://localhost:3000; # Front-end
+        }
         }
         NGINX_CONF
         EOF
