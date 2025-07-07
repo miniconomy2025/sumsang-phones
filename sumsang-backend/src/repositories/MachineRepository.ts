@@ -35,4 +35,14 @@ export class MachineRepository {
         totalQuantity: row.total_quantity
       }));
   }
+
+  static async createMachines(phoneId: number, quantity: number, cost: number, ratePerDay: number): Promise<void> {
+        const query = `
+            INSERT INTO machines (phone_id, rate_per_day, date_acquired, cost)
+            VALUES ($1, $2, NOW(), $3);
+        `;
+        for (let i = 0; i < quantity; i++) {
+            await db.query(query, [phoneId, ratePerDay, cost]);
+        }
+    }
 }

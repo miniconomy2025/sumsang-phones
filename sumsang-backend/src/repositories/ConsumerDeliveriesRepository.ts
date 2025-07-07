@@ -10,15 +10,15 @@ export class ConsumerDeliveryRepository {
     ): Promise<void> {
         await db.query(
             `INSERT INTO consumer_deliveries 
-            (order_id, delivery_reference, cost, units_collected, account_number, created_at)
-            VALUES ($1, $2, $3, $4, $5, NOW())`,
-            [orderId, deliveryReference, cost, 0, accountNumber]
+            (order_id, delivery_reference, cost, units_collected, account_number, date_created)
+            VALUES ($1, $2, $3, 0, $4, NOW())`,
+            [orderId, deliveryReference, cost, accountNumber]
         );
     }
 
     static async getDeliveryByOrderId(orderId: number): Promise< ConsumerDelivery> {
         const result = await db.query(
-            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, created_at
+            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, date_created
                 FROM consumer_deliveries
                 WHERE order_id = $1`,
             [orderId]
@@ -31,7 +31,40 @@ export class ConsumerDeliveryRepository {
             cost: result.rows[0].cost,
             unitsCollected: result.rows[0].units_collected,
             accountNumber: result.rows[0].account_number,
-            createdAt: result.rows[0].created_at
+            createdAt: result.rows[0].date_created
         }
+    }
+    
+    static async getDeliveryByDeliveryReference(deliveryReference: number): Promise<ConsumerDelivery | null> {
+        const result = await db.query(
+            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, date_created
+             FROM consumer_deliveries
+             WHERE delivery_reference = $1`,
+            [deliveryReference]
+        );
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+        
+        const row = result.rows[0];
+        return {
+            consumerDeliveryId: row.consumer_delivery_id,
+            orderId: row.order_id,
+            deliveryReference: row.delivery_reference,
+            cost: row.cost,
+            unitsCollected: row.units_collected,
+            accountNumber: row.account_number,
+            createdAt: row.date_created
+        };
+    }
+    
+    static async updateUnitsCollected(consumerDeliveryId: number, unitsToAdd: number): Promise<void> {
+        await db.query(
+            `UPDATE consumer_deliveries
+             SET units_collected = units_collected + $1
+             WHERE consumer_delivery_id = $2`,
+            [unitsToAdd, consumerDeliveryId]
+        );
     }
 }
