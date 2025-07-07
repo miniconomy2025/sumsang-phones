@@ -238,6 +238,7 @@ jobs:
                 echo "DB_PASSWORD=${{ env.POSTGRES_PASS }}" | sudo tee -a /etc/environment
                 echo "DB_HOST=${{ env.DB_HOST }}" | sudo tee -a /etc/environment
                 echo "DB_NAME=${{ env.DB_NAME }}" | sudo tee -a /etc/environment
+                echo "NODE_ENV=production" | sudo tee -a /etc/environment
               '
       
       - name: Deploy
@@ -371,7 +372,24 @@ jobs:
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
         }
+
+            listen 443 ssl; # managed by Certbot
+            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem; # managed by Certbot
+            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem; # managed by Certbot
+            include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
         }
+        server {
+            if ($host = sumsang-phones.projects.bbdgrad.com) {
+                return 301 https://$host$request_uri;
+            } # managed by Certbot
+
+
+        listen 80;
+        server_name sumsang-phones.projects.bbdgrad.com;
+            return 404; # managed by Certbot
+                }
         NGINX_CONF
         EOF
 
