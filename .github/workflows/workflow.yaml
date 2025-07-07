@@ -407,7 +407,7 @@ jobs:
         EC2_HOST=${{ needs.terraform.outputs.webec2host }}
         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
           sudo apt install certbot python3-certbot-nginx -y &&
-          sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+          sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com -d www.sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
         '
             
   flyway:
