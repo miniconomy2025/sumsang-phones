@@ -5,9 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "clean-linux": "rm -rf dist",
     "clean-windows": "rmdir /S /Q dist",
-    "build-linux": "npm run clean-linux && npx tsc",
+    "build-linux": "tsc",
     "build-windows": "npm run clean-windows && npx tsc",
     "dev": "nodemon --exec node --loader ts-node/esm src/index.ts"
   },
