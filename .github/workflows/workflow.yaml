@@ -353,7 +353,7 @@ jobs:
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
         server {
           listen 80;
-          server_name sumsang-phones.projects.bbdgrad.com www.sumsang-phones.projects.bbdgrad.com;
+          server_name sumsang-phones.projects.bbdgrad.com;
 
         # Required for Certbot's HTTP-01 challenge
         location /.well-known/acme-challenge/ {
@@ -407,7 +407,7 @@ jobs:
         EC2_HOST=${{ needs.terraform.outputs.webec2host }}
         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
           sudo apt install certbot python3-certbot-nginx -y &&
-          sudo certbot --nginx -d www.sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+          sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
         '
             
   flyway:
