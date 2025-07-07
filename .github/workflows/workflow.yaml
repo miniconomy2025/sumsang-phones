@@ -303,13 +303,13 @@ jobs:
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
         server {
             listen 80;
-            server_name sumsang-phones-api.projects.bbdgrad.com www.sumsang-phones-api.projects.bbdgrad.com;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
             return 301 https://$host$request_uri;
         }
 
         server {
             listen 443 ssl;
-            server_name sumsang-phones-api.projects.bbdgrad.com www.sumsang-phones-api.projects.bbdgrad.com;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
 
             #Server TLS certificate (client must have CA cert to connect)
             ssl_certificate         /etc/nginx/certificates/sumsang.crt;
@@ -327,7 +327,7 @@ jobs:
         # TLS only, no mTLS — internal frontend uses this
         server {
             listen 444 ssl;
-            server_name sumsang-phones-api.projects.bbdgrad.com www.sumsang-phones-api.projects.bbdgrad.com;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
 
             ssl_certificate         /etc/nginx/certificates/sumsang.crt;
             ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
@@ -351,9 +351,9 @@ jobs:
 
         ssh -o StrictHostKeyChecking=no -i webprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
-        server {
-          listen 80;
-          server_name sumsang-phones.projects.bbdgrad.com;
+         server {
+        listen 80;
+        server_name sumsang-phones.projects.bbdgrad.com;
 
         # Required for Certbot's HTTP-01 challenge
         location /.well-known/acme-challenge/ {
@@ -362,6 +362,14 @@ jobs:
 
         location / {
             proxy_pass http://localhost:3000; # Front-end
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
         }
         }
         NGINX_CONF
