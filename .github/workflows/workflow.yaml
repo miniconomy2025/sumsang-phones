@@ -370,7 +370,6 @@ jobs:
                 proxy_pass http://localhost:5173;
             }
         }
-        }
         NGINX_CONF
         EOF
 
