@@ -395,7 +395,7 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       with:
         secret-ids: |
-          WEB_EC2_PRIVATE_KEY, webrivatekey
+          WEB_EC2_PRIVATE_KEY, webprivatekey
 
     - name: Setup private key
       run: |
