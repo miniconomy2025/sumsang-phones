@@ -5,4 +5,5 @@ export interface MachinePurchase {
     totalCost: number;
     weightPerMachine: number;
     ratePerDay: number;
+    ratio: string; 
 }

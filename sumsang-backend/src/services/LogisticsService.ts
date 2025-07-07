@@ -20,21 +20,20 @@ export class LogisticsService {
 
         const partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(bulkDelivery.partsPurchaseId);
         if (!partsPurchase) {
-            throw new NotFoundError(`Associated parts purchase not found.`);
+            throw new NotFoundError(`Associated parts purchase for delivery ${deliveryReference} not found.`);
         }
         
         const totalExpected = partsPurchase.quantity;
         const alreadyReceived = bulkDelivery.unitsReceived || 0;
         
-        if (alreadyReceived + quantityReceived > totalExpected) {
-            throw new ValidationError('Received quantity exceeds expected quantity for this delivery.');
-        }
 
         await BulkDeliveryRepository.updateUnitsReceived(bulkDelivery.bulkDeliveryId, quantityReceived);
 
-        if (alreadyReceived + quantityReceived === totalExpected) {
+        if (alreadyReceived + quantityReceived >= totalExpected) {
+
             await InventoryRepository.addParts(partsPurchase.partId, totalExpected);
-            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.Shipped);
+            
+            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.Completed); 
             return { message: 'Final parts delivery processed. Inventory updated.' };
         }
 
@@ -47,60 +46,50 @@ export class LogisticsService {
             throw new NotFoundError(`Machine delivery with reference ${deliveryReference} not found.`);
         }
 
-        const machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machineDelivery.machinePurchasesId);
+        const machinePurchase = await MachinePurchaseRepository.getById(machineDelivery.machinePurchasesId);
         if (!machinePurchase) {
-            throw new NotFoundError(`Associated machine purchase not found.`);
+            throw new NotFoundError(`Associated machine purchase for delivery ${deliveryReference} not found.`);
         }
         
         const totalExpected = machinePurchase.machinesPurchased;
         const alreadyReceived = machineDelivery.unitsReceived || 0;
         
-        if (alreadyReceived + quantityReceived > totalExpected) {
-            throw new ValidationError('Received quantity exceeds expected quantity for this machine delivery.');
-        }
 
         await MachineDeliveryRepository.updateUnitsReceived(machineDelivery.machineDeliveriesId, quantityReceived);
 
-        if (alreadyReceived + quantityReceived === totalExpected) {
-            const costPerMachine = Number(machinePurchase.totalCost) / totalExpected;
-            await MachineRepository.createMachines(
-                machinePurchase.phoneId,
-                totalExpected,
-                costPerMachine,
-                machinePurchase.ratePerDay
-            );
-            return { message: 'Final machine delivery processed. Machines are now active.' };
+        if (alreadyReceived + quantityReceived >= totalExpected) {
+            await MachineRepository.createMachinesAndRatiosFromPurchase(machinePurchase);
+            return { message: 'Final machine delivery processed. Machines and part ratios have been created.' };
         }
         
         return { message: `Partial machine delivery of ${quantityReceived} units processed.` };
     }
 
-    static async handlePhonesCollection(deliveryReference: number, quantityCollected: number) {
-        const consumerDelivery = await ConsumerDeliveryRepository.getDeliveryByDeliveryReference(deliveryReference);
+    static async handlePhonesCollection(orderId: number, quantityCollected: number) {
+        const consumerDelivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(orderId);
         if (!consumerDelivery) {
-            throw new NotFoundError(`Consumer delivery with reference ${deliveryReference} not found.`);
+            throw new NotFoundError(`No delivery record found for orderId ${orderId}.`);
         }
         
-        const orderId = consumerDelivery.orderId;
         const orderItems = await OrderRepository.getOrderItems(orderId);
+        if (orderItems.length === 0) {
+            throw new NotFoundError(`No items found for orderId ${orderId}.`);
+        }
         const totalExpected = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 
         const alreadyCollected = consumerDelivery.unitsCollected || 0;
 
-        if (alreadyCollected + quantityCollected > totalExpected) {
-            throw new ValidationError('Collected quantity exceeds expected quantity for this order.');
-        }
 
         await ConsumerDeliveryRepository.updateUnitsCollected(consumerDelivery.consumerDeliveryId, quantityCollected);
         
-        if (alreadyCollected + quantityCollected === totalExpected) {
+        if (alreadyCollected + quantityCollected >= totalExpected) {
             for (const item of orderItems) {
                 await StockRepository.releaseReservedStock(item.phoneId, item.quantity);
             }
             await OrderRepository.updateStatus(orderId, Status.Shipped);
-            return { message: 'Final phone collection processed. Order shipped.' };
+            return { message: `Final collection for order ${orderId} processed. Order shipped.` };
         }
         
-        return { message: `Partial phone collection of ${quantityCollected} units processed.` };
+        return { message: `Partial collection of ${quantityCollected} units for order ${orderId} processed.` };
     }
 }

@@ -16,18 +16,19 @@ export class LogisticsController {
             }
 
             if (type === 'DELIVERY') {
+
                 const bulkDelivery = await BulkDeliveryRepository.getDeliveryByDeliveryReference(id);
                 if (bulkDelivery) {
                     const result = await LogisticsService.handlePartsDelivery(id, quantity);
-                    handleSuccess(res, result);
-                }
-
+                    handleSuccess(res, result); 
+                } 
+                
                 const machineDelivery = await MachineDeliveryRepository.getDeliveryByDeliveryReference(id);
                 if (machineDelivery) {
                     const result = await LogisticsService.handleMachinesDelivery(id, quantity);
-                    handleSuccess(res, result);
+                    handleSuccess(res, result); 
                 }
-
+                
                 throw new NotFoundError(`Delivery reference ${id} not found in parts or machine deliveries.`);
 
             } else if (type === 'PICKUP') {
