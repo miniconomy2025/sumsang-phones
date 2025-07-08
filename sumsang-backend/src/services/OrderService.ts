@@ -109,8 +109,12 @@ export class OrderService {
 
     static async makeDeliveryPayment(order: Order): Promise<void> {
         const delivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(order.orderId);
+      
+        if (!delivery) {
+            throw new ValidationError(`Delivery information not found for order ${order.orderId}`);
+        }
 
-        const result = await CommercialBankAPI.makePayment(delivery!.deliveryReference, delivery!.cost, delivery!.accountNumber);
+        const result = await CommercialBankAPI.makePayment(delivery.deliveryReference, delivery.cost, delivery.accountNumber);
 
         if (result.success) {
             await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection);
