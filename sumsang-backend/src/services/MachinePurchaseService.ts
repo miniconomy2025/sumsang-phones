@@ -9,6 +9,7 @@ import { BankService } from "./BankService.js";
 import { DailyTasksService } from "./DailyTasks.js";
 import { MachineRepository } from "../repositories/MachineRepository.js";
 import { BulkDeliveryRepository } from "../repositories/BulkDeliveriesRepository.js";
+import { MachineDeliveryRepository } from "../repositories/MachineDeliveryRepository.js";
 
 export class MachinePurchaseService {
 
@@ -56,32 +57,32 @@ export class MachinePurchaseService {
             machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
         if (machinePurchase.status === Status.PendingDeliveryRequest) {
-            await this.makeMachineBulkDeliveryRequest(machinePurchase)
+            await this.makeMachineDeliveryRequest(machinePurchase)
 
             machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
         if (machinePurchase.status === Status.PendingDeliveryPayment) {
-            await this.makeMachineBulkDeliveryPayement(machinePurchase)
+            await this.makeMachineDeliveryPayement(machinePurchase)
 
             machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
     }
 
-    static async makeMachineBulkDeliveryRequest(machinePurchase: MachinePurchaseRecord) {
+    static async makeMachineDeliveryRequest(machinePurchase: MachinePurchaseRecord) {
 
         const result = await BulkDeliveriesAPI.requestDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, "THOH");
 
         if (result.success && result.delivery_reference && result.cost && result.account_number) {
-            await BulkDeliveryRepository.insertBulkDelivery(machinePurchase.machinePurchasesId!, result.delivery_reference, result.cost, "THOH", result.account_number);
+            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.delivery_reference, result.cost, "THOH", result.account_number);
 
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryPayment);
         }
     }
 
-    static async makeMachineBulkDeliveryPayement(machinePurchase: MachinePurchaseRecord) {
-        const bulkDelivery = await BulkDeliveryRepository.getDeliveryByPartsPurchaseId(machinePurchase.machinePurchasesId!);
+    static async makeMachineDeliveryPayement(machinePurchase: MachinePurchaseRecord) {
+        const machineDelivery = await MachineDeliveryRepository.getDeliveryByDeliveryReference(machinePurchase.machinePurchasesId!);
 
-        const result = await BankService.makePayment(bulkDelivery.deliveryReference, bulkDelivery.cost, bulkDelivery.accountNumber);
+        const result = await BankService.makePayment(machineDelivery!.deliveryReference, machineDelivery!.cost, machineDelivery!.accountNumber);
 
         if (result.success) {
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryDropOff);
