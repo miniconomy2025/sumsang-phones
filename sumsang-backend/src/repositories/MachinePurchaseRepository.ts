@@ -80,4 +80,17 @@ export class MachinePurchaseRepository {
             [status, machinePurchaseId]
         );
     }
+
+    static async getById(id: number): Promise<MachinePurchaseRecord | null> {
+        const result = await db.query(
+            `SELECT * FROM machine_purchases WHERE machine_purchases_id = $1`,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return null;
+        }
+
+        return result.rows[0];
+    }
 }

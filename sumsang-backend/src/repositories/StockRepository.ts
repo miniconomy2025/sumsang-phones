@@ -52,4 +52,13 @@ export class StockRepository {
             WHERE phone_id = $2
         `, [quantity, phoneId]);
   }
+
+   static async releaseReservedStock(phoneId: number, quantity: number): Promise<void> {
+        await db.query(`
+            UPDATE stock
+            SET quantity_reserved = quantity_reserved - $1,
+                updated_at = NOW()
+            WHERE phone_id = $2 AND quantity_reserved >= $1
+        `, [quantity, phoneId]);
+    }
 }

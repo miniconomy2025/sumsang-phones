@@ -20,4 +20,12 @@ export class InventoryRepository {
         WHERE part_id = $2
       `, [quantity, partId]);
     }
+
+    static async addParts(partId: number, quantity: number): Promise<void> {
+      await db.query(`
+        UPDATE inventory
+        SET quantity_available = quantity_available + $1
+        WHERE part_id = $2
+      `, [quantity, partId]);
+    }
 }

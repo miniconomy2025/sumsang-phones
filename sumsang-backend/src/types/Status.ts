@@ -6,7 +6,8 @@ export enum Status {
     PendingDeliveryCollection = 3,
     Shipped = 4,
     Cancelled = 7,
-    PendingDeliveryDropOff = 8
+    PendingDeliveryDropOff = 8,
+    Completed = 9
 }
 
 // Orders flow:
