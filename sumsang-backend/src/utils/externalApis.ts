@@ -1,14 +1,21 @@
 import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse } from "../types/ExternalApiTypes.js";
 
+// Helper function to get the full URL based on environment variable
+function getApiUrl(productionUrl: string, servicePath: string): string {
+    const useTestEndpoints = process.env.USE_TEST_ENDPOINTS === 'true';
+    return useTestEndpoints ? `http://localhost:3000/test-endpoints${servicePath}` : productionUrl;
+}
+
 export class ConsumerDeliveriesAPI {
     static async requestDelivery(orderId: number, units: number): Promise<ConsumerDeliveriesResponse> {
         try {
-            const response = await fetch('https://consumerdeliveries/api/delivery-request', {
+            const apiUrl = getApiUrl('https://consumerdeliveries/api/delivery-request', '/consumerdeliveries/api/delivery-request');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     order_id: orderId,
-                    units,
+                    units: units,
                     destination: 'consumer',
                 }),
             });
@@ -28,7 +35,8 @@ export class ConsumerDeliveriesAPI {
 export class BulkDeliveriesAPI {
     static async requestDelivery(orderId: number, units: number, from: string): Promise<BulkDeliveriesResponse> {
         try {
-            const response = await fetch('https://bulkdeliveries/api/delivery-request', {
+            const apiUrl = getApiUrl('https://bulkdeliveries/api/delivery-request', '/bulkdeliveries/api/delivery-request');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -54,7 +62,8 @@ export class BulkDeliveriesAPI {
 export class CommercialBankAPI {
     static async makePayment(reference_number: number, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         try {
-            const response = await fetch('https://commercialbank/api/make-payment', {
+            const apiUrl = getApiUrl('https://commercialbank/api/make-payment', '/commercialbank/api/make-payment');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -80,7 +89,8 @@ export class CommercialBankAPI {
 export class CaseSuppliers {
     static async purchaseCases(quantity: number): Promise<PurchaseCasesResponse> {
         try {
-            const response = await fetch('https://case-suppliers/api/purchase', {
+            const apiUrl = getApiUrl('https://case-suppliers/api/purchase', '/case-suppliers/api/purchase');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -103,7 +113,8 @@ export class CaseSuppliers {
 export class ScreenSuppliers {
     static async purchaseScreens(quantity: number): Promise<PurchaseScreensResponse> {
         try {
-            const response = await fetch('https://screen-suppliers/api/purchase', {
+            const apiUrl = getApiUrl('https://screen-suppliers/api/purchase', '/screen-suppliers/api/purchase');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -123,11 +134,11 @@ export class ScreenSuppliers {
     }
 }
 
-
 export class ElectronicsSuppliers {
     static async purchaseElectronics(quantity: number): Promise<PurchaseElectronicsResponse> {
         try {
-            const response = await fetch('https://electronics-suppliers/api/purchase', {
+            const apiUrl = getApiUrl('https://electronics-suppliers/api/purchase', '/electronics-suppliers/api/purchase');
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -146,5 +157,3 @@ export class ElectronicsSuppliers {
         }
     }
 }
-
-
