@@ -55,8 +55,8 @@ export class SimulationService {
 
         await this.calculateMachineToOrder();
 
-        await SystemSettingsRepository.insertByKey("account_number", accountNumber);
-        await SystemSettingsRepository.insertByKey("loan_number", loan_number);
+        await SystemSettingsRepository.upsertByKey("account_number", accountNumber);
+        await SystemSettingsRepository.upsertByKey("loan_number", loan_number);
 
         await TickService.start(2524684100);
     }
