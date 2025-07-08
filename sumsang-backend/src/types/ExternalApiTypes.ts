@@ -58,6 +58,7 @@ export interface MachineInfo {
     quantity: number;
     materialRatio: string;
     productionRate: number;
+    price: number;
 }
 
 export interface AvailableMachineResponse {
