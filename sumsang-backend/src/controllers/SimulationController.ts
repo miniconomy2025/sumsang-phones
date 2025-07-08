@@ -10,7 +10,6 @@ export class SimulationController {
             response.status(200).json({ message: "Simulation started successfully" })
         }
         catch (error) {
-            console.error("Simulation start failed", error);
             response.status(500).json({ error: "Failed to start simulation" })
         }
     }

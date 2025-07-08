@@ -10,6 +10,7 @@ import { SupplierRepository } from '../repositories/SupplierRepository.js';
 import { PartsPurchase } from '../types/PartsPurchaseType.js';
 import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository.js';
 import { MachinePurchaseService } from './MachinePurchaseService.js';
+import { PartsRepository } from '../repositories/PartsRepository.js';
 
 export class DailyTasksService {
     static async executeDailyTasks(): Promise<void> {
@@ -314,7 +315,7 @@ export class DailyTasksService {
             purchaseOrder = await ElectronicsSuppliers.purchaseElectronics(quantity);
         }
 
-        return await PartsPurchaseRepository.createPartsPurchase({ partId: partId, referenceNumber: purchaseOrder?.reference_number!, cost: purchaseOrder?.cost!, quantity: quantity, accountNumber: purchaseOrder?.account_number!, status: Status.PendingPayment });
+        return await PartsPurchaseRepository.createPartsPurchase({ partId: partId, referenceNumber: purchaseOrder?.referenceNumber!, cost: purchaseOrder?.cost!, quantity: quantity, accountNumber: purchaseOrder?.accountNumber!, status: Status.PendingPayment });
     }
 
     static async processPendingPartsPurchases() {
@@ -361,11 +362,12 @@ export class DailyTasksService {
 
     static async makeBulkDeliveryRequest(partsPurchase: PartsPurchase) {
         const supplier = await SupplierRepository.getSupplierByPartId(partsPurchase.partId);
+        const part = await PartsRepository.getPartById(partsPurchase.partId);
 
-        const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name);
+        const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name, part.name);
 
-        if (result.success && result.delivery_reference && result.cost && result.account_number) {
-            await BulkDeliveryRepository.insertBulkDelivery(partsPurchase.partsPurchaseId!, result.delivery_reference, result.cost, supplier.address, result.account_number);
+        if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
+            await BulkDeliveryRepository.insertBulkDelivery(partsPurchase.partsPurchaseId!, result.pickupRequestId, result.cost, supplier.address, result.bulkLogisticsBankAccountNumber);
 
             await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryPayment);
         }

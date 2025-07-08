@@ -42,7 +42,7 @@ export class MachineRepository {
   static async createMachinesAndRatiosFromPurchase(machinePurchase: MachinePurchaseRecord): Promise<void> {
 
     const ratioString = machinePurchase.ratio;
-    const ratioQuantities = ratioString.split(':').map(Number);
+    const ratioQuantities = ratioString.split('|').map(Number);
 
     const partIds = [1, 2, 3];
 

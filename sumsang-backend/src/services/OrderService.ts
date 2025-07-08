@@ -98,10 +98,10 @@ export class OrderService {
     static async makeDeliveryRequest(order: Order): Promise<void> {
         const units = await OrderRepository.getOrderItemsCount(order.orderId);
 
-        const result = await ConsumerDeliveriesAPI.requestDelivery(order.orderId, units);
+        const result = await ConsumerDeliveriesAPI.requestDelivery(units);
 
-        if (result.success && result.delivery_reference && result.cost && result.account_number) {
-            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.delivery_reference, result.cost, result.account_number);
+        if (result.success && result.referenceno && result.amount && result.account_number) {
+            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.referenceno, result.amount, result.account_number);
 
             await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryPayment);
         }

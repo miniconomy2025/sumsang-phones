@@ -1,56 +1,72 @@
 export interface ConsumerDeliveriesResponse {
-    success: boolean;
-    delivery_reference?: string;
-    cost?: number;
+    success?: boolean;
+    referenceno?: string;
+    amount?: number;
     account_number?: string;
     message?: string;
 }
 
 export interface BulkDeliveriesResponse {
-    success: boolean;
-    delivery_reference?: number;
+    success?: boolean;
+    pickupRequestId?: number;
     cost?: number;
-    account_number?: string;
+    paymentReferenceId?: string;
+    bulkLogisticsBankAccountNumber?: string;
+    status?: string;
+    statusCheckUrl?: string;
     message?: string;
 }
 
 export interface PurchaseCasesResponse {
-    success: boolean;
-    reference_number?: number;
-    cost?: number;
-    account_number?: string;
-    message?: string;
+    id: number;
+    order_status_id: number;
+    quantity: number;
+    total_price: number;
+    bankNumber: string;
 }
 
 export interface PurchaseScreensResponse {
-    success: boolean;
-    reference_number?: number;
-    cost?: number;
-    account_number?: string;
-    message?: string;
+    orderId: number;
+    totalPrice: number;
+    bankAccountNumber: string;
+    orderStatusLink: string;
 }
 
 export interface PurchaseElectronicsResponse {
+    orderId: number;
+    amountDue: number;
+    bankNumber: string;
+    quantity: number;
+}
+
+export interface PartsPurchaseResponse {
     success: boolean;
-    reference_number?: number;
+    referenceNumber?: number;
     cost?: number;
-    account_number?: string;
+    accountNumber?: string;
     message?: string;
 }
 
 export interface MachinePurchaseResponse {
-    orderId: number;
-    machineName: string;
-    quantity: number;
-    price: number;
-    weight: number;
-    machineDetails:
+    success?: boolean;
+    orderId?: number;
+    machineName?: string;
+    totalPrice?: number;
+    unitWeight?: number;
+    totalWeight?: number;
+    quantity?: number;
+    machineDetails?:
     {
         requiredMaterials: string;
-        materialRatio: string;
+        inputRatio: {
+            additionalProp1: number;
+            additionalProp2: number;
+            additionalProp3: number;
+        };
         productionRate: number
     }
-    bankAccount: string
+    bankAccount?: string;
+    message?: string;
 }
 
 export interface MachineInfo {

@@ -14,10 +14,7 @@ export class LoanService {
         for (const amount of tryAmounts) {
             const result = await BankService.applyForLoan(amount);
             if (result.success) {
-                console.log(`Loan approved: D${amount}`);
                 return { ...result, amount };
-            } else {
-                console.warn(`Loan denied for amount: D${amount}`);
             }
         }
 

@@ -15,18 +15,18 @@ export class MachinePurchaseService {
 
     static async recordMachinePurchase(machinePurchase: MachinePurchaseResponse): Promise<number> {
         // Map machineName to phoneId
-        const phone = await PhoneRepository.getPhoneByModel(machinePurchase.machineName);
+        const phone = await PhoneRepository.getPhoneByModel(machinePurchase.machineName!);
 
         const machineRecord: MachinePurchaseRecord = {
             phoneId: phone.phone_id,
-            machinesPurchased: machinePurchase.quantity,
-            totalCost: machinePurchase.price,
-            weightPerMachine: machinePurchase.weight,
-            ratePerDay: machinePurchase.machineDetails.productionRate,
-            ratio: machinePurchase.machineDetails.materialRatio,
+            machinesPurchased: machinePurchase.quantity!,
+            totalCost: machinePurchase.totalPrice!,
+            weightPerMachine: machinePurchase.unitWeight!,
+            ratePerDay: machinePurchase.machineDetails!.productionRate,
+            ratio: `${machinePurchase.machineDetails!.inputRatio.additionalProp1}|${machinePurchase.machineDetails!.inputRatio.additionalProp2}|${machinePurchase.machineDetails!.inputRatio.additionalProp3}`,
             status: Status.PendingPayment,
-            accountNumber: machinePurchase.bankAccount,
-            reference: machinePurchase.orderId
+            accountNumber: machinePurchase.bankAccount!,
+            reference: machinePurchase.orderId!
         };
 
         // Save machine purchase to DB

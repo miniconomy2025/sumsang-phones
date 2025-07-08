@@ -26,10 +26,9 @@ export class SimulationService {
             const availableMachines = await THOHService.getAvailableMachines();
             const machine = availableMachines
                 .flatMap(m => m.machines)
-                .find(m => m.machineName.toLowerCase() === model.toLowerCase());
+                .find(m => m.machineName.toLowerCase() === `${model.toLowerCase().replace(' ', '_')}_machine`);
 
             if (!machine) {
-                console.log(`Machine for model '${model}' not available`);
                 continue;
             }
 

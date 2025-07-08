@@ -4,9 +4,9 @@ import { THOHAPI } from "../utils/externalApis.js";
 
 export class THOHService {
     static async purchaseMachine(machineName: string, quantity: number) {
-        const response = THOHAPI.purchaseMachine(machineName, quantity);
+        const response = await THOHAPI.purchaseMachine(machineName, quantity);
 
-        if (!response) {
+        if (!response.success) {
             throw new Error("Failed to buy machine");
         }
 
@@ -14,7 +14,7 @@ export class THOHService {
     }
 
     static async getAvailableMachines(): Promise<AvailableMachineResponse[]> {
-        const response = THOHAPI.getAvailableMachines();
+        const response = await THOHAPI.getAvailableMachines();
 
         if (!response) {
             throw new Error("failed to get machines");
