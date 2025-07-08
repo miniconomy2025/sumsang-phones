@@ -1,3 +1,5 @@
+// services/LogisticsService.ts
+
 import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository.js';
 import { ConsumerDeliveryRepository } from '../repositories/ConsumerDeliveriesRepository.js';
 import { InventoryRepository } from '../repositories/InventoryRepository.js';
@@ -25,14 +27,14 @@ export class LogisticsService {
         
         const totalExpected = partsPurchase.quantity;
         const alreadyReceived = bulkDelivery.unitsReceived || 0;
-        
 
+        
         await BulkDeliveryRepository.updateUnitsReceived(bulkDelivery.bulkDeliveryId, quantityReceived);
 
         if (alreadyReceived + quantityReceived >= totalExpected) {
 
             await InventoryRepository.addParts(partsPurchase.partId, totalExpected);
-            
+
             await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.Completed); 
             return { message: 'Final parts delivery processed. Inventory updated.' };
         }
@@ -54,7 +56,7 @@ export class LogisticsService {
         const totalExpected = machinePurchase.machinesPurchased;
         const alreadyReceived = machineDelivery.unitsReceived || 0;
         
-
+        
         await MachineDeliveryRepository.updateUnitsReceived(machineDelivery.machineDeliveriesId, quantityReceived);
 
         if (alreadyReceived + quantityReceived >= totalExpected) {
@@ -65,15 +67,15 @@ export class LogisticsService {
         return { message: `Partial machine delivery of ${quantityReceived} units processed.` };
     }
 
-    static async handlePhonesCollection(orderId: number, quantityCollected: number) {
-        const consumerDelivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(orderId);
+    static async handlePhonesCollection(deliveryReference: string, quantityCollected: number) {
+        const consumerDelivery = await ConsumerDeliveryRepository.getDeliveryByDeliveryReference(deliveryReference);
         if (!consumerDelivery) {
-            throw new NotFoundError(`No delivery record found for orderId ${orderId}.`);
+            throw new NotFoundError(`No delivery record found for delivery reference ${deliveryReference}.`);
         }
-        
+        const orderId = consumerDelivery.orderId;
         const orderItems = await OrderRepository.getOrderItems(orderId);
         if (orderItems.length === 0) {
-            throw new NotFoundError(`No items found for orderId ${orderId}.`);
+            throw new NotFoundError(`No items found for orderId ${orderId} associated with this delivery.`);
         }
         const totalExpected = orderItems.reduce((sum, item) => sum + item.quantity, 0);
 

@@ -4,7 +4,7 @@ import { ConsumerDelivery } from '../types/ConsumerDeliveryType.js';
 export class ConsumerDeliveryRepository {
     static async insertConsumerDelivery(
         orderId: number,
-        deliveryReference: number,
+        deliveryReference: string,
         cost: number,
         accountNumber: string
     ): Promise<void> {
@@ -17,29 +17,53 @@ export class ConsumerDeliveryRepository {
     }
 
     static async getDeliveryByOrderId(orderId: number): Promise<ConsumerDelivery | null> {
-    const result = await db.query(
-        `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, date_created
-            FROM consumer_deliveries
-            WHERE order_id = $1`,
-        [orderId]
-    );
+        const result = await db.query(
+            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, date_created
+                FROM consumer_deliveries
+                WHERE order_id = $1`,
+            [orderId]
+        );
 
-    if (result.rows.length === 0) {
-        return null;
+        if (result.rows.length === 0) {
+            return null;
+        }
+
+        const row = result.rows[0];
+        return {
+            consumerDeliveryId: row.consumer_delivery_id,
+            orderId: row.order_id,
+            deliveryReference: row.delivery_reference,
+            cost: row.cost,
+            unitsCollected: row.units_collected,
+            accountNumber: row.account_number,
+            createdAt: row.date_created
+        };
     }
 
-    const row = result.rows[0];
-    return {
-        consumerDeliveryId: row.consumer_delivery_id,
-        orderId: row.order_id,
-        deliveryReference: row.delivery_reference,
-        cost: row.cost,
-        unitsCollected: row.units_collected,
-        accountNumber: row.account_number,
-        createdAt: row.date_created
-    };
-}
+    static async getDeliveryByDeliveryReference(deliveryReference: string): Promise<ConsumerDelivery | null> {
+        const result = await db.query(
+            `SELECT consumer_delivery_id, order_id, delivery_reference, cost, units_collected, account_number, date_created
+             FROM consumer_deliveries
+             WHERE delivery_reference = $1`,
+            [deliveryReference]
+        );
     
+        if (result.rows.length === 0) {
+            return null;
+        }
+    
+        const row = result.rows[0];
+        return {
+            consumerDeliveryId: row.consumer_delivery_id,
+            orderId: row.order_id,
+            deliveryReference: row.delivery_reference,
+            cost: row.cost,
+            unitsCollected: row.units_collected,
+            accountNumber: row.account_number,
+            createdAt: row.date_created
+        };
+    }
+
     static async updateUnitsCollected(consumerDeliveryId: number, unitsToAdd: number): Promise<void> {
         await db.query(
             `UPDATE consumer_deliveries
