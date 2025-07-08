@@ -9,24 +9,23 @@ export class LogisticsController {
     
     static async handleLogistics(req: Request, res: Response): Promise<void> {
         try {
-            const { id, type, items } = req.body;
-           
-            if (!id || !type || !items) {
-                 throw new BadRequestError('Invalid request payload. Must include id, type, and items array.');
+            const type = req.body.type;
+
+            if (!type || !['PICKUP', 'DELIVERY'].includes(type)) {
+                throw new BadRequestError('Invalid request payload. Must include type ("PICKUP" or "DELIVERY")');
             }
 
-            if (!Array.isArray(items)) {
-                throw new BadRequestError('Invalid request payload. `items` must be an array.');
-            }
-
-            if (!['PICKUP', 'DELIVERY'].includes(type)) {
-                throw new BadRequestError('Invalid request payload. Type must be either "PICKUP" or "DELIVERY".');
-            }
- 
             if (type === 'DELIVERY') {
+                const id = req.body.id;
+                const items = req.body.items;
+
                 const deliveryReference = Number(id);
                 if (isNaN(deliveryReference)) {
                     throw new BadRequestError('Invalid id for DELIVERY: must be a number (delivery_reference).');
+                }
+
+                if (!Array.isArray(items)) {
+                    throw new BadRequestError('Invalid request payload. `items` must be an array.');
                 }
 
                 const bulkDelivery = await BulkDeliveryRepository.getDeliveryByDeliveryReference(deliveryReference);
@@ -53,17 +52,13 @@ export class LogisticsController {
                 }
 
             } else if (type === 'PICKUP') {
+                const id = req.body.id;
+                const quantity = req.body.quantity;
+
                 const deliveryReference = id;
                 if (typeof deliveryReference !== 'string') {
                     throw new BadRequestError('Invalid id for PICKUP: must be a string (UUID delivery_reference).');
                 }
-
-                const quantity = items.reduce((sum, item) => {
-                    if (typeof item.quantity !== 'number' || item.quantity < 0) {
-                        throw new BadRequestError('Invalid item in payload: each item must have a positive quantity number.');
-                    }
-                    return sum + item.quantity;
-                }, 0);
 
                 const result = await LogisticsService.handlePhonesCollection(deliveryReference, quantity);
                 handleSuccess(res, result);
