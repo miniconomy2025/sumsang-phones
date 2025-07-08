@@ -2,25 +2,25 @@ import db from '../config/DatabaseConfig.js';
 import { Machine } from '../types/MachineType.js';
 
 export class MachineRepository {
-    static async getActiveMachines(): Promise<Machine[]> {
-        const result = await db.query(
-            `SELECT machine_id, phone_id, rate_per_day, date_acquired, date_retired
+  static async getActiveMachines(): Promise<Machine[]> {
+    const result = await db.query(
+      `SELECT machine_id, phone_id, rate_per_day, date_acquired, date_retired
             FROM machines
             WHERE date_acquired IS NOT NULL 
             AND date_retired IS NULL
             ORDER BY phone_id, machine_id`
-        );
-        return result.rows.map(row => ({
-            machineId: row.machine_id,
-            phoneId: row.phone_id,
-            ratePerDay: row.rate_per_day,
-            dateAcquired: row.date_acquired,
-            dateRetired: row.date_retired
-        }));;
-    }
+    );
+    return result.rows.map(row => ({
+      machineId: row.machine_id,
+      phoneId: row.phone_id,
+      ratePerDay: row.rate_per_day,
+      dateAcquired: row.date_acquired,
+      dateRetired: row.date_retired
+    }));;
+  }
 
-    static async getMachineRatios(phoneId: number) {
-      const result = await db.query(`
+  static async getMachineRatios(phoneId: number) {
+    const result = await db.query(`
         SELECT mr.part_id, SUM(mr.quantity) AS "total_quantity"
         FROM machine_ratios mr
         INNER JOIN machines m ON mr.machine_id = m.machine_id
@@ -30,9 +30,25 @@ export class MachineRepository {
         GROUP BY mr.part_id
       `, [phoneId]);
 
-      return result.rows.map(row => ({
-        partId: row.part_id,
-        totalQuantity: row.total_quantity
-      }));
+    return result.rows.map(row => ({
+      partId: row.part_id,
+      totalQuantity: row.total_quantity
+    }));
+  }
+
+  static async getMachineByPhoneId(phoneId: number): Promise<Machine> {
+    const result = await db.query(
+      `SELECT machine_id, phone_id, rate_per_day, date_acquired, date_retired
+             FROM machines
+             WHERE phoneId = $1`, [phoneId]
+    );
+
+    return {
+      machineId: result.rows[0].machine_id,
+      phoneId: result.rows[0].phone_id,
+      ratePerDay: result.rows[0].rate_per_day,
+      dateAcquired: result.rows[0].date_acquired,
+      dateRetired: result.rows[0].date_retired
+    }
   }
 }
