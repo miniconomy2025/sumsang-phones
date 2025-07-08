@@ -53,18 +53,21 @@ export class MachinePurchaseService {
         if (machinePurchase.status === Status.PendingPayment) {
             await this.makeMachinePurchasePayment(machinePurchase);
 
-            machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId)
+            machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
         if (machinePurchase.status === Status.PendingDeliveryRequest) {
             await this.makeMachineBulkDeliveryRequest(machinePurchase)
+
+            machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
         if (machinePurchase.status === Status.PendingDeliveryPayment) {
             await this.makeMachineBulkDeliveryPayement(machinePurchase)
+
+            machinePurchase = await MachinePurchaseRepository.getMachinePurchaseById(machinePurchaseId);
         }
     }
 
     static async makeMachineBulkDeliveryRequest(machinePurchase: MachinePurchaseRecord) {
-        const machine = await MachineRepository.getMachineByPhoneId(machinePurchase.phoneId)
 
         const result = await BulkDeliveriesAPI.requestDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, "THOH");
 
@@ -84,7 +87,7 @@ export class MachinePurchaseService {
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryDropOff);
         }
         else {
-            throw new Error("Could not pay for machine delivery");
+            // pass
         }
     }
 
@@ -95,7 +98,7 @@ export class MachinePurchaseService {
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, machinePurchase.status);
         }
         else {
-            throw new Error("Could not pay for machine");
+            // pass
         }
     }
 }

@@ -32,10 +32,11 @@ export class SimulationService {
                 continue;
             }
 
-            const units = Math.floor(perModelBudget / machine.productionRate);
+            const units = Math.floor(perModelBudget / machine.price);
             if (units <= 0) continue;
 
             await MachinePurchaseService.makeMachinePurchaseOrder(model, units);
+            await MachinePurchaseService.processPendingMachinePurchases();
         }
     }
 
@@ -46,7 +47,11 @@ export class SimulationService {
 
         const { loan_number } = await LoanService.applyWithFallback(this.loanAmount);
 
-        await DailyTasksService.orderParts();
+        await DailyTasksService.makePartsPurchaseOrder(1, 250);
+        await DailyTasksService.makePartsPurchaseOrder(2, 250);
+        await DailyTasksService.makePartsPurchaseOrder(3, 250);
+        await DailyTasksService.processPendingPartsPurchases()
+
         await this.calculateMachineToOrder();
 
         await SystemSettingsRepository.saveSetting("account_number", accountNumber);
