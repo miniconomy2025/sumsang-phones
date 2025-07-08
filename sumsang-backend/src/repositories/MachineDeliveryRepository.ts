@@ -1,7 +1,22 @@
 import db from '../config/DatabaseConfig.js';
-import { MachineDelivery } from '../types/MachineDeliveryType.js'; // You'll need to create this type definition
+import { MachineDelivery } from '../types/MachineDeliveryType.js';
 
 export class MachineDeliveryRepository {
+    static async insertMachineDelivery(
+        machinePurchaseId: number,
+        deliveryReference: number,
+        cost: number,
+        address: string,
+        accountNumber: string
+    ): Promise<void> {
+        await db.query(
+            `INSERT INTO machine_deliveries 
+            (machine_purchases_id, delivery_reference, cost, units_received, address, account_number, created_at)
+            VALUES ($1, $2, $3, 0, $4, $5, NOW())`,
+            [machinePurchaseId, deliveryReference, cost, address, accountNumber]
+        );
+    }
+
     static async getDeliveryByDeliveryReference(deliveryReference: number): Promise<MachineDelivery | null> {
         const result = await db.query(
             `SELECT machine_deliveries_id, machine_purchases_id, delivery_reference, cost, units_received, address, account_number, created_at

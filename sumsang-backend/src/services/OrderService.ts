@@ -57,13 +57,13 @@ export class OrderService {
                 order = await this.getOrder(order.orderId);
             }
         }
-        
+
         if (order.status === Status.PendingDeliveryRequest) {
             this.makeDeliveryRequest(order);
 
             order = await this.getOrder(order.orderId);
-        }   
-        
+        }
+
         if (order.status === Status.PendingDeliveryPayment) {
             this.makeDeliveryPayment(order);
 
@@ -109,7 +109,7 @@ export class OrderService {
 
     static async makeDeliveryPayment(order: Order): Promise<void> {
         const delivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(order.orderId);
-
+      
         if (!delivery) {
             throw new ValidationError(`Delivery information not found for order ${order.orderId}`);
         }
@@ -117,7 +117,7 @@ export class OrderService {
         const result = await CommercialBankAPI.makePayment(delivery.deliveryReference, delivery.cost, delivery.accountNumber);
 
         if (result.success) {
-            await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection); 
+            await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection);
         }
         else {
             // no money probably - try again later when not broke I guess
@@ -127,7 +127,7 @@ export class OrderService {
 
     static async getOrder(orderId: number) {
         const order = await OrderRepository.getOrderById(orderId);
-        if (!order) 
+        if (!order)
             throw new ValidationError(`Order ${orderId} not found`);
         return order;
     }
