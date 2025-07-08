@@ -4,9 +4,10 @@ import { BankService } from './BankService.js';
 import { DailyTasksService } from './DailyTasks.js';
 import { MachinePurchaseService } from './MachinePurchaseService.js';
 import { THOHService } from './THOHService.js';
-import { SystemSettingsRepository } from '../repositories/SystemSettingsRepository.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
 import { PhoneRepository } from '../repositories/PhoneRepository.js';
 import { LoanService } from './LoanService.js';
+import { TickService } from './TickService.js';
 
 export class SimulationService {
     static loanAmount = 20_000_000;
@@ -54,7 +55,9 @@ export class SimulationService {
 
         await this.calculateMachineToOrder();
 
-        await SystemSettingsRepository.saveSetting("account_number", accountNumber);
-        await SystemSettingsRepository.saveSetting("loan_number", loan_number);
+        await SystemSettingsRepository.insertByKey("account_number", accountNumber);
+        await SystemSettingsRepository.insertByKey("loan_number", loan_number);
+
+        await TickService.start(2524684100);
     }
 }
