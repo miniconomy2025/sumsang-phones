@@ -37,3 +37,29 @@ export interface PurchaseElectronicsResponse {
     account_number?: string;
     message?: string;
 }
+
+export interface MachinePurchaseResponse {
+    orderId: number;
+    machineName: string;
+    quantity: number;
+    price: number;
+    weight: number;
+    machineDetails:
+    {
+        requiredMaterials: string;
+        materialRatio: string;
+        productionRate: number
+    }
+    bankAccount: string
+}
+
+export interface MachineInfo {
+    machineName: string;
+    quantity: number;
+    materialRatio: string;
+    productionRate: number;
+}
+
+export interface AvailableMachineResponse {
+    machines: MachineInfo[];
+}
