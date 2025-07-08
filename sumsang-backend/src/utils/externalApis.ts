@@ -66,7 +66,7 @@ export class BulkDeliveriesAPI {
 export class CommercialBankAPI {
     static apiUrl = getApiUrl('https://commercialbank/api', '/commercialbank/api/make-payment');
 
-    static async makePayment(reference_number: number, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
+    static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         try {
             const response = await fetch(`${this.apiUrl}/make-payment`, {
                 method: 'POST',

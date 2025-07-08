@@ -349,7 +349,7 @@ export class DailyTasksService {
 
 
     static async makePartsPurchasePayment(partsPurchase: PartsPurchase): Promise<void> {
-        const result = await CommercialBankAPI.makePayment(partsPurchase.referenceNumber, partsPurchase.cost, partsPurchase.accountNumber);
+        const result = await CommercialBankAPI.makePayment(String(partsPurchase.referenceNumber), partsPurchase.cost, partsPurchase.accountNumber);
 
         if (result.success) {
             await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryRequest);
@@ -374,7 +374,7 @@ export class DailyTasksService {
     static async makeBulkDeliveryPayment(partsPurchase: PartsPurchase) {
         const bulkDelivery = await BulkDeliveryRepository.getDeliveryByPartsPurchaseId(partsPurchase.partsPurchaseId!);
 
-        const result = await CommercialBankAPI.makePayment(bulkDelivery.deliveryReference, bulkDelivery.cost, bulkDelivery.accountNumber);
+        const result = await CommercialBankAPI.makePayment(String(bulkDelivery.deliveryReference), bulkDelivery.cost, bulkDelivery.accountNumber);
 
         if (result.success) {
             await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryDropOff);

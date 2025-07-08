@@ -20,7 +20,7 @@ export class BankService {
     }
 
     static async makePayment(reference: number, amount: number, accountNumber: string) {
-        const result = await CommercialBankAPI.makePayment(reference, amount, accountNumber);
+        const result = await CommercialBankAPI.makePayment(String(reference), amount, accountNumber);
         if (!result.success) {
             throw new Error(`Payment failed: ${result.message}`);
         }
