@@ -324,18 +324,6 @@ jobs:
                 proxy_pass http://localhost:3000;
             }
         }
-
-        # TLS only, no mTLS — internal frontend uses this
-        server {
-            listen 444 ssl;
-            server_name sumsang-phones-api.projects.bbdgrad.com;
-
-            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
-            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
-
-            location / {
-                proxy_pass http://localhost:3000;
-            }
         }
         NGINX_CONF
         EOF
@@ -373,11 +361,11 @@ jobs:
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-            listen 443 ssl; # managed by Certbot
-            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem; # managed by Certbot
-            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem; # managed by Certbot
-            include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
-            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+            listen 443 ssl;
+            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem;
+            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem;
+            include /etc/letsencrypt/options-ssl-nginx.conf;
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
         }
         server {
@@ -422,18 +410,33 @@ jobs:
       with:
         secret-ids: |
           WEB_EC2_PRIVATE_KEY, webprivatekey
+          API_EC2_PRIVATE_KEY, apiprivatekey
 
-    - name: Setup private key
+    - name: Setup private key web
       run: |
-        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > privatekey.pem
-        chmod 0500 privatekey.pem
+        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > privatekeyweb.pem
+        chmod 0500 privatekeyweb.pem
 
-    - name: Cerbot
+    
+    - name: Setup private key api
+      run: |
+        echo "${{ env.API_EC2_PRIVATE_KEY }}" > privatekeyapi.pem
+        chmod 0500 privatekeyapi.pem
+
+    - name: Cerbot frontend
       run: |
         EC2_HOST=${{ needs.terraform.outputs.webec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+        ssh -o StrictHostKeyChecking=no -i privatekeyweb.pem "ubuntu@$EC2_HOST" ' 
           sudo apt install certbot python3-certbot-nginx -y &&
           sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+        '
+  
+    - name: Cerbot API
+      run: |
+        EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
+        ssh -o StrictHostKeyChecking=no -i privatekeyapi.pem "ubuntu@$EC2_HOST" ' 
+          sudo apt install certbot python3-certbot-nginx -y &&
+          sudo certbot --nginx -d sumsang-phones-api.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
         '
             
   flyway:
