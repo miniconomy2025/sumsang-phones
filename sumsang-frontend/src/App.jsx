@@ -1,5 +1,5 @@
 import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import NavigationBar from './components/NavigationBar/NavigationBar';
 import ProductionOverview from './components/panels/ProductionOverview/ProductionOverview';
 import Sales from './components/panels/Sales/Sales';
