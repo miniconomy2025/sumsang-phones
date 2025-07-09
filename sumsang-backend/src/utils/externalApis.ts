@@ -7,17 +7,17 @@ function getApiUrl(productionUrl: string, servicePath: string): string {
 }
 
 export class ConsumerDeliveriesAPI {
-    static apiUrl = getApiUrl('https://consumerdeliveries/api', '/consumerdeliveries/api');
+    static apiUrl = getApiUrl('https://f85q1igme7.execute-api.af-south-1.amazonaws.com/api', '/consumerdeliveries/api');
 
     static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         try {
-            const response = await fetch(`${this.apiUrl}/pickup`, {
+            const response = await fetch(`${this.apiUrl}/pickups`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     quantity: units,
-                    pickup_from: "sumsang-company",
-                    delivery_to: "thoh"
+                    companyName: "sumsang-company",
+                    recipient: "thoh"
                 }),
             });
 

@@ -7,6 +7,7 @@ import SimulationRoutes from './routes/SimulationRoute.js';
 import LogisticsRoutes from './routes/LogisticsRoutes.js';
 import SystemSettingsRoutes from './routes/SystemSettingsRoutes.js';
 import MachineRoutes from './routes/MachineRoutes.js';
+import TestRoutes from './tests/testRoutes.js';
 
 const app = express();
 const PORT = 3000;
@@ -22,6 +23,9 @@ app.use('/public-api', LogisticsRoutes);
 app.use('/public-api', MachineRoutes);
 
 app.use('/internal-api', DashboardRoutes);
+
+if (process.env.USE_TEST_ENDPOINTS==='true')
+	app.use('/test-endpoints', TestRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
