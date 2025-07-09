@@ -324,7 +324,6 @@ jobs:
                 proxy_pass http://localhost:3000;
             }
         }
-        }
         NGINX_CONF
         EOF
 
