@@ -3,11 +3,11 @@ SET price = 2500
 where phone_id = 1;
 
 UPDATE phones
-SET price = 5000;
+SET price = 5000
 WHERE phone_id = 2;
 
 UPDATE phones
-SET price = 7500;
+SET price = 7500
 where phone_id = 3;
 
 CREATE OR REPLACE PROCEDURE clear_all_except_status_and_phones()
@@ -28,15 +28,15 @@ BEGIN
 
   UPDATE phones
   SET price = 2500
-  where phone_id = 1;
+  WHERE phone_id = 1;
   
   UPDATE phones
-  SET price = 5000;
+  SET price = 5000
   WHERE phone_id = 2;
   
   UPDATE phones
-  SET price = 7500;
-  where phone_id = 3;
+  SET price = 7500
+  WHERE phone_id = 3;
   
   UPDATE stock SET quantity_available = 0, quantity_reserved = 0;
   UPDATE inventory SET quantity_available = 0;

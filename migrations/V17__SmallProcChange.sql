@@ -50,11 +50,11 @@ BEGIN
   where phone_id = 1;
   
   UPDATE phones
-  SET price = 5000;
+  SET price = 5000
   WHERE phone_id = 2;
   
   UPDATE phones
-  SET price = 7500;
+  SET price = 7500
   where phone_id = 3;
   
   UPDATE stock SET quantity_available = 0, quantity_reserved = 0;
