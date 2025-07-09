@@ -88,4 +88,13 @@ export class MachineRepository {
       throw error;
     }
   }
+
+  static async retireMachinesByPhoneId(phoneId: number): Promise<void> {
+		await db.query(
+			`UPDATE machines
+		  SET date_retired = NOW()
+		  WHERE phone_id = $1 AND date_retired IS NULL`,
+			[phoneId]
+		);
+	}
 }
