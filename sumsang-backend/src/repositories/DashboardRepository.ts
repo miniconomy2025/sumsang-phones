@@ -455,7 +455,7 @@ export class DashboardRepository {
             const DEFAULT_EPOCH_TIME = "1751987916074";
             const startEpochSetting = await SystemSettingsRepository.getByKey(systemSettingKeys.startEpoch);
             
-            return startEpochSetting != null ? new Date(Number(startEpochSetting?.value)).toISOString() : DEFAULT_EPOCH_TIME;
+            return startEpochSetting != null ? new Date(Number(startEpochSetting?.value)).toISOString() : new Date(Number(DEFAULT_EPOCH_TIME)).toISOString();
         } catch (error) {
             throw new DatabaseError(`Could not get starting epoch: ${(error as Error).message}`);
         }
