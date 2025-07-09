@@ -1,5 +1,8 @@
 import db from '../config/DatabaseConfig.js';
 import { DatabaseError } from '../utils/errors.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
+import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
+
 
 export class DashboardRepository {
 
@@ -201,16 +204,18 @@ export class DashboardRepository {
 
     private static async fetchPartCostsOverTime() {
         try {
+            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
-                SELECT
-                    p.name AS part_name,
-                    TO_CHAR(pp.purchased_at, 'YYYY-MM-DD') AS purchase_date,
-                    ROUND(AVG(pp.cost), 2) AS unit_price
-                FROM parts_purchases pp
-                JOIN parts p ON pp.part_id = p.part_id
-                GROUP BY p.name, TO_CHAR(pp.purchased_at, 'YYYY-MM-DD')
-                ORDER BY purchase_date, part_name;
-            `);
+            SELECT
+                p.name AS part_name,
+                TO_CHAR(($1::timestamp + pp.purchased_at * INTERVAL '1 day'), 'YYYY-MM-DD') AS purchase_date,
+                ROUND(AVG(pp.cost), 2) AS unit_price
+            FROM parts_purchases pp
+            JOIN parts p ON pp.part_id = p.part_id
+            GROUP BY p.name, pp.purchased_at
+            ORDER BY purchase_date, part_name;
+        `, [startEpoch]);
+
             const result: Record<string, { date: string, value: number }[]> = {};
             for (const row of res.rows) {
                 const part = row.part_name;
@@ -222,6 +227,7 @@ export class DashboardRepository {
             throw new DatabaseError(`Failed to fetch part costs over time: ${(error as Error).message}`);
         }
     }
+
 
     private static async fetchTotalPhonesSold() {
         try {
@@ -343,76 +349,89 @@ export class DashboardRepository {
 
     private static async fetchBulkTransfersIn() {
         try {
+            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
-                SELECT 
-                    p.name AS part_name,
-                    DATE(bd.created_at) AS delivery_date,
-                    SUM(bd.units_received) AS total_quantity_received,
-                    SUM(bd.cost) AS allocated_delivery_cost
-                FROM bulk_deliveries bd
-                JOIN parts_purchases pp ON bd.parts_purchase_id = pp.parts_purchase_id
-                JOIN parts p ON pp.part_id = p.part_id
-                GROUP BY p.name, DATE(bd.created_at)
-                ORDER BY delivery_date, p.name;
-            `);
+            SELECT 
+                p.name AS part_name,
+                TO_CHAR(($1::timestamp + bd.date_created * INTERVAL '1 day'), 'YYYY-MM-DD') AS delivery_date,
+                SUM(bd.units_received) AS total_quantity_received,
+                SUM(bd.cost) AS allocated_delivery_cost
+            FROM bulk_deliveries bd
+            JOIN parts_purchases pp ON bd.parts_purchase_id = pp.parts_purchase_id
+            JOIN parts p ON pp.part_id = p.part_id
+            GROUP BY p.name, bd.date_created
+            ORDER BY delivery_date, p.name;
+        `, [startEpoch]);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch bulk transfers in: ${(error as Error).message}`);
         }
     }
 
+
     private static async fetchConsumerTransfersOut() {
         try {
+            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
-                SELECT 
-                    p.model AS phone_model, 
-                    DATE(cd.date_created) AS delivery_date, 
-                    SUM(oi.quantity) AS phones_delivered, 
-                    SUM(cd.cost) AS total_delivery_cost
-                FROM consumer_deliveries cd
-                JOIN orders o ON cd.order_id = o.order_id
-                JOIN order_items oi ON o.order_id = oi.order_id
-                JOIN phones p ON oi.phone_id = p.phone_id
-                GROUP BY p.model, DATE(cd.date_created)
-                ORDER BY delivery_date, p.model;
-            `);
+            SELECT 
+                p.model AS phone_model,
+                TO_CHAR(($1::timestamp + cd.date_created * INTERVAL '1 day'), 'YYYY-MM-DD') AS delivery_date,
+                SUM(oi.quantity) AS phones_delivered,
+                SUM(cd.cost) AS total_delivery_cost
+            FROM consumer_deliveries cd
+            JOIN orders o ON cd.order_id = o.order_id
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN phones p ON oi.phone_id = p.phone_id
+            GROUP BY p.model, cd.date_created
+            ORDER BY delivery_date, p.model;
+        `, [startEpoch]);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch consumer transfers out: ${(error as Error).message}`);
         }
     }
 
+
+
     private static async fetchPhonesProduced() {
         try {
+            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
-                SELECT ph.model AS phone_model, DATE(s.updated_at) AS production_date, 
-                    SUM(s.quantity_available + s.quantity_reserved) AS total_produced
-                FROM stock s
-                JOIN phones ph ON s.phone_id = ph.phone_id
-                GROUP BY ph.model, DATE(s.updated_at)
-                ORDER BY production_date, ph.model;
-            `);
+            SELECT 
+                ph.model AS phone_model,
+                TO_CHAR(($1::timestamp + s.updated_at * INTERVAL '1 day'), 'YYYY-MM-DD') AS production_date,
+                SUM(s.quantity_available + s.quantity_reserved) AS total_produced
+            FROM stock s
+            JOIN phones ph ON s.phone_id = ph.phone_id
+            GROUP BY ph.model, s.updated_at
+            ORDER BY production_date, ph.model;
+        `, [startEpoch]);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch number of phones produced: ${(error as Error).message}`);
         }
     }
 
+
     private static async fetchPhonesProducedPerDay() {
         try {
+            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
-                SELECT ph.model AS phone_model, DATE(s.updated_at) AS production_date, 
-                    SUM(s.quantity_available + s.quantity_reserved) AS produced_on_date
-                FROM stock s
-                JOIN phones ph ON s.phone_id = ph.phone_id
-                GROUP BY ph.model, DATE(s.updated_at)
-                ORDER BY production_date, ph.model;
-            `);
+            SELECT 
+                ph.model AS phone_model,
+                TO_CHAR(($1::timestamp + s.updated_at * INTERVAL '1 day'), 'YYYY-MM-DD') AS production_date,
+                SUM(s.quantity_available + s.quantity_reserved) AS produced_on_date
+            FROM stock s
+            JOIN phones ph ON s.phone_id = ph.phone_id
+            GROUP BY ph.model, s.updated_at
+            ORDER BY production_date, ph.model;
+        `, [startEpoch]);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch phones produced per day: ${(error as Error).message}`);
         }
     }
+
 
     private static async fetchPartCostPerModel() {
         try {
@@ -430,6 +449,15 @@ export class DashboardRepository {
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch cost of components for phones produced: ${(error as Error).message}`);
+        }
+    }
+
+    private static async getStartingEpoch(): Promise<string> {
+        try {
+            const startEpochSetting = await SystemSettingsRepository.getByKey(systemSettingKeys.startEpoch);
+            return new Date(Number(startEpochSetting?.value)).toISOString();
+        } catch (error) {
+            throw new DatabaseError(`Could not get starting epoch: ${(error as Error).message}`);
         }
     }
 }
