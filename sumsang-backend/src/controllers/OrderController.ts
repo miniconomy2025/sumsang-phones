@@ -26,7 +26,8 @@ export class OrderController {
             }
 
             const order = await OrderService.placeOrder(items);
-            handleSuccess(res, order);
+            const accountNumber = '123456789012'
+            handleSuccess(res, {...order, accountNumber});
         }
         catch (error) {
             handleFailure(res, error, 'Error placing order');

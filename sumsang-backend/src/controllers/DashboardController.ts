@@ -46,8 +46,8 @@ export class DashboardController {
     static async getProductionStats(req: Request, res: Response): Promise<void> {
         try {
             
-            const noticeData = await DashboardService.getProductionStats();
-            handleSuccess(res, noticeData);
+            const productionStats = await DashboardService.getProductionStats();
+            handleSuccess(res, productionStats);
         } catch (error) {
             handleFailure(res, error, 'Could not get production information');
         }

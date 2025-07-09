@@ -1,5 +1,6 @@
 import db from '../config/DatabaseConfig.js';
 import { Machine } from '../types/MachineType.js';
+import { MachinePurchaseRecord } from '../types/MachinePurchaseType.js';
 
 export class MachineRepository {
 	static async getActiveMachines(): Promise<Machine[]> {
@@ -35,7 +36,7 @@ export class MachineRepository {
 
 		return result.rows.map((row) => ({
 			partId: row.part_id,
-			totalQuantity: row.total_quantity,
+			totalQuantity: Number(row.total_quantity),
 		}));
 	}
 
@@ -46,5 +47,56 @@ export class MachineRepository {
 		  WHERE phone_id = $1 AND date_retired IS NULL`,
 			[phoneId]
 		);
+	}
+
+	static async createMachinesAndRatiosFromPurchase(
+		machinePurchase: MachinePurchaseRecord
+	): Promise<void> {
+		const ratioString = machinePurchase.ratio;
+		const ratioQuantities = ratioString.split('|').map(Number);
+
+		const partIds = [1, 2, 3];
+
+		if (ratioQuantities.length !== partIds.length) {
+			throw new Error(
+				`Ratio string "${ratioString}" is invalid and does not match the expected number of parts.`
+			);
+		}
+
+		try {
+			await db.query('BEGIN');
+
+			const costPerMachine =
+				Number(machinePurchase.totalCost) / machinePurchase.machinesPurchased;
+
+			for (let i = 0; i < machinePurchase.machinesPurchased; i++) {
+				const machineInsertQuery = `
+                    INSERT INTO machines (phone_id, rate_per_day, date_acquired, cost)
+                    VALUES ($1, $2, NOW(), $3)
+                    RETURNING machine_id;
+                `;
+				const machineResult = await db.query(machineInsertQuery, [
+					machinePurchase.phoneId,
+					machinePurchase.ratePerDay,
+					costPerMachine,
+				]);
+				const newMachineId = machineResult.rows[0].machine_id;
+
+				const ratioInsertQuery = `
+                    INSERT INTO machine_ratios (machine_id, part_id, quantity)
+                    VALUES ($1, $2, $3);
+                `;
+				for (let j = 0; j < partIds.length; j++) {
+					const partId = partIds[j];
+					const quantity = ratioQuantities[j];
+					await db.query(ratioInsertQuery, [newMachineId, partId, quantity]);
+				}
+			}
+
+			await db.query('COMMIT');
+		} catch (error) {
+			await db.query('ROLLBACK');
+			throw error;
+		}
 	}
 }

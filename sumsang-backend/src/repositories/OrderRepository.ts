@@ -95,7 +95,7 @@ export class OrderRepository {
             FROM order_items
             WHERE order_id = $1
         `, [orderId]);
-        return result.rows[0];
+        return result.rows[0].count;
     }
 
     static async getOrdersWithInsufficientPayment(cutoffDate: Date): Promise<Order[]> {

@@ -216,6 +216,8 @@ jobs:
             API_EC2_PRIVATE_KEY, apiprivatekey
             POSTGRES_USER, postgresuser
             POSTGRES_PASS, postgrespass
+            DB_HOST, dbhost
+            DB_NAME, dbname
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
@@ -234,6 +236,9 @@ jobs:
                 echo "Exporting environment variables"
                 echo "DB_USER=${{ env.POSTGRES_USER }}" | sudo tee -a /etc/environment
                 echo "DB_PASSWORD=${{ env.POSTGRES_PASS }}" | sudo tee -a /etc/environment
+                echo "DB_HOST=${{ env.DB_HOST }}" | sudo tee -a /etc/environment
+                echo "DB_NAME=${{ env.DB_NAME }}" | sudo tee -a /etc/environment
+                echo "NODE_ENV=production" | sudo tee -a /etc/environment
               '
       
       - name: Deploy
@@ -257,14 +262,15 @@ jobs:
             pm2 start index.js --name sumsang-api
           '
 
-  issue-certificates:
+  reverse-proxy-setup:
     needs:
-    - deploy-api
-    - terraform
+        - deploy-api
+        - terraform
+        - deploy-frontend
+    name: Setup reverse proxies
     permissions:
         id-token: write
         contents: read
-    name: Issue Certificates
     runs-on: ubuntu-latest
     steps:
     - name: Configure AWS credentials
@@ -277,22 +283,78 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       with:
         secret-ids: |
-          EC2_PRIVATE_KEY, apiprivatekey
+          API_EC2_PRIVATE_KEY, apiprivatekey
+          WEB_EC2_PRIVATE_KEY, webprivatekey
 
-    - name: Setup private key
+    - name: Setup api private key
       run: |
-        echo "${{ env.EC2_PRIVATE_KEY }}" > privatekey.pem
-        chmod 0500 privatekey.pem
+        echo "${{ env.API_EC2_PRIVATE_KEY }}" > apiprivatekey.pem
+        chmod 0500 apiprivatekey.pem
 
-    - name: Setup nginx proxy
+    - name: Setup web private key
+      run: |
+        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > webprivatekey.pem
+        chmod 0500 webprivatekey.pem
+
+    - name: Setup nginx proxy on API EC2
       run: |
         EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
 
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
+        ssh -o StrictHostKeyChecking=no -i apiprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
         server {
+            listen 80;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
+            return 301 https://$host$request_uri;
+        }
+
+        server {
+            listen 443 ssl;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
+
+            #Server TLS certificate (client must have CA cert to connect)
+            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
+            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
+
+            #Cert for mTLS
+            ssl_client_certificate /etc/nginx/certificates/miniconomy-root-ca.crt;
+            ssl_verify_client on;
+
+            location / {
+                proxy_pass http://localhost:3000;
+            }
+        }
+
+        # TLS only, no mTLS — internal frontend uses this
+        server {
+            listen 444 ssl;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
+
+            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
+            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
+
+            location / {
+                proxy_pass http://localhost:3000;
+            }
+        }
+        NGINX_CONF
+        EOF
+
+    - name: Verify and Reload nginx on API
+      run: |
+        EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
+        ssh -o StrictHostKeyChecking=no -i apiprivatekey.pem "ubuntu@$EC2_HOST" ' 
+          sudo nginx -t && sudo systemctl reload nginx
+        '
+    - name: Setup nginx proxy on frontend
+      run: |
+        EC2_HOST=${{ needs.terraform.outputs.webec2host }}
+
+        ssh -o StrictHostKeyChecking=no -i webprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
+        sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
+         server {
         listen 80;
-        server_name bbd-grad-project.co.za www.bbd-grad-project.co.za;
+        server_name sumsang-phones.projects.bbdgrad.com;
 
         # Required for Certbot's HTTP-01 challenge
         location /.well-known/acme-challenge/ {
@@ -311,35 +373,68 @@ jobs:
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        location /api/ {
-            proxy_pass http://localhost:5000; # API
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
+            listen 443 ssl; # managed by Certbot
+            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem; # managed by Certbot
+            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem; # managed by Certbot
+            include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
         }
-        }
+        server {
+            if ($host = sumsang-phones.projects.bbdgrad.com) {
+                return 301 https://$host$request_uri;
+            } # managed by Certbot
+
+
+        listen 80;
+        server_name sumsang-phones.projects.bbdgrad.com;
+            return 404; # managed by Certbot
+                }
         NGINX_CONF
         EOF
 
-    - name: Verify and Reload nginx
+    - name: Verify and Reload nginx for frontend
       run: |
-        EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+        EC2_HOST=${{ needs.terraform.outputs.webec2host }}
+        ssh -o StrictHostKeyChecking=no -i webprivatekey.pem "ubuntu@$EC2_HOST" ' 
           sudo nginx -t && sudo systemctl reload nginx
         '
 
-    # - name: Cerbot
-    #   run: |
-    #     EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-    #     ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-    #       sudo apt install certbot python3-certbot-nginx -y &&
-    #       sudo certbot --nginx -d bbd-grad-project.co.za -d www.bbd-grad-project.co.za --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
-    #     '
+  issue-certificates:
+    needs:
+    - deploy-api
+    - deploy-frontend
+    - terraform
+    permissions:
+        id-token: write
+        contents: read
+    name: Issue Certificates
+    runs-on: ubuntu-latest
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: arn:aws:iam::957617350095:role/github-role
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Get secrets from AWS Key Store
+      uses: aws-actions/aws-secretsmanager-get-secrets@v2
+      with:
+        secret-ids: |
+          WEB_EC2_PRIVATE_KEY, webprivatekey
+
+    - name: Setup private key
+      run: |
+        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > privatekey.pem
+        chmod 0500 privatekey.pem
+
+    - name: Cerbot
+      run: |
+        EC2_HOST=${{ needs.terraform.outputs.webec2host }}
+        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+          sudo apt install certbot python3-certbot-nginx -y &&
+          sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+        '
             
   flyway:
     needs:
