@@ -13,6 +13,7 @@ function App() {
 		<Router>
 			<NavigationBar></NavigationBar>
 			<Routes>
+				<Route path="/" element={<Navigate to="/production" replace />} />
 				<Route path="/production" element={<ProductionOverview />} />
 				<Route path="/supply" element={<SupplyChain />} />
 				<Route path="/logistics" element={<LogisticsFlow />} />
