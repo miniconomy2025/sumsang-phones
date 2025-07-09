@@ -324,6 +324,21 @@ jobs:
                 proxy_pass http://localhost:3000;
             }
         }
+
+        # TLS only, no mTLS — internal frontend uses this
+        server {
+            listen 444 ssl;
+            server_name sumsang-phones-api.projects.bbdgrad.com;
+
+            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem; # managed by Certbot
+            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem; # managed by Certbot
+            include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+            location / {
+                proxy_pass http://localhost:3000;
+            }
+        }
         NGINX_CONF
         EOF
 
