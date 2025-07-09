@@ -9,7 +9,7 @@ export class MachineController {
 			const { machineName } = req.body;
 
 			const phone = await PhoneRepository.getPhoneByModel(machineName);
-			const phoneId = phone.phoneId;
+			const phoneId = phone.phone_id;
 
 			await MachineRepository.retireMachinesByPhoneId(phoneId);
 
