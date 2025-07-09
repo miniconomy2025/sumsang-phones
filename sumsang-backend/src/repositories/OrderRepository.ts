@@ -81,7 +81,7 @@ export class OrderRepository {
 
     static async getOrderItems(orderId: number): Promise<OrderItem[]> {
         const result = await db.query(`
-            SELECT phone_id, quantity
+            SELECT order_id, phone_id, quantity
             FROM order_items
             WHERE order_id = $1
         `, [orderId]);
@@ -127,7 +127,7 @@ export class OrderRepository {
         const result = await db.query(
             `SELECT order_id, price, amount_paid, status, created_at
             FROM orders 
-            WHERE status IN ($1, $2, $3, $4)
+            WHERE status IN ($1, $2, $3)
             ORDER BY created_at ASC`,
             [
                 Status.PendingStock,

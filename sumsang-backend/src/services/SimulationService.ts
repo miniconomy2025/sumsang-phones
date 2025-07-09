@@ -80,8 +80,7 @@ export class SimulationService {
 		await DatabaseService.resetDatabase();
 		console.log('SimulationService::StartSimulation - Database reset completed');
 
-		if (process.env.USE_TEST_ENDPOINTS === 'true')
-		{
+		if (process.env.USE_MANUAL_TICKS === 'true') {
 			console.log('SimulationService::StartSimulation - Using test endpoints, setting up test mode');
 			await SystemSettingsRepository.upsertByKey(
 				systemSettingKeys.startEpoch,

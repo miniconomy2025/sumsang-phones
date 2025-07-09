@@ -38,27 +38,88 @@ export class SystemSettingsRepository {
 	}
 
 	static async checkAndUpdateDay(): Promise<boolean> {
-		const [startEpochSetting, currentDaySetting] = await Promise.all([
-			this.getByKey(systemSettingKeys.startEpoch),
-			this.getByKey(systemSettingKeys.currentDay),
-		]);
+    const logPrefix = '[SystemSettings] checkAndUpdateDay →';
 
-		if (!startEpochSetting || !currentDaySetting) {
-			throw new Error('startEpoch or currentDay is missing from system_settings');
+    console.log(`${logPrefix} Starting simulation day check at ${new Date().toISOString()}`);
+
+    const start = Date.now();
+
+    const [startEpochSetting, currentDaySetting] = await Promise.all([
+        this.getByKey(systemSettingKeys.startEpoch),
+        this.getByKey(systemSettingKeys.currentDay),
+    ]);
+
+    console.log(`${logPrefix} Retrieved settings:`, {
+        startEpochSetting,
+        currentDaySetting,
+    });
+
+    if (!startEpochSetting?.value || !currentDaySetting?.value) {
+        console.error(`${logPrefix} Missing required system settings`, {
+				hasStartEpoch: Boolean(startEpochSetting?.value),
+				hasCurrentDay: Boolean(currentDaySetting?.value),
+			});
+			throw new Error(`${logPrefix} Missing startEpoch or currentDay`);
 		}
 
 		const startEpoch = Number(startEpochSetting.value);
 		const currentDay = Number(currentDaySetting.value);
-		const now = Date.now();
 
+		console.log(`${logPrefix} Parsed settings:`, {
+			startEpoch,
+			currentDay,
+			typeStartEpoch: typeof startEpoch,
+			typeCurrentDay: typeof currentDay,
+		});
+
+		if (isNaN(startEpoch) || isNaN(currentDay)) {
+			console.error(`${logPrefix} Invalid numeric conversion`, {
+				startEpochRaw: startEpochSetting.value,
+				currentDayRaw: currentDaySetting.value,
+			});
+			throw new Error(`${logPrefix} startEpoch or currentDay is not a valid number`);
+		}
+
+		const now = Date.now();
 		const msPerDay = simulation.dayLengthMs;
-		const daysSinceStart = Math.floor((now - startEpoch) / msPerDay) + 1;
+		const elapsedMs = now - startEpoch;
+		const daysSinceStart = Math.floor(elapsedMs / msPerDay) + 1;
+
+		console.log(`${logPrefix} Time calculations:`, {
+			now,
+			nowReadable: new Date(now).toISOString(),
+			startEpochReadable: new Date(startEpoch).toISOString(),
+			elapsedMs,
+			msPerDay,
+			daysSinceStart,
+			currentDay,
+		});
 
 		if (daysSinceStart > currentDay) {
-			await this.updateByKey('currentDay', daysSinceStart.toString());
+			console.log(`${logPrefix} Detected day advancement:`, {
+				previousDay: currentDay,
+				newDay: daysSinceStart,
+			});
+
+			await this.updateByKey(systemSettingKeys.currentDay, daysSinceStart.toString());
+
+			console.log(`${logPrefix} Updated currentDay setting successfully.`);
+			
+			const duration = Date.now() - start;
+			console.log(`${logPrefix} Day update complete. Duration: ${duration}ms`);
+
 			return true;
 		}
 
+		console.log(`${logPrefix} No update needed. Still on the same simulation day.`, {
+			currentDay,
+			daysSinceStart
+		});
+
+		const duration = Date.now() - start;
+		console.log(`${logPrefix} Check complete. Duration: ${duration}ms`);
+
 		return false;
 	}
+
 }

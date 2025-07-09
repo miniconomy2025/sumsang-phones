@@ -40,8 +40,6 @@ export class PartsPurchaseRepository {
     }
 
     static async getPurchasesByStatus(statuses: Status[]): Promise<PartsPurchase[]> {
-        if (!statuses.length) return [];
-
         const placeholders = statuses.map((_, i) => `$${i + 1}`).join(', ');
 
         const query = `

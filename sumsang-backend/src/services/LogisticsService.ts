@@ -89,6 +89,9 @@ export class LogisticsService {
             
             await MachineRepository.createMachinesAndRatiosFromPurchase(machinePurchase);
             console.log('LogisticsService::handleMachinesDelivery - Created machines and part ratios');
+
+            await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.Completed);
+            console.log('LogisticsService::handleMachinesDelivery - Updated machine purchase status to Completed');
             
             return { message: 'Final machine delivery processed. Machines and part ratios have been created.' };
         }

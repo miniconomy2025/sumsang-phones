@@ -92,6 +92,19 @@ export class MachinePurchaseRepository {
             return null;
         }
 
-        return result.rows[0];
+        const row = result.rows[0];
+
+        return {
+            machinePurchasesId: row.machine_purchases_id,
+            phoneId: row.phone_id,
+            machinesPurchased: row.machines_purchased,
+            totalCost: row.total_cost,
+            weightPerMachine: row.weight_per_machine,
+            ratePerDay: row.rate_per_day,
+            ratio: row.ratio,
+            status: row.status,
+            accountNumber: row.account_number,
+            reference: row.reference_number
+        };
     }
 }

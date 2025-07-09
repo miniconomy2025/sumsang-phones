@@ -348,7 +348,7 @@ export class DailyTasksService {
             Status.PendingPayment,
             Status.PendingDeliveryRequest,
             Status.PendingDeliveryPayment,
-            Status.PendingDeliveryCollection,
+            Status.PendingDeliveryDropOff,
         ]);
 
         console.log("DailyTasksService::getPendingPartsOrders - Found pending purchases:", pendingPurchases.length);
@@ -379,7 +379,7 @@ export class DailyTasksService {
 
         console.log("DailyTasksService::calculateExpectedPartsUsage - Machine capacity by phone:", Array.from(machineCapacityByPhone.entries()));
 
-        const utilizationRate = 0.5;
+        const utilizationRate = 0.01;
         console.log("DailyTasksService::calculateExpectedPartsUsage - Using utilization rate:", utilizationRate);
 
         for (const [phoneId, dailyCapacity] of machineCapacityByPhone) {

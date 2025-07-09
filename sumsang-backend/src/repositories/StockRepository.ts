@@ -16,7 +16,7 @@ export class StockRepository {
             );
             return result.rows.map(row => ({
                 phoneId: row.phone_id,
-                name: row.model,
+                name: row.name,
                 quantity: row.quantity,
                 price: row.price
             }));
@@ -63,7 +63,10 @@ export class StockRepository {
         await db.query(`
             UPDATE stock
             SET quantity_reserved = quantity_reserved - $1,
-                updated_at = NOW()
+                updated_at = COALESCE(
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                0
+            ) 
             WHERE phone_id = $2 AND quantity_reserved >= $1
         `, [quantity, phoneId]);
     }

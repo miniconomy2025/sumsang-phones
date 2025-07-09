@@ -10,6 +10,7 @@ import {
 } from '../types/ExternalApiTypes.js';
 import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
 import { DailyTasksService } from '../services/DailyTasks.js';
+import { handleSuccess } from '../utils/handleResponses.js';
 
 // ======================== Manual test endpoints ==============================
 export class ManualTestEndpoints {
@@ -20,10 +21,12 @@ export class ManualTestEndpoints {
     console.log('Is next day:', isNextDay);
     if (isNextDay) {
       console.log('Executing daily tasks...');
-      DailyTasksService.executeDailyTasks();
+      await DailyTasksService.executeDailyTasks();
       console.log('Daily tasks executed');
     }
     console.log('===== ManualTestEndpoints.manualTick END =====');
+
+    handleSuccess(res, { message: 'Tick-ed succesfully.'})
   }
 
 }
@@ -62,7 +65,6 @@ export class TestBulkDeliveriesController {
         console.log('Items:', items);
         
         const totalCost = items.reduce((total: number, item: any) => {
-            console.log('Processing item for cost calculation:', item);
             return total + (item.quantity * 5);
         }, 0);
         console.log('Total cost calculated:', totalCost);
