@@ -6,10 +6,16 @@ import {
     TestCaseSuppliersController,
     TestScreenSuppliersController,
     TestElectronicsSuppliersController,
-    TestTHOHController
+    TestTHOHController,
+    ManualTestEndpoints
 } from './testController.js';
 
 const router = Router();
+
+// =============================== Manual test endpoints =======================================
+router.post('/manual-tick', ManualTestEndpoints.manualTick);
+
+// ============================== Simulated test endpoints ===================================== 
 
 // Consumer Deliveries API routes
 router.post('/consumerdeliveries/api/pickups', TestConsumerDeliveriesController.requestDelivery);

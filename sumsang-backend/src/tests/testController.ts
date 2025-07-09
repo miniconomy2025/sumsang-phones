@@ -8,9 +8,23 @@ import {
     MachinePurchaseResponse, 
     AvailableMachineResponse 
 } from '../types/ExternalApiTypes.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
+import { DailyTasksService } from '../services/DailyTasks.js';
 
+// ======================== Manual test endpoints ==============================
+export class ManualTestEndpoints {
+  static async manualTick(req: Request, res: Response) {
+    const isNextDay: boolean = await SystemSettingsRepository.checkAndUpdateDay();
+    if (isNextDay) {
+      DailyTasksService.executeDailyTasks();
+    }
+  }
+
+}
+
+// ====================== Simulated test endpoints ==============================
 export class TestConsumerDeliveriesController {
-    static requestDelivery(req: Request, res: Response): void {
+    static async requestDelivery(req: Request, res: Response) {
         const { quantity, companyName, recipient } = req.body;
         
         const response: ConsumerDeliveriesResponse = {
@@ -25,7 +39,7 @@ export class TestConsumerDeliveriesController {
 }
 
 export class TestBulkDeliveriesController {
-    static requestPickup(req: Request, res: Response): void {
+    static async requestPickup(req: Request, res: Response) {
         const { originalExternalOrderId, originCompanyId, destinationCompanyId, items } = req.body;
         
         const totalCost = items.reduce((total: number, item: any) => {
@@ -47,7 +61,7 @@ export class TestBulkDeliveriesController {
 }
 
 export class TestCommercialBankController {
-    static makePayment(req: Request, res: Response): void {
+    static async makePayment(req: Request, res: Response) {
         const { to_account_number, to_bank_name, amount, description } = req.body;
         
         const response = {
@@ -59,7 +73,7 @@ export class TestCommercialBankController {
         res.json(response);
     }
     
-    static openAccount(req: Request, res: Response): void {
+    static async openAccount(req: Request, res: Response) {
         const response = {
             account_number: `ACC-${Date.now()}`
         };
@@ -67,7 +81,7 @@ export class TestCommercialBankController {
         res.json(response);
     }
     
-    static applyForLoan(req: Request, res: Response): void {
+    static async applyForLoan(req: Request, res: Response) {
         const { amount } = req.body;
         
         const response = {
@@ -78,7 +92,7 @@ export class TestCommercialBankController {
         res.json(response);
     }
     
-    static getLoanInfo(req: Request, res: Response): void {
+    static async getLoanInfo(req: Request, res: Response) {
         const { loanNumber } = req.params;
         
         const response = {
@@ -88,7 +102,7 @@ export class TestCommercialBankController {
         res.json(response);
     }
     
-    static repayLoan(req: Request, res: Response): void {
+    static async repayLoan(req: Request, res: Response) {
         const { loan_number } = req.params;
         const { amount } = req.body;
         
@@ -102,7 +116,7 @@ export class TestCommercialBankController {
 }
 
 export class TestCaseSuppliersController {
-    static purchaseCases(req: Request, res: Response): void {
+    static async purchaseCases(req: Request, res: Response) {
         const { quantity } = req.body;
         
         const response: PurchaseCasesResponse = {
@@ -118,7 +132,7 @@ export class TestCaseSuppliersController {
 }
 
 export class TestScreenSuppliersController {
-    static purchaseScreens(req: Request, res: Response): void {
+    static async purchaseScreens(req: Request, res: Response) {
         const { quantity } = req.body;
         
         const response: PurchaseScreensResponse = {
@@ -133,7 +147,7 @@ export class TestScreenSuppliersController {
 }
 
 export class TestElectronicsSuppliersController {
-    static purchaseElectronics(req: Request, res: Response): void {
+    static async purchaseElectronics(req: Request, res: Response) {
         const { quantity } = req.body;
         
         const response: PurchaseElectronicsResponse = {
@@ -148,7 +162,7 @@ export class TestElectronicsSuppliersController {
 }
 
 export class TestTHOHController {
-    static purchaseMachine(req: Request, res: Response): void {
+    static async purchaseMachine(req: Request, res: Response) {
         const { machineName, quantity } = req.body;
         
         const mockMachines = {
@@ -182,7 +196,7 @@ export class TestTHOHController {
         res.json(response);
     }
     
-    static getAvailableMachines(req: Request, res: Response): void {
+    static async getAvailableMachines(req: Request, res: Response) {
         const response: AvailableMachineResponse = {
             machines: [
                 {
