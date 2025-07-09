@@ -1,4 +1,4 @@
-import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, AvailableMachineResponse, PartsPurchaseResponse } from "../types/ExternalApiTypes.js";
+import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, PartsPurchaseResponse, MachineInfo } from "../types/ExternalApiTypes.js";
 
 // Helper function to get the full URL based on environment variable
 function getApiUrl(productionUrl: string, servicePath: string): string {
@@ -327,7 +327,7 @@ export class THOHAPI {
         }
     }
 
-    static async getAvailableMachines(): Promise<AvailableMachineResponse[]> {
+    static async getAvailableMachines(): Promise<MachineInfo[]> {
         try {
             const response = await fetch(`${this.apiUrl}/simulation/machines`,
                 {

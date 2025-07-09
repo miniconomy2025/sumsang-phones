@@ -14,7 +14,7 @@ export class PartsPurchaseRepository {
                 account_number,
                 status,
                 purchased_at
-            FROM parts_purchase 
+            FROM parts_purchases
             WHERE parts_purchase_id = $1`,
             [partsPurchaseId]
         );
@@ -32,7 +32,7 @@ export class PartsPurchaseRepository {
 
     static async updateStatus(partsPurchaseId: number, status: number) {
         await db.query(
-            `UPDATE parts_purchase 
+            `UPDATE parts_purchases 
             SET status = $1 
             WHERE parts_purchase_id = $2`,
             [status, partsPurchaseId]
@@ -40,8 +40,6 @@ export class PartsPurchaseRepository {
     }
 
     static async getPurchasesByStatus(statuses: Status[]): Promise<PartsPurchase[]> {
-        if (!statuses.length) return [];
-
         const placeholders = statuses.map((_, i) => `$${i + 1}`).join(', ');
 
         const query = `
@@ -82,7 +80,7 @@ export class PartsPurchaseRepository {
             status,
             purchased_at
         ) VALUES ($1, $2, $3, $4, $5, $6, COALESCE(
-                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
                 0
         ))
         RETURNING parts_purchase_id

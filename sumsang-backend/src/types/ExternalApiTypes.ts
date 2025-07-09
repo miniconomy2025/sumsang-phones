@@ -76,7 +76,3 @@ export interface MachineInfo {
     productionRate: number;
     price: number;
 }
-
-export interface AvailableMachineResponse {
-    machines: MachineInfo[];
-}
