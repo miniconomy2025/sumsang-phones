@@ -11,9 +11,7 @@ import { TickService } from './TickService.js';
 import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
 
 export class SimulationService {
-	static loanAmount = 20_000_000;
-
-	static async calculateMachineToOrder(): Promise<void> {
+	static async orderInitialMachines(): Promise<void> {
 		const totalCapital = this.loanAmount;
 
 		const machineBudgetRatio = 0.5;
@@ -41,23 +39,25 @@ export class SimulationService {
 		}
 	}
 
-	static async StartSimulation() {
+	static loanAmount = 20_000_000;
+
+	static async StartSimulation(startEpoch: string) {
 		await DatabaseService.resetDatabase();
 
 		const accountNumber = await BankService.openAccount();
 
 		const { loan_number } = await LoanService.applyWithFallback(this.loanAmount);
+		
+		await SystemSettingsRepository.upsertByKey(systemSettingKeys.accountNumber, accountNumber);
+		await SystemSettingsRepository.upsertByKey(systemSettingKeys.loanNumber, loan_number);
 
 		await DailyTasksService.makePartsPurchaseOrder(1, 250);
 		await DailyTasksService.makePartsPurchaseOrder(2, 250);
 		await DailyTasksService.makePartsPurchaseOrder(3, 250);
 		await DailyTasksService.processPendingPartsPurchases();
 
-		await this.calculateMachineToOrder();
+		await this.orderInitialMachines();
 
-		await SystemSettingsRepository.upsertByKey(systemSettingKeys.accountNumber, accountNumber);
-		await SystemSettingsRepository.upsertByKey(systemSettingKeys.loanNumber, loan_number);
-
-		await TickService.start(2524684100);
+		await TickService.start(startEpoch);
 	}
 }

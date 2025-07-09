@@ -11,7 +11,10 @@ export class ConsumerDeliveryRepository {
         await db.query(
             `INSERT INTO consumer_deliveries 
             (order_id, delivery_reference, cost, units_collected, account_number, date_created)
-            VALUES ($1, $2, $3, 0, $4, NOW())`,
+            VALUES ($1, $2, $3, 0, $4, COALESCE(
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                0
+            ))`,
             [orderId, deliveryReference, cost, accountNumber]
         );
     }

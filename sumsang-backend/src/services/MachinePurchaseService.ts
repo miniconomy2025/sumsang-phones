@@ -73,7 +73,7 @@ export class MachinePurchaseService {
         const result = await BulkDeliveriesAPI.requestMachineDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
 
         if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
-            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.pickupRequestId! , result.cost, "THOH", result.bulkLogisticsBankAccountNumber);
+            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.pickupRequestId! , result.cost, "thoh", result.bulkLogisticsBankAccountNumber);
 
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryPayment);
         }

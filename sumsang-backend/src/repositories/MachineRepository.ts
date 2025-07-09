@@ -60,7 +60,10 @@ export class MachineRepository {
 
         const machineInsertQuery = `
                     INSERT INTO machines (phone_id, rate_per_day, date_acquired, cost)
-                    VALUES ($1, $2, NOW(), $3)
+                    VALUES ($1, $2, COALESCE(
+                        (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                        0
+                    ), $3)
                     RETURNING machine_id;
                 `;
         const machineResult = await db.query(machineInsertQuery, [

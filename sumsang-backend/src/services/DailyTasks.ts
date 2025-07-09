@@ -35,8 +35,7 @@ export class DailyTasksService {
     }
 
     static async cancelOutstandingOrders(): Promise<void> {
-        const twoDaysAgo = new Date();
-        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        const twoDaysAgo = 2;
 
         const outstandingOrders = await OrderRepository.getOrdersWithInsufficientPayment(twoDaysAgo);
 

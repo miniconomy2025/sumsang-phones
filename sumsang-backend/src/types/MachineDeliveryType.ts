@@ -6,5 +6,5 @@ export interface MachineDelivery {
     unitsReceived: number;
     address: string;
     accountNumber: string;
-    createdAt: Date;
+    createdAt: number;
 }

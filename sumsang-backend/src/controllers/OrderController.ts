@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { OrderService } from '../services/OrderService.js';
 import {handleSuccess, handleFailure} from '../utils/handleResponses.js';
 import { BadRequestError } from '../utils/errors.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
+import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
 
 export class OrderController {
     static async placeOrder(req: Request, res: Response): Promise<void> {
@@ -26,7 +28,10 @@ export class OrderController {
             }
 
             const order = await OrderService.placeOrder(items);
-            const accountNumber = '123456789012'
+            const accountNumber = SystemSettingsRepository.getByKey(systemSettingKeys.accountNumber);
+            if (!accountNumber) {
+                throw new Error('Currently unavailable to accept purchases.');
+            }
             handleSuccess(res, {...order, accountNumber});
         }
         catch (error) {

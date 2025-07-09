@@ -12,7 +12,10 @@ export class OrderRepository {
             // Insert into orders table
             const orderResult = await db.query(
                 `INSERT INTO orders (price, amount_paid, status, created_at)
-                VALUES ($1, 0, $2, NOW()) 
+                    VALUES ($1, 0, $2, COALESCE(
+                    (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                    0
+                )) 
                 RETURNING order_id`,
                 [price, Status.PendingPayment]
             );
@@ -98,15 +101,18 @@ export class OrderRepository {
         return result.rows[0].count;
     }
 
-    static async getOrdersWithInsufficientPayment(cutoffDate: Date): Promise<Order[]> {
+    static async getOrdersWithInsufficientPayment(cutoffDays = 2): Promise<Order[]> {
         const result = await db.query(
             `SELECT 
             order_id, price, amount_paid, status, created_at
             FROM orders 
-            WHERE created_at < $1 
+            WHERE created_at < COALESCE(
+                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                0
+            ) 
             AND amount_paid < price
             AND status != $2`,
-            [cutoffDate, Status.PendingPayment]
+            [cutoffDays, Status.PendingPayment]
         );
         return result.rows.map(row => ({
             orderId: row.order_id,

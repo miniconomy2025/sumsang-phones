@@ -11,14 +11,15 @@ const app = express();
 const PORT = 3000;
 
 app.use(cors());
-app.use('/public-api/', StockRoutes);
-app.use('/internal-api/', DashboardRoutes);
+app.use(express.json());
+
+app.use('/public-api', StockRoutes);
 app.use('/public-api', OrderRoutes);
 app.use('/public-api', SimulationRoutes);
-app.use('/internal-api/', LogisticsRoutes);
-app.use('/internal-api', SystemSettingsRoutes);
+app.use('/public-api', SystemSettingsRoutes);
+app.use('/public-api', LogisticsRoutes);
 
-app.use(express.json());
+app.use('/internal-api', DashboardRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);

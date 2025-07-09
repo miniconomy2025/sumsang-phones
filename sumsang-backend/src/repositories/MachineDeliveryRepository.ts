@@ -12,7 +12,10 @@ export class MachineDeliveryRepository {
         await db.query(
             `INSERT INTO machine_deliveries 
             (machine_purchases_id, delivery_reference, cost, units_received, address, account_number, created_at)
-            VALUES ($1, $2, $3, 0, $4, $5, NOW())`,
+            VALUES ($1, $2, $3, 0, $4, $5, COALESCE(
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                0
+            ))`,
             [machinePurchaseId, deliveryReference, cost, address, accountNumber]
         );
     }

@@ -3,5 +3,5 @@ export type Order = {
     price: number;
     amountPaid: number;
     status: number;
-    createdAt: Date;
+    createdAt: number;
 };

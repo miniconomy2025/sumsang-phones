@@ -4,13 +4,15 @@ import { BadRequestError } from '../utils/errors.js';
 import { SimulationService } from '../services/SimulationService.js';
 
 export class SimulationController {
-    static async startSimulation(request: Request, response: Response, next: NextFunction): Promise<void> {
+    static async startSimulation(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            await SimulationService.StartSimulation();
-            response.status(200).json({ message: "Simulation started successfully" })
+            const startEpoch = req.body.unixEpochStartTime;
+
+            await SimulationService.StartSimulation(startEpoch);
+            handleSuccess(res, { message: "Simulation started successfully" });
         }
         catch (error) {
-            response.status(500).json({ error: "Failed to start simulation" })
+            handleFailure(res, error, 'Failed to start simulation properly');
         }
     }
 }

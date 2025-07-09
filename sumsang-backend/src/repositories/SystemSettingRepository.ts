@@ -1,5 +1,6 @@
 import db from '../config/DatabaseConfig.js';
 import { simulation } from '../config/SimulationConfig.js';
+import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
 import { SystemSetting } from '../types/SystemSettingType.js';
 
 export class SystemSettingsRepository {
@@ -38,8 +39,8 @@ export class SystemSettingsRepository {
 
 	static async checkAndUpdateDay(): Promise<boolean> {
 		const [startEpochSetting, currentDaySetting] = await Promise.all([
-			this.getByKey('startEpoch'),
-			this.getByKey('currentDay'),
+			this.getByKey(systemSettingKeys.startEpoch),
+			this.getByKey(systemSettingKeys.currentDay),
 		]);
 
 		if (!startEpochSetting || !currentDaySetting) {

@@ -81,7 +81,10 @@ export class PartsPurchaseRepository {
             account_number,
             status,
             purchased_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6, COALESCE(
+                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                0
+        ))
         RETURNING parts_purchase_id
         `;
         const values = [partsPurchase.partId, partsPurchase.referenceNumber, partsPurchase.cost, partsPurchase.quantity, partsPurchase.accountNumber, partsPurchase.status];

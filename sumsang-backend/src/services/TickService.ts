@@ -7,10 +7,10 @@ export class TickService {
 	private static tickInterval: ReturnType<typeof setInterval> | null = null;
 	private static intervalMs: number = simulation.dayCheckIntervalMs;
 
-	static async start(startEpoch: number): Promise<void> {
+	static async start(startEpoch: string): Promise<void> {
 		await SystemSettingsRepository.upsertByKey(
 			systemSettingKeys.startEpoch,
-			startEpoch.toString()
+			startEpoch
 		);
 		await SystemSettingsRepository.upsertByKey(systemSettingKeys.currentDay, '1');
 

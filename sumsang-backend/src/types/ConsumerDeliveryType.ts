@@ -5,5 +5,5 @@ export interface ConsumerDelivery {
     cost: number;
     unitsCollected: number;
     accountNumber: string;
-    createdAt: Date;
+    createdAt: number;
 }

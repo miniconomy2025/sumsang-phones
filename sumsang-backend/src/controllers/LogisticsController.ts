@@ -56,7 +56,7 @@ export class LogisticsController {
                 const quantity = req.body.quantity;
 
                 const deliveryReference = id;
-                if (typeof deliveryReference !== 'string') {
+                if (!deliveryReference || typeof deliveryReference !== 'string') {
                     throw new BadRequestError('Invalid id for PICKUP: must be a string (UUID delivery_reference).');
                 }
 
