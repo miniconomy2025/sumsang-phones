@@ -40,7 +40,7 @@ export class StockRepository {
             SET quantity_available = quantity_available - $1,
                 quantity_reserved = quantity_reserved + $1,
                 updated_at = COALESCE(
-                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
                 0
             ) 
             WHERE phone_id = $2 AND quantity_available >= $1
@@ -52,7 +52,7 @@ export class StockRepository {
             UPDATE stock
             SET quantity_available = quantity_available + $1,
                 updated_at = COALESCE(
-                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                (SELECT value::int FROM system_settings WHERE key = 'current_day'),
                 0
             ) 
             WHERE phone_id = $2
