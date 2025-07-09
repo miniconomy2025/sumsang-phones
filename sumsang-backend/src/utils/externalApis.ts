@@ -68,6 +68,40 @@ export class BulkDeliveriesAPI {
             return { success: false, message: (error as Error).message };
         }
     }
+
+    static async requestMachineDelivery(orderId: number, units: number, weightPerMachine: number): Promise<BulkDeliveriesResponse> {
+        try {
+            const repeatedArray = Array.from({ length: units }, () => ({
+                itemName: 'Machine',
+                quantity: weightPerMachine,
+                measurementType: 'KG'
+            }));
+
+            const response = await fetch(`${this.apiUrl}/pickup-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalExternalOrderId: orderId,
+                    originCompanyId: 'thoh',
+                    destinationCompanyId: 'sumsang-company',
+                    items: repeatedArray
+                }),
+            });
+
+            if (!response.ok) {
+                return { success: false, message: `HTTP ${response.status}` };
+            }
+
+            const raw: BulkDeliveriesResponse = await response.json();
+            const result: BulkDeliveriesResponse = {
+                success: true,
+                ...raw
+            }
+            return result;
+        } catch (error) {
+            return { success: false, message: (error as Error).message };
+        }
+    }
 }
 
 export class CommercialBankAPI {

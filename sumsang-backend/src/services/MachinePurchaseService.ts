@@ -70,10 +70,10 @@ export class MachinePurchaseService {
 
     static async makeMachineDeliveryRequest(machinePurchase: MachinePurchaseRecord) {
 
-        const result = await BulkDeliveriesAPI.requestDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, "THOH");
+        const result = await BulkDeliveriesAPI.requestMachineDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
 
-        if (result.success && result.delivery_reference && result.cost && result.account_number) {
-            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.delivery_reference, result.cost, "THOH", result.account_number);
+        if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
+            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.pickupRequestId! , result.cost, "THOH", result.bulkLogisticsBankAccountNumber);
 
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryPayment);
         }
