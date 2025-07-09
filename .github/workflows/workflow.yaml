@@ -311,13 +311,12 @@ jobs:
         server {
             listen 443 ssl;
             server_name sumsang-phones-api.projects.bbdgrad.com;
+              
+            ssl_certificate     /etc/nginx/certificates/sumsang-company-server.crt;
+            ssl_certificate_key /etc/nginx/certificates/sumsang-company-server.key;
 
-            #Server TLS certificate (client must have CA cert to connect)
-            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
-            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
-
-            #Cert for mTLS
-            ssl_client_certificate /etc/nginx/certificates/miniconomy-root-ca.crt;
+            # Client cert validation (mTLS)
+            ssl_client_certificate /etc/nginx/certificates/root-ca.crt;
             ssl_verify_client on;
 
             location / {
