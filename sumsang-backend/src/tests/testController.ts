@@ -1,248 +1,214 @@
 import { Request, Response } from 'express';
+import { 
+    ConsumerDeliveriesResponse, 
+    BulkDeliveriesResponse, 
+    PurchaseCasesResponse, 
+    PurchaseScreensResponse, 
+    PurchaseElectronicsResponse, 
+    MachinePurchaseResponse, 
+    AvailableMachineResponse 
+} from '../types/ExternalApiTypes.js';
 
-export class TestEndpointsController {
-    // Consumer Deliveries API - POST /test-endpoints/consumerdeliveries/api/delivery-request
-    static consumerDeliveryRequest(req: Request, res: Response) {
-        console.log('====== CONSUMER DELIVERY REQUEST ======');
-        console.log('consumerDeliveryRequest: Starting...');
-        console.log('consumerDeliveryRequest: Request body:', req.body);
+export class TestConsumerDeliveriesController {
+    static requestDelivery(req: Request, res: Response): void {
+        const { quantity, companyName, recipient } = req.body;
         
-        try {
-            const { order_id, units, destination } = req.body;
-            console.log('consumerDeliveryRequest: Extracted parameters - order_id:', order_id, 'units:', units, 'destination:', destination);
-            
-            // Simulate processing delay
-            console.log('consumerDeliveryRequest: Simulating 500ms processing delay...');
-            setTimeout(() => {
-                const response = {
-                    success: true,
-                    delivery_reference: Math.floor(Math.random() * 1000000) + 100000,
-                    cost: units * 15,
-                    account_number: "100000000000",
-                    message: `Delivery scheduled for order ${order_id} with ${units} units to ${destination}`
-                };
-                
-                console.log('consumerDeliveryRequest: Generated response:', response);
-                console.log('consumerDeliveryRequest: Sending 200 response');
-                console.log('====== CONSUMER DELIVERY REQUEST COMPLETE ======');
-                res.status(200).json(response);
-            }, 500);
-        } catch (error) {
-            console.error('consumerDeliveryRequest: Error occurred:', error);
-            console.log('====== CONSUMER DELIVERY REQUEST COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Bulk Deliveries API - POST /test-endpoints/bulkdeliveries/api/delivery-request
-    static bulkDeliveryRequest(req: Request, res: Response) {
-        console.log('====== BULK DELIVERY REQUEST ======');
-        console.log('bulkDeliveryRequest: Starting...');
-        console.log('bulkDeliveryRequest: Request body:', req.body);
-        
-        try {
-            const { order_id, units, destination, from } = req.body;
-            console.log('bulkDeliveryRequest: Extracted parameters - order_id:', order_id, 'units:', units, 'destination:', destination, 'from:', from);
-            
-            // Simulate processing delay
-            console.log('bulkDeliveryRequest: Simulating 700ms processing delay...');
-            setTimeout(() => {
-                const response = {
-                    success: true,
-                    delivery_reference: Math.floor(Math.random() * 1000000) + 200000,
-                    cost: units * 10,
-                    account_number: "200000000000",
-                    message: `Bulk delivery scheduled for order ${order_id} with ${units} units from ${from} to ${destination}`
-                };
-                
-                console.log('bulkDeliveryRequest: Generated response:', response);
-                console.log('bulkDeliveryRequest: Sending 200 response');
-                console.log('====== BULK DELIVERY REQUEST COMPLETE ======');
-                res.status(200).json(response);
-            }, 700);
-        } catch (error) {
-            console.error('bulkDeliveryRequest: Error occurred:', error);
-            console.log('====== BULK DELIVERY REQUEST COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Commercial Bank API - POST /test-endpoints/commercialbank/api/make-payment
-    static makePayment(req: Request, res: Response) {
-        console.log('====== COMMERCIAL BANK MAKE PAYMENT ======');
-        console.log('makePayment: Starting...');
-        console.log('makePayment: Request body:', req.body);
-        
-        try {
-            const { reference_number, amount, account_number } = req.body;
-            console.log('makePayment: Extracted parameters - reference_number:', reference_number, 'amount:', amount, 'account_number:', account_number);
-            
-            // Simulate processing delay
-            console.log('makePayment: Simulating 1000ms processing delay...');
-            setTimeout(() => {
-                // Simulate occasional payment failures for testing
-                const failureChance = Math.random();
-                console.log('makePayment: Failure chance roll:', failureChance);
-                
-                if (failureChance < 0.001) {
-                    console.log('makePayment: Simulating payment failure - insufficient funds');
-                    return res.status(200).json({
-                        success: false,
-                        message: "Insufficient funds"
-                    });
-                }
-                
-                const response = {
-                    success: true,
-                    message: `Payment of ${amount} processed successfully for reference ${reference_number} to account ${account_number}`
-                };
-                
-                console.log('makePayment: Generated response:', response);
-                console.log('makePayment: Sending 200 response');
-                console.log('====== COMMERCIAL BANK MAKE PAYMENT COMPLETE ======');
-                res.status(200).json(response);
-            }, 1000);
-        } catch (error) {
-            console.error('makePayment: Error occurred:', error);
-            console.log('====== COMMERCIAL BANK MAKE PAYMENT COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Case Suppliers API - POST /test-endpoints/case-suppliers/api/purchase
-    static purchaseCases(req: Request, res: Response) {
-        console.log('====== CASE SUPPLIERS PURCHASE ======');
-        console.log('purchaseCases: Starting...');
-        console.log('purchaseCases: Request body:', req.body);
-        
-        try {
-            const { quantity } = req.body;
-            console.log('purchaseCases: Extracted parameters - quantity:', quantity);
-            
-            // Simulate processing delay
-            console.log('purchaseCases: Simulating 600ms processing delay...');
-            setTimeout(() => {
-                const response = {
-                    success: true,
-                    reference_number: Math.floor(Math.random() * 1000000) + 300000,
-                    cost: quantity * 25.00,
-                    account_number: "300000000000",
-                    message: `Purchase order created for ${quantity} cases`
-                };
-                
-                console.log('purchaseCases: Generated response:', response);
-                console.log('purchaseCases: Cost calculation - quantity:', quantity, 'x $25.00 = $', response.cost);
-                console.log('purchaseCases: Sending 200 response');
-                console.log('====== CASE SUPPLIERS PURCHASE COMPLETE ======');
-                res.status(200).json(response);
-            }, 600);
-        } catch (error) {
-            console.error('purchaseCases: Error occurred:', error);
-            console.log('====== CASE SUPPLIERS PURCHASE COMPLETE COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Screen Suppliers API - POST /test-endpoints/screen-suppliers/api/purchase
-    static purchaseScreens(req: Request, res: Response) {
-        console.log('====== SCREEN SUPPLIERS PURCHASE ======');
-        console.log('purchaseScreens: Starting...');
-        console.log('purchaseScreens: Request body:', req.body);
-        
-        try {
-            const { quantity } = req.body;
-            console.log('purchaseScreens: Extracted parameters - quantity:', quantity);
-            
-            // Simulate processing delay
-            console.log('purchaseScreens: Simulating 800ms processing delay...');
-            setTimeout(() => {
-                const response = {
-                    success: true,
-                    reference_number: Math.floor(Math.random() * 1000000) + 400000,
-                    cost: quantity * 25.00,
-                    account_number: "400000000000",
-                    message: `Purchase order created for ${quantity} screens`
-                };
-                
-                console.log('purchaseScreens: Generated response:', response);
-                console.log('purchaseScreens: Cost calculation - quantity:', quantity, 'x $25.00 = $', response.cost);
-                console.log('purchaseScreens: Sending 200 response');
-                console.log('====== SCREEN SUPPLIERS PURCHASE COMPLETE ======');
-                res.status(200).json(response);
-            }, 800);
-        } catch (error) {
-            console.error('purchaseScreens: Error occurred:', error);
-            console.log('====== SCREEN SUPPLIERS PURCHASE COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Electronics Suppliers API - POST /test-endpoints/electronics-suppliers/api/purchase
-    static purchaseElectronics(req: Request, res: Response) {
-        console.log('====== ELECTRONICS SUPPLIERS PURCHASE ======');
-        console.log('purchaseElectronics: Starting...');
-        console.log('purchaseElectronics: Request body:', req.body);
-        
-        try {
-            const { quantity } = req.body;
-            console.log('purchaseElectronics: Extracted parameters - quantity:', quantity);
-            
-            // Simulate processing delay
-            console.log('purchaseElectronics: Simulating 900ms processing delay...');
-            setTimeout(() => {
-                const response = {
-                    success: true,
-                    reference_number: Math.floor(Math.random() * 1000000) + 500000,
-                    cost: quantity * 25.00,
-                    account_number: "500000000000",
-                    message: `Purchase order created for ${quantity} electronics components`
-                };
-                
-                console.log('purchaseElectronics: Generated response:', response);
-                console.log('purchaseElectronics: Cost calculation - quantity:', quantity, 'x $25.00 = $', response.cost);
-                console.log('purchaseElectronics: Sending 200 response');
-                console.log('====== ELECTRONICS SUPPLIERS PURCHASE COMPLETE ======');
-                res.status(200).json(response);
-            }, 900);
-        } catch (error) {
-            console.error('purchaseElectronics: Error occurred:', error);
-            console.log('====== ELECTRONICS SUPPLIERS PURCHASE COMPLETE ======');
-            res.status(500).json({
-                success: false,
-                message: "Internal server error"
-            });
-        }
-    }
-
-    // Health check endpoint
-    static healthCheck(req: Request, res: Response) {
-        console.log('====== HEALTH CHECK ======');
-        console.log('healthCheck: Starting...');
-        console.log('healthCheck: Request received');
-        
-        const response = {
-            status: "healthy",
-            message: "Test endpoints are running",
-            timestamp: new Date().toISOString()
+        const response: ConsumerDeliveriesResponse = {
+            success: true,
+            referenceno: `REF-${Date.now()}`,
+            amount: quantity * 50, // Mock cost of R150 per unit
+            account_number: "100000000000"
         };
         
-        console.log('healthCheck: Generated response:', response);
-        console.log('healthCheck: Sending 200 response');
-        res.status(200).json(response);
+        res.json(response);
+    }
+}
+
+export class TestBulkDeliveriesController {
+    static requestPickup(req: Request, res: Response): void {
+        const { originalExternalOrderId, originCompanyId, destinationCompanyId, items } = req.body;
+        
+        const totalCost = items.reduce((total: number, item: any) => {
+            return total + (item.quantity * 5);
+        }, 0);
+        
+        const response: BulkDeliveriesResponse = {
+            success: true,
+            pickupRequestId: Math.floor(Math.random() * 10000),
+            cost: totalCost,
+            paymentReferenceId: `PAY-${Date.now()}`,
+            bulkLogisticsBankAccountNumber: "200000000000",
+            status: "PENDING",
+            statusCheckUrl: `http://localhost:3000/test-endpoints/bulkdeliveries/api/status/${Math.floor(Math.random() * 10000)}`
+        };
+        
+        res.json(response);
+    }
+}
+
+export class TestCommercialBankController {
+    static makePayment(req: Request, res: Response): void {
+        const { to_account_number, to_bank_name, amount, description } = req.body;
+        
+        const response = {
+            success: true,
+            message: "Payment successful",
+            transactionId: `TXN-${Date.now()}`
+        };
+        
+        res.json(response);
+    }
+    
+    static openAccount(req: Request, res: Response): void {
+        const response = {
+            account_number: `ACC-${Date.now()}`
+        };
+        
+        res.json(response);
+    }
+    
+    static applyForLoan(req: Request, res: Response): void {
+        const { amount } = req.body;
+        
+        const response = {
+            success: true,
+            loan_number: `LOAN-${Date.now()}`
+        };
+        
+        res.json(response);
+    }
+    
+    static getLoanInfo(req: Request, res: Response): void {
+        const { loanNumber } = req.params;
+        
+        const response = {
+            outstandingAmount: Math.floor(Math.random() * 100000) + 10000 // Random amount between 10k-110k
+        };
+        
+        res.json(response);
+    }
+    
+    static repayLoan(req: Request, res: Response): void {
+        const { loan_number } = req.params;
+        const { amount } = req.body;
+        
+        const response = {
+            success: true,
+            paid: amount
+        };
+        
+        res.json(response);
+    }
+}
+
+export class TestCaseSuppliersController {
+    static purchaseCases(req: Request, res: Response): void {
+        const { quantity } = req.body;
+        
+        const response: PurchaseCasesResponse = {
+            id: Math.floor(Math.random() * 10000),
+            order_status_id: 1,
+            quantity: quantity,
+            total_price: quantity * 25, // Mock cost of R25 per case
+            bankNumber: "300000000000"
+        };
+        
+        res.json(response);
+    }
+}
+
+export class TestScreenSuppliersController {
+    static purchaseScreens(req: Request, res: Response): void {
+        const { quantity } = req.body;
+        
+        const response: PurchaseScreensResponse = {
+            orderId: Math.floor(Math.random() * 10000),
+            totalPrice: quantity * 20, // Mock cost of R20 per screen
+            bankAccountNumber: "400000000000",
+            orderStatusLink: `http://localhost:3000/test-endpoints/screen-suppliers/api/order/${Math.floor(Math.random() * 10000)}/status`
+        };
+        
+        res.json(response);
+    }
+}
+
+export class TestElectronicsSuppliersController {
+    static purchaseElectronics(req: Request, res: Response): void {
+        const { quantity } = req.body;
+        
+        const response: PurchaseElectronicsResponse = {
+            orderId: Math.floor(Math.random() * 10000),
+            amountDue: quantity * 30, // Mock cost of R30 per electronics unit
+            bankNumber: "500000000000",
+            quantity: quantity
+        };
+        
+        res.json(response);
+    }
+}
+
+export class TestTHOHController {
+    static purchaseMachine(req: Request, res: Response): void {
+        const { machineName, quantity } = req.body;
+        
+        const mockMachines = {
+            "cosmos_z25_machine": { price: 20000, weight: 1800, materials: "cases,screens,electronics" },
+            "cosmos_z25_fe_machine": { price: 30000, weight: 2500, materials: "cases,screens,electronics" },
+            "cosmos_z25_ultra_machine": { price: 50000, weight: 3200, materials: "cases,screens,electronics" }
+        };
+
+        const machine = mockMachines[machineName as keyof typeof mockMachines] || mockMachines["cosmos_z25_machine"];
+        
+        const response: MachinePurchaseResponse = {
+            success: true,
+            orderId: Math.floor(Math.random() * 10000),
+            machineName: machineName,
+            totalPrice: machine.price * quantity,
+            unitWeight: machine.weight,
+            totalWeight: machine.weight * quantity,
+            quantity: quantity,
+            machineDetails: {
+                requiredMaterials: machine.materials,
+                inputRatio: {
+                    additionalProp1: 1,
+                    additionalProp2: 3,
+                    additionalProp3: 2
+                },
+                productionRate: 30
+            },
+            bankAccount: "THOH-BANK"
+        };
+        
+        res.json(response);
+    }
+    
+    static getAvailableMachines(req: Request, res: Response): void {
+        const response: AvailableMachineResponse = {
+            machines: [
+                {
+                    machineName: "cosmos_z25_machine",
+                    quantity: 100,
+                    materialRatio: "1:3:2 (cases:screens:electronics)",
+                    productionRate: 30,
+                    price: 20000
+                },
+                {
+                    machineName: "cosmos_z25_fe_machine",
+                    quantity: 100,
+                    materialRatio: "1:3:2 (cases:screens:electronics)",
+                    productionRate: 30,
+                    price: 30000
+                },
+                {
+                    machineName: "cosmos_z25_ultra_machine",
+                    quantity: 100,
+                    materialRatio: "1:3:2 (cases:screens:electronics)",
+                    productionRate: 30,
+                    price: 50000
+                }
+            ]
+        };
+        
+        res.json(response);
     }
 }

@@ -1,27 +1,40 @@
 import { Router } from 'express';
-import { TestEndpointsController } from './testController.js';
+import {
+    TestConsumerDeliveriesController,
+    TestBulkDeliveriesController,
+    TestCommercialBankController,
+    TestCaseSuppliersController,
+    TestScreenSuppliersController,
+    TestElectronicsSuppliersController,
+    TestTHOHController
+} from './testController.js';
 
 const router = Router();
 
-// Consumer Deliveries Routes
-router.post('/consumerdeliveries/api/delivery-request', TestEndpointsController.consumerDeliveryRequest);
+// Consumer Deliveries API routes
+router.post('/consumerdeliveries/api/pickups', TestConsumerDeliveriesController.requestDelivery);
 
-// Bulk Deliveries Routes
-router.post('/bulkdeliveries/api/delivery-request', TestEndpointsController.bulkDeliveryRequest);
+// Bulk Deliveries API routes
+router.post('/bulkdeliveries/api/pickup-request', TestBulkDeliveriesController.requestPickup);
 
-// Commercial Bank Routes
-router.post('/commercialbank/api/make-payment', TestEndpointsController.makePayment);
+// Commercial Bank API routes
+router.post('/commercialbank/api/make-payment', TestCommercialBankController.makePayment);
+router.post('/commercialbank/api/account', TestCommercialBankController.openAccount);
+router.post('/commercialbank/api/loan', TestCommercialBankController.applyForLoan);
+router.get('/commercialbank/api/loan/:loanNumber', TestCommercialBankController.getLoanInfo);
+router.post('/commercialbank/api/loan/:loan_number/pay', TestCommercialBankController.repayLoan);
 
-// Case Suppliers Routes
-router.post('/case-suppliers/api/purchase', TestEndpointsController.purchaseCases);
+// Case Suppliers API routes
+router.post('/case-suppliers/api/orders', TestCaseSuppliersController.purchaseCases);
 
-// Screen Suppliers Routes
-router.post('/screen-suppliers/api/purchase', TestEndpointsController.purchaseScreens);
+// Screen Suppliers API routes
+router.post('/screen-suppliers/api/order', TestScreenSuppliersController.purchaseScreens);
 
-// Electronics Suppliers Routes
-router.post('/electronics-suppliers/api/purchase', TestEndpointsController.purchaseElectronics);
+// Electronics Suppliers API routes
+router.post('/electronics-suppliers/api/order', TestElectronicsSuppliersController.purchaseElectronics);
 
-// Health check route
-router.get('/health', TestEndpointsController.healthCheck);
+// THOH API routes
+router.post('/thoh/api/machines', TestTHOHController.purchaseMachine);
+router.get('/thoh/api/simulation/machines', TestTHOHController.getAvailableMachines);
 
 export default router;
