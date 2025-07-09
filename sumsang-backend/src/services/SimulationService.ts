@@ -58,6 +58,16 @@ export class SimulationService {
 
 		await this.orderInitialMachines();
 
-		await TickService.start(startEpoch);
+		if (process.env.USE_TEST_ENDPOINTS === 'true')
+		{
+			await SystemSettingsRepository.upsertByKey(
+				systemSettingKeys.startEpoch,
+				startEpoch
+			);
+			await SystemSettingsRepository.upsertByKey(systemSettingKeys.currentDay, '1');
+		}
+		else {
+			await TickService.start(startEpoch);
+		}
 	}
 }

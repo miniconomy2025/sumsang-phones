@@ -1,27 +1,46 @@
 import { Router } from 'express';
-import { TestEndpointsController } from './testController.js';
+import {
+    TestConsumerDeliveriesController,
+    TestBulkDeliveriesController,
+    TestCommercialBankController,
+    TestCaseSuppliersController,
+    TestScreenSuppliersController,
+    TestElectronicsSuppliersController,
+    TestTHOHController,
+    ManualTestEndpoints
+} from './testController.js';
 
 const router = Router();
 
-// Consumer Deliveries Routes
-router.post('/consumerdeliveries/api/delivery-request', TestEndpointsController.consumerDeliveryRequest);
+// =============================== Manual test endpoints =======================================
+router.post('/manual-tick', ManualTestEndpoints.manualTick);
 
-// Bulk Deliveries Routes
-router.post('/bulkdeliveries/api/delivery-request', TestEndpointsController.bulkDeliveryRequest);
+// ============================== Simulated test endpoints ===================================== 
 
-// Commercial Bank Routes
-router.post('/commercialbank/api/make-payment', TestEndpointsController.makePayment);
+// Consumer Deliveries API routes
+router.post('/consumerdeliveries/api/pickups', TestConsumerDeliveriesController.requestDelivery);
 
-// Case Suppliers Routes
-router.post('/case-suppliers/api/purchase', TestEndpointsController.purchaseCases);
+// Bulk Deliveries API routes
+router.post('/bulkdeliveries/api/pickup-request', TestBulkDeliveriesController.requestPickup);
 
-// Screen Suppliers Routes
-router.post('/screen-suppliers/api/purchase', TestEndpointsController.purchaseScreens);
+// Commercial Bank API routes
+router.post('/commercialbank/api/make-payment', TestCommercialBankController.makePayment);
+router.post('/commercialbank/api/account', TestCommercialBankController.openAccount);
+router.post('/commercialbank/api/loan', TestCommercialBankController.applyForLoan);
+router.get('/commercialbank/api/loan/:loanNumber', TestCommercialBankController.getLoanInfo);
+router.post('/commercialbank/api/loan/:loan_number/pay', TestCommercialBankController.repayLoan);
 
-// Electronics Suppliers Routes
-router.post('/electronics-suppliers/api/purchase', TestEndpointsController.purchaseElectronics);
+// Case Suppliers API routes
+router.post('/case-suppliers/api/orders', TestCaseSuppliersController.purchaseCases);
 
-// Health check route
-router.get('/health', TestEndpointsController.healthCheck);
+// Screen Suppliers API routes
+router.post('/screen-suppliers/api/order', TestScreenSuppliersController.purchaseScreens);
+
+// Electronics Suppliers API routes
+router.post('/electronics-suppliers/api/order', TestElectronicsSuppliersController.purchaseElectronics);
+
+// THOH API routes
+router.post('/thoh/api/machines', TestTHOHController.purchaseMachine);
+router.get('/thoh/api/simulation/machines', TestTHOHController.getAvailableMachines);
 
 export default router;
