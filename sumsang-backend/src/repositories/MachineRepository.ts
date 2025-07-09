@@ -92,12 +92,22 @@ export class MachineRepository {
     }
   }
 
-  static async retireMachinesByPhoneId(phoneId: number): Promise<void> {
+  static async retireMachinesByPhoneId(phoneId: number, quantity: number): Promise<void> {
 		await db.query(
-			`UPDATE machines
-		  SET date_retired = NOW()
-		  WHERE phone_id = $1 AND date_retired IS NULL`,
-			[phoneId]
-		);
+      `WITH to_update AS (
+          SELECT id
+          FROM machines
+          WHERE phone_id = $1 AND date_retired IS NULL
+          ORDER BY id
+          LIMIT $2
+      )
+      UPDATE machines
+      SET date_retired = COALESCE(
+                        (SELECT value::int FROM system_settings WHERE key = 'current_day'),
+                        0
+                    )
+      WHERE id IN (SELECT id FROM to_update)`,
+      [phoneId, quantity]
+    );
 	}
 }
