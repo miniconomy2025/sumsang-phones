@@ -302,12 +302,6 @@ jobs:
 
         ssh -o StrictHostKeyChecking=no -i apiprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
-        # Define a variable that controls mTLS based on the Host header
-        map $http_host $verify_client {
-            default on;
-            "sumsang-phones.projects.bbdgrad.com" off;
-        }
-
         server {
             listen 80;
             server_name sumsang-phones-api.projects.bbdgrad.com;
@@ -318,13 +312,16 @@ jobs:
             listen 443 ssl;
             server_name sumsang-phones-api.projects.bbdgrad.com;
 
+            #Server TLS certificate (client must have CA cert to connect)
+            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
+            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
+
+            #Cert for mTLS
+            ssl_client_certificate /etc/nginx/certificates/miniconomy-root-ca.crt;
+            ssl_verify_client on;
+
             location / {
                 proxy_pass http://localhost:3000;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection 'upgrade';
-                proxy_set_header Host $host;
-                proxy_cache_bypass $http_upgrade;
             }
         }
         NGINX_CONF
@@ -363,11 +360,11 @@ jobs:
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-            listen 443 ssl;
-            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem;
-            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem;
-            include /etc/letsencrypt/options-ssl-nginx.conf;
-            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+            listen 443 ssl; # managed by Certbot
+            ssl_certificate /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/fullchain.pem; # managed by Certbot
+            ssl_certificate_key /etc/letsencrypt/live/sumsang-phones.projects.bbdgrad.com/privkey.pem; # managed by Certbot
+            include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+            ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
 
         }
         server {
@@ -412,33 +409,18 @@ jobs:
       with:
         secret-ids: |
           WEB_EC2_PRIVATE_KEY, webprivatekey
-          API_EC2_PRIVATE_KEY, apiprivatekey
 
-    - name: Setup private key web
+    - name: Setup private key
       run: |
-        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > privatekeyweb.pem
-        chmod 0500 privatekeyweb.pem
+        echo "${{ env.WEB_EC2_PRIVATE_KEY }}" > privatekey.pem
+        chmod 0500 privatekey.pem
 
-    
-    - name: Setup private key api
-      run: |
-        echo "${{ env.API_EC2_PRIVATE_KEY }}" > privatekeyapi.pem
-        chmod 0500 privatekeyapi.pem
-
-    - name: Cerbot frontend
+    - name: Cerbot
       run: |
         EC2_HOST=${{ needs.terraform.outputs.webec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekeyweb.pem "ubuntu@$EC2_HOST" ' 
+        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
           sudo apt install certbot python3-certbot-nginx -y &&
           sudo certbot --nginx -d sumsang-phones.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
-        '
-  
-    - name: Cerbot API
-      run: |
-        EC2_HOST=${{ needs.terraform.outputs.apiec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekeyapi.pem "ubuntu@$EC2_HOST" ' 
-          sudo apt install certbot python3-certbot-nginx -y &&
-          sudo certbot --nginx -d sumsang-phones-api.projects.bbdgrad.com --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
         '
             
   flyway:
