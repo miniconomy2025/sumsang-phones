@@ -302,6 +302,12 @@ jobs:
 
         ssh -o StrictHostKeyChecking=no -i apiprivatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
         sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
+        # Define a variable that controls mTLS based on the Host header
+        map $http_host $verify_client {
+            default on;
+            "sumsang-phones.projects.bbdgrad.com" off;
+        }
+
         server {
             listen 80;
             server_name sumsang-phones-api.projects.bbdgrad.com;
@@ -312,16 +318,13 @@ jobs:
             listen 443 ssl;
             server_name sumsang-phones-api.projects.bbdgrad.com;
 
-            #Server TLS certificate (client must have CA cert to connect)
-            ssl_certificate         /etc/nginx/certificates/sumsang.crt;
-            ssl_certificate_key     /etc/nginx/certificates/sumsang.key;
-
-            #Cert for mTLS
-            ssl_client_certificate /etc/nginx/certificates/miniconomy-root-ca.crt;
-            ssl_verify_client on;
-
             location / {
                 proxy_pass http://localhost:3000;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host $host;
+                proxy_cache_bypass $http_upgrade;
             }
         }
         NGINX_CONF
