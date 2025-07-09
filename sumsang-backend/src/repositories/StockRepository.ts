@@ -39,7 +39,10 @@ export class StockRepository {
             UPDATE stock
             SET quantity_available = quantity_available - $1,
                 quantity_reserved = quantity_reserved + $1,
-                updated_at = NOW()
+                updated_at = COALESCE(
+                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                0
+            ) 
             WHERE phone_id = $2 AND quantity_available >= $1
         `, [quantity, phoneId]);
     }
@@ -48,8 +51,20 @@ export class StockRepository {
         await db.query(`
             UPDATE stock
             SET quantity_available = quantity_available + $1,
-                updated_at = NOW()
+                updated_at = COALESCE(
+                (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
+                0
+            ) 
             WHERE phone_id = $2
         `, [quantity, phoneId]);
   }
+
+   static async releaseReservedStock(phoneId: number, quantity: number): Promise<void> {
+        await db.query(`
+            UPDATE stock
+            SET quantity_reserved = quantity_reserved - $1,
+                updated_at = NOW()
+            WHERE phone_id = $2 AND quantity_reserved >= $1
+        `, [quantity, phoneId]);
+    }
 }

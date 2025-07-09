@@ -57,13 +57,13 @@ export class OrderService {
                 order = await this.getOrder(order.orderId);
             }
         }
-        
+
         if (order.status === Status.PendingDeliveryRequest) {
             this.makeDeliveryRequest(order);
 
             order = await this.getOrder(order.orderId);
-        }   
-        
+        }
+
         if (order.status === Status.PendingDeliveryPayment) {
             this.makeDeliveryPayment(order);
 
@@ -98,10 +98,10 @@ export class OrderService {
     static async makeDeliveryRequest(order: Order): Promise<void> {
         const units = await OrderRepository.getOrderItemsCount(order.orderId);
 
-        const result = await ConsumerDeliveriesAPI.requestDelivery(order.orderId, units);
+        const result = await ConsumerDeliveriesAPI.requestDelivery(units);
 
-        if (result.success && result.delivery_reference && result.cost && result.account_number) {
-            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.delivery_reference, result.cost, result.account_number);
+        if (result.success && result.referenceno && result.amount && result.account_number) {
+            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.referenceno, result.amount, result.account_number);
 
             await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryPayment);
         }
@@ -109,11 +109,15 @@ export class OrderService {
 
     static async makeDeliveryPayment(order: Order): Promise<void> {
         const delivery = await ConsumerDeliveryRepository.getDeliveryByOrderId(order.orderId);
+      
+        if (!delivery) {
+            throw new ValidationError(`Delivery information not found for order ${order.orderId}`);
+        }
 
         const result = await CommercialBankAPI.makePayment(delivery.deliveryReference, delivery.cost, delivery.accountNumber);
 
         if (result.success) {
-            await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection); 
+            await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryCollection);
         }
         else {
             // no money probably - try again later when not broke I guess
@@ -123,7 +127,7 @@ export class OrderService {
 
     static async getOrder(orderId: number) {
         const order = await OrderRepository.getOrderById(orderId);
-        if (!order) 
+        if (!order)
             throw new ValidationError(`Order ${orderId} not found`);
         return order;
     }

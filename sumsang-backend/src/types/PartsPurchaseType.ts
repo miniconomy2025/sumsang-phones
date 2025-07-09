@@ -6,5 +6,5 @@ export type PartsPurchase = {
     quantity: number;
     accountNumber: string;
     status: number;
-    purchasedAt?: Date;
+    purchasedAt?: number;
 }

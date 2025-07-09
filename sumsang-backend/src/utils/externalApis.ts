@@ -1,15 +1,23 @@
-import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse } from "../types/ExternalApiTypes.js";
+import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, AvailableMachineResponse, PartsPurchaseResponse } from "../types/ExternalApiTypes.js";
+
+// Helper function to get the full URL based on environment variable
+function getApiUrl(productionUrl: string, servicePath: string): string {
+    const useTestEndpoints = process.env.USE_TEST_ENDPOINTS === 'true';
+    return useTestEndpoints ? `http://localhost:3000/test-endpoints${servicePath}` : productionUrl;
+}
 
 export class ConsumerDeliveriesAPI {
-    static async requestDelivery(orderId: number, units: number): Promise<ConsumerDeliveriesResponse> {
+    static apiUrl = getApiUrl('https://consumerdeliveries/api', '/consumerdeliveries/api');
+
+    static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         try {
-            const response = await fetch('https://consumerdeliveries/api/delivery-request', {
+            const response = await fetch(`${this.apiUrl}/pickup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    order_id: orderId,
-                    units,
-                    destination: 'consumer',
+                    quantity: units,
+                    pickup_from: "sumsang-company",
+                    delivery_to: "thoh"
                 }),
             });
 
@@ -17,7 +25,11 @@ export class ConsumerDeliveriesAPI {
                 return { success: false, message: `HTTP ${response.status}` };
             }
 
-            const result: ConsumerDeliveriesResponse = await response.json();
+            const raw: ConsumerDeliveriesResponse = await response.json();
+            const result: ConsumerDeliveriesResponse = {
+                success: true,
+                ...raw
+            }
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
@@ -26,16 +38,19 @@ export class ConsumerDeliveriesAPI {
 }
 
 export class BulkDeliveriesAPI {
-    static async requestDelivery(orderId: number, units: number, from: string): Promise<BulkDeliveriesResponse> {
+    static apiUrl = getApiUrl('https://bulk-logistics-api.projects.bbdgrad.com/api', '/bulkdeliveries/api');
+
+    static async requestDelivery(orderId: number, units: number, from: string, item: string): Promise<BulkDeliveriesResponse> {
         try {
-            const response = await fetch('https://bulkdeliveries/api/delivery-request', {
+
+            const response = await fetch(`${this.apiUrl}/pickup-request`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    order_id: orderId,
-                    units,
-                    destination: 'us',
-                    from
+                    originalExternalOrderId: orderId,
+                    originCompanyId: from,
+                    destinationCompanyId: 'sumsang-company',
+                    items: [{itemName: item, quantity: units, measurementType: "UNIT"}]
                 }),
             });
 
@@ -43,7 +58,45 @@ export class BulkDeliveriesAPI {
                 return { success: false, message: `HTTP ${response.status}` };
             }
 
-            const result: BulkDeliveriesResponse = await response.json();
+            const raw: BulkDeliveriesResponse = await response.json();
+            const result: BulkDeliveriesResponse = {
+                success: true,
+                ...raw
+            }
+            return result;
+        } catch (error) {
+            return { success: false, message: (error as Error).message };
+        }
+    }
+
+    static async requestMachineDelivery(orderId: number, units: number, weightPerMachine: number): Promise<BulkDeliveriesResponse> {
+        try {
+            const repeatedArray = Array.from({ length: units }, () => ({
+                itemName: 'Machine',
+                quantity: weightPerMachine,
+                measurementType: 'KG'
+            }));
+
+            const response = await fetch(`${this.apiUrl}/pickup-request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalExternalOrderId: orderId,
+                    originCompanyId: 'thoh',
+                    destinationCompanyId: 'sumsang-company',
+                    items: repeatedArray
+                }),
+            });
+
+            if (!response.ok) {
+                return { success: false, message: `HTTP ${response.status}` };
+            }
+
+            const raw: BulkDeliveriesResponse = await response.json();
+            const result: BulkDeliveriesResponse = {
+                success: true,
+                ...raw
+            }
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
@@ -52,15 +105,18 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static async makePayment(reference_number: number, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
+    static apiUrl = getApiUrl('https://commercialbank/api', '/commercialbank/api');
+
+    static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         try {
-            const response = await fetch('https://commercialbank/api/make-payment', {
+            const response = await fetch(`${this.apiUrl}/make-payment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    reference_number: reference_number,
+                    to_account_number: accountNumber,
+                    to_bank_name: "commercial-bank",
                     amount,
-                    account_number: accountNumber
+                    description: reference_number
                 }),
             });
 
@@ -74,13 +130,84 @@ export class CommercialBankAPI {
             return { success: false, message: (error as Error).message };
         }
     }
+
+    static async openAccount(): Promise<{ account_number: string }> {
+        try {
+            const response = await fetch(`${this.apiUrl}/account`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            })
+
+            return response.json();
+        }
+        catch (error) {
+            return { account_number: "" }
+        }
+    }
+
+    static async applyForLoan(amount: number): Promise<{ success: boolean, loan_number: string }> {
+        try {
+            const response = await fetch(`${this.apiUrl}/loan`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount
+                })
+            })
+
+            return response.json();
+        }
+        catch (error) {
+            console.error("Loan application failed");
+            return { success: false, loan_number: "" }
+        }
+    }
+
+    static async getLoanInfo(loanNumber: string): Promise<{ outstandingAmount: number }> {
+        try {
+            const response = await fetch(`${this.apiUrl}/loan/${loanNumber}`, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Bank API error: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error("Failed to retrieve loan info:", error);
+            return { outstandingAmount: 0 };
+        }
+    }
+
+    static async repayLoan(loan_number: string, amount: number): Promise<{ success: boolean, paid: number }> {
+        try {
+            const response = await fetch(`${this.apiUrl}/loan/${loan_number}/pay`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "applicaion/json" },
+                    body: JSON.stringify({
+                        amount
+                    })
+                }
+            )
+            return response.json();
+        }
+        catch (error) {
+            console.error("Could not pay loan");
+            return { success: false, paid: 0 }
+        }
+    }
 }
 
 
 export class CaseSuppliers {
-    static async purchaseCases(quantity: number): Promise<PurchaseCasesResponse> {
+    static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api');
+
+    static async purchaseCases(quantity: number): Promise<PartsPurchaseResponse> {
         try {
-            const response = await fetch('https://case-suppliers/api/purchase', {
+            const response = await fetch(`${this.apiUrl}/orders`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -92,7 +219,13 @@ export class CaseSuppliers {
                 return { success: false, message: `HTTP ${response.status}` };
             }
 
-            const result: PurchaseCasesResponse = await response.json();
+            const raw: PurchaseCasesResponse = await response.json();
+            const result: PartsPurchaseResponse = {
+                success: true,
+                accountNumber: raw.bankNumber,
+                cost: raw.total_price,
+                referenceNumber: raw.id
+            } 
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
@@ -101,9 +234,11 @@ export class CaseSuppliers {
 }
 
 export class ScreenSuppliers {
-    static async purchaseScreens(quantity: number): Promise<PurchaseScreensResponse> {
+    static apiUrl = getApiUrl('https://screen-suppliers/api', '/screen-suppliers/api');
+
+    static async purchaseScreens(quantity: number): Promise<PartsPurchaseResponse> {
         try {
-            const response = await fetch('https://screen-suppliers/api/purchase', {
+            const response = await fetch(`${this.apiUrl}/order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -115,19 +250,26 @@ export class ScreenSuppliers {
                 return { success: false, message: `HTTP ${response.status}` };
             }
 
-            const result: PurchaseScreensResponse = await response.json();
+            const raw: PurchaseScreensResponse = await response.json();
+            const result: PartsPurchaseResponse = {
+                success: true,
+                referenceNumber: raw.orderId,
+                cost: raw.totalPrice,
+                accountNumber: raw.bankAccountNumber
+            }
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
         }
     }
 }
-
 
 export class ElectronicsSuppliers {
-    static async purchaseElectronics(quantity: number): Promise<PurchaseElectronicsResponse> {
+    static apiUrl = getApiUrl('http://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api');
+
+    static async purchaseElectronics(quantity: number): Promise<PartsPurchaseResponse> {
         try {
-            const response = await fetch('https://electronics-suppliers/api/purchase', {
+            const response = await fetch(`${this.apiUrl}/order`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -139,7 +281,13 @@ export class ElectronicsSuppliers {
                 return { success: false, message: `HTTP ${response.status}` };
             }
 
-            const result: PurchaseElectronicsResponse = await response.json();
+            const raw: PurchaseElectronicsResponse = await response.json();
+            const result: PartsPurchaseResponse = {
+                success: true,
+                referenceNumber: raw.orderId,
+                cost: raw.amountDue,
+                accountNumber: raw.bankNumber
+            }
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
@@ -148,3 +296,52 @@ export class ElectronicsSuppliers {
 }
 
 
+export class THOHAPI {
+    static apiUrl = getApiUrl('https://thoh/api', '/thoh/api');
+
+    static async purchaseMachine(machineName: string, quantity: number): Promise<MachinePurchaseResponse> {
+        try {
+            const response = await fetch(`${this.apiUrl}/machines`,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        machineName: machineName,
+                        quantity: quantity
+                    })
+                });
+
+            if (!response.ok) {
+                return { success: false, message: `HTTP ${response.status}` };
+            }
+
+            const raw: MachinePurchaseResponse = await response.json();
+            const result: MachinePurchaseResponse = {
+                success: true,
+                ...raw
+            }
+            return result;
+        }
+        catch (error) {
+            throw new Error("Machine purchase failed");
+        }
+    }
+
+    static async getAvailableMachines(): Promise<AvailableMachineResponse[]> {
+        try {
+            const response = await fetch(`${this.apiUrl}/simulation/machines`,
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" },
+                }
+            )
+            if (!response.ok) {
+                throw new Error(`Failed to fetch machines. Status: ${response.status}`);
+            }
+            return response.json();
+        }
+        catch (error) {
+            throw new Error("Could not get list of machines");
+        }
+    }
+}
