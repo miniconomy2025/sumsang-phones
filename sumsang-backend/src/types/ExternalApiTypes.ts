@@ -1,8 +1,8 @@
 export interface ConsumerDeliveriesResponse {
     success?: boolean;
-    referenceno?: string;
+    referenceNo?: string;
     amount?: number;
-    account_number?: string;
+    accountNumber?: string;
     message?: string;
 }
 
