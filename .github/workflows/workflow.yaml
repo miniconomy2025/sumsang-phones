@@ -247,7 +247,7 @@ jobs:
                 echo "USE_TEST_DB=false" | sudo tee -a /etc/environment
                 echo "USE_TEST_CONSUMER_DELIVERIES=false" | sudo tee -a /etc/environment
                 echo "USE_TEST_BULK_DELIVERIES=true" | sudo tee -a /etc/environment
-                echo "USE_TEST_COMMERCIAL_BANK=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_COMMERCIAL_BANK=false" | sudo tee -a /etc/environment
                 echo "USE_TEST_RETAIL_BANK=true" | sudo tee -a /etc/environment
                 echo "USE_TEST_CASE_SUPPLIERS=true" | sudo tee -a /etc/environment
                 echo "USE_TEST_SCREEN_SUPPLIERS=true" | sudo tee -a /etc/environment
