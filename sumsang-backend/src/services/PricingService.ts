@@ -11,7 +11,7 @@ export class PricingService {
         
         // Fetch Case cost (partId: 1)
         try {
-            const caseResponse = await CaseSuppliers.purchaseCases(1);
+            const caseResponse = await CaseSuppliers.getCasesCost();
             if (caseResponse.success && caseResponse.cost) {
                 partCosts.set(1, caseResponse.cost);
                 console.log(`PricingService::getPartCosts - Fetched Case cost: ${caseResponse.cost}`);
@@ -24,7 +24,7 @@ export class PricingService {
         
         // Fetch Screen cost (partId: 2)
         try {
-            const screenResponse = await ScreenSuppliers.purchaseScreens(1);
+            const screenResponse = await ScreenSuppliers.getScreensCost();
             if (screenResponse.success && screenResponse.cost) {
                 partCosts.set(2, screenResponse.cost);
                  console.log(`PricingService::getPartCosts - Fetched Screen cost: ${screenResponse.cost}`);
@@ -37,7 +37,7 @@ export class PricingService {
 
         // Fetch Electronics cost (partId: 3)
         try {
-            const electronicsResponse = await ElectronicsSuppliers.purchaseElectronics(1);
+            const electronicsResponse = await ElectronicsSuppliers.getElectronicsCost();
             if (electronicsResponse.success && electronicsResponse.cost) {
                 partCosts.set(3, electronicsResponse.cost);
                 console.log(`PricingService::getPartCosts - Fetched Electronics cost: ${electronicsResponse.cost}`);
@@ -52,15 +52,17 @@ export class PricingService {
     }
 
     public static async updatePhonePricesDaily(): Promise<void> {
+        console.log("PricingService::updatePhonePricesDaily - Starting daily price update process.");
 
         // Step 1: Get price from 3 suppliers via 3 endpoint calls
         const partCosts = await this.getPartCosts();
         if (partCosts.size === 0) {
-            console.error("PricingService::updatePhonePricesDaily - Could not retrieve any part costs. Aborting price update.");
+            console.log("PricingService::updatePhonePricesDaily - Could not retrieve any part costs. Aborting price update.");
             return;
         }
 
         // Step 2: Check machines + machine ratios table
+        console.log("PricingService::updatePhonePricesDaily - Fetching all phones and active machines.");
         const allPhones = await PhoneRepository.getAllPhones();
         const activeMachines = await MachineRepository.getActiveMachines();
 
@@ -72,19 +74,21 @@ export class PricingService {
             }
         }
 
+        console.log(`PricingService::updatePhonePricesDaily - Mapping complete. Found ${phoneToMachineMap.size} phone-to-machine mappings.`);
+
         for (const phone of allPhones) {
-            // If the machine for a phone doesn't exist yet, don't calculate for that phone
             const representativeMachineId = phoneToMachineMap.get(phone.phone_id);
 
             if (!representativeMachineId) {
+                console.log(`PricingService::updatePhonePricesDaily - No active machine found for phone model '${phone.model}' (ID: ${phone.phone_id}). Skipping.`);
                 continue;
             }
 
-            // Get the parts required for a single phone of this model using our new repository method
+            console.log(`PricingService::updatePhonePricesDaily - Fetching part ratios for machine ID ${representativeMachineId} (Phone: ${phone.model}).`);
             const ratios = await MachineRepository.getRatiosForMachine(representativeMachineId);
             
             if (ratios.length === 0) {
-                console.warn(`PricingService::updatePhonePricesDaily - No part ratios found for machine ${representativeMachineId} (Phone: ${phone.model}). Skipping.`);
+                console.log(`PricingService::updatePhonePricesDaily - No part ratios found for machine ${representativeMachineId} (Phone: ${phone.model}). Skipping.`);
                 continue;
             }
 
@@ -94,6 +98,7 @@ export class PricingService {
             for (const ratio of ratios) {
                 const partCost = partCosts.get(ratio.partId);
                 if (partCost === undefined) {
+                    console.log(`PricingService::updatePhonePricesDaily - Missing cost data for part ID ${ratio.partId}. Skipping phone model '${phone.model}'.`);
                     calculationPossible = false;
                     break;
                 }
@@ -101,16 +106,22 @@ export class PricingService {
             }
 
             if (!calculationPossible) {
-                continue; // Move to the next phone if a part cost was missing
+                continue;
             }
 
+            console.log(`PricingService::updatePhonePricesDaily - Total cost to manufacture phone '${phone.model}': ${costPrice}`);
+
             // Step 4: Calculate selling price at 50% profit
-            const profitMargin = 1.50; // 100% (cost) + 50% (profit)
+            const profitMargin = 1.50;
             const finalPrice = Math.ceil(costPrice * profitMargin);
+
+            console.log(`PricingService::updatePhonePricesDaily - Final price for phone '${phone.model}' after 50% profit margin: ${finalPrice}`);
 
             // Step 5: Update the phone's selling price in the database
             await PhoneRepository.updatePhonePrice(phone.model, finalPrice);
+            console.log(`PricingService::updatePhonePricesDaily - Updated price for phone '${phone.model}' to ${finalPrice}.`);
         }
 
+        console.log("PricingService::updatePhonePricesDaily - Daily price update process completed.");
     }
 }

@@ -31,12 +31,15 @@ router.get('/commercialbank/api/loan/:loanNumber', TestCommercialBankController.
 router.post('/commercialbank/api/loan/:loan_number/pay', TestCommercialBankController.repayLoan);
 
 // Case Suppliers API routes
+router.get('/case-suppliers/api/cases', TestCaseSuppliersController.getCasesCost);
 router.post('/case-suppliers/api/orders', TestCaseSuppliersController.purchaseCases);
 
 // Screen Suppliers API routes
+router.get('/screen-suppliers/api/screens', TestScreenSuppliersController.getScreensCost);
 router.post('/screen-suppliers/api/order', TestScreenSuppliersController.purchaseScreens);
 
 // Electronics Suppliers API routes
+router.get('/electronics-suppliers/api/electronics', TestElectronicsSuppliersController.getElectronicsCost);
 router.post('/electronics-suppliers/api/order', TestElectronicsSuppliersController.purchaseElectronics);
 
 // THOH API routes

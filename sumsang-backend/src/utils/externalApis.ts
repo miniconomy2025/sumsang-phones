@@ -145,6 +145,20 @@ export class CommercialBankAPI {
 export class CaseSuppliers {
     static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api');
 
+    static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
+        try {
+            const response = await axiosInstance.get(`${this.apiUrl}/cases`);
+
+            const raw: {available_units: number, price_per_unit: number} = response.data;
+            return {
+                success: true,
+                cost: raw.price_per_unit
+            };
+        } catch (error: any) {
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
+
     static async purchaseCases(quantity: number): Promise<PartsPurchaseResponse> {
         try {
             const response = await axiosInstance.post(`${this.apiUrl}/orders`, { quantity });
@@ -165,6 +179,20 @@ export class CaseSuppliers {
 
 export class ScreenSuppliers {
     static apiUrl = getApiUrl('https://screen-suppliers/api', '/screen-suppliers/api');
+
+    static async getScreensCost(): Promise<{success: boolean, cost?: number, message?: string}> {
+        try {
+            const response = await axiosInstance.get(`${this.apiUrl}/screens`);
+
+            const raw: {screens: {quantity: number, price: number}} = response.data;
+            return {
+                success: true,
+                cost: raw.screens.quantity
+            };
+        } catch (error: any) {
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
 
     static async purchaseScreens(quantity: number): Promise<PartsPurchaseResponse> {
         try {
@@ -187,6 +215,20 @@ export class ScreenSuppliers {
 
 export class ElectronicsSuppliers {
     static apiUrl = getApiUrl('http://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api');
+
+    static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
+        try {
+            const response = await axiosInstance.get(`${this.apiUrl}/electronics`);
+
+            const raw: {availableStock: number, pricePerUnit: number} = response.data;
+            return {
+                success: true,
+                cost: raw.pricePerUnit
+            };
+        } catch (error: any) {
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
 
     static async purchaseElectronics(quantity: number): Promise<PartsPurchaseResponse> {
         try {
