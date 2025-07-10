@@ -123,8 +123,8 @@ export class DailyTasksService {
         for (const order of pendingOrders) {
             const items = await OrderRepository.getOrderItems(order.orderId);
             for (const item of items) {
-                const current = pendingDemand.get(item.phoneId) || 0;
-                pendingDemand.set(item.phoneId, current + item.quantity);
+                const current = pendingDemand.get(item.phoneId!) || 0;
+                pendingDemand.set(item.phoneId!, current + item.quantity);
             }
         }
         

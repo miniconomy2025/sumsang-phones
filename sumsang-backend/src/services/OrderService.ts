@@ -24,14 +24,14 @@ export class OrderService {
         for (const item of items) {
             console.log('OrderService::placeOrder - Processing item', { item });
             
-            const phoneExists = await PhoneRepository.phoneExists(item.phoneId);
+            const phoneExists = await PhoneRepository.phoneExists(item.model!);
             if (!phoneExists) {
-                console.log('OrderService::placeOrder - Phone not found', { phoneId: item.phoneId });
-                throw new ValidationError(`Phone with ID ${item.phoneId} does not exist.`);
+                console.log('OrderService::placeOrder - Phone not found', { phoneId: item.model });
+                throw new ValidationError(`Phone with name ${item.model} does not exist.`);
             }
 
             // Optional: Fetch phone price and add to total
-            const phone = await PhoneRepository.getPhoneById(item.phoneId);
+            const phone = await PhoneRepository.getPhoneByModel(item.model!);
             console.log('OrderService::placeOrder - Found phone', { phone });
             
             const itemTotal = Number(phone.price) * item.quantity;
@@ -51,7 +51,7 @@ export class OrderService {
         const orderId = await OrderRepository.createOrder(accountNumber, totalPrice, items);
         console.log('OrderService::placeOrder - Order created', { orderId });
 
-        const order = await OrderRepository.getOrderById(Number(orderId));
+        const order = await OrderRepository.getOrderById(Number(orderId.orderId));
         console.log('OrderService::placeOrder - Order ', { order });
 
         if (!order) {
@@ -147,7 +147,7 @@ export class OrderService {
         for (const item of items) {
             console.log('OrderService::stockAvailableForOrder - Checking item stock', { item });
             
-            const stockEntry = stock.get(item.phoneId);
+            const stockEntry = stock.get(item.phoneId!);
             console.log('OrderService::stockAvailableForOrder - Stock entry for item', { stockEntry });
             
             if (!stockEntry || stockEntry.quantityAvailable < item.quantity) {
@@ -168,7 +168,7 @@ export class OrderService {
 
         for (const item of items) {
             console.log('OrderService::reserveStockForOrder - Reserving stock for item', { item });
-            await StockRepository.reserveStock(item.phoneId, item.quantity);
+            await StockRepository.reserveStock(item.phoneId!, item.quantity);
             console.log('OrderService::reserveStockForOrder - Stock reserved for item', { phoneId: item.phoneId, quantity: item.quantity });
         }
 

@@ -33,7 +33,7 @@ function getApiUrl(productionUrl: string, servicePath: string, envVariable: stri
 }
 
 export class ConsumerDeliveriesAPI {
-    static apiUrl = getApiUrl('https://consumer-logistics.projects-api.bbdgrad.com/api', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
+    static apiUrl = getApiUrl('https://consumer-logistics.projects-api.bbdgrad.com', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
 
     static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         console.log(`📦 ConsumerDeliveriesAPI: Requesting delivery for ${units} units`);
@@ -115,7 +115,7 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static apiUrl = getApiUrl('https://commercial-bank-api.projects.bbdgrad.com/api', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
+    static apiUrl = getApiUrl('https://commercial-bank-api.projects.bbdgrad.com', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
 
     static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         console.log(`💰 CommercialBankAPI: Making payment - Reference: ${reference_number}, Amount: ${amount}, Account: ${accountNumber}`);
@@ -216,7 +216,7 @@ export class RetailBankAPI {
 
             console.log(`🏪 RetailBankAPI: Transfer response - Status: ${response.status}, Data:`, response.data);
 
-            if (response.status === 200) {
+            if (response.status !== 200) {
                 console.log(`⚠️ RetailBankAPI: Payment failed - Not enough money`);
                 return { success: false, message: "Not enough money"}
             }
@@ -234,7 +234,7 @@ export class RetailBankAPI {
 }
 
 export class CaseSuppliers {
-    static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
+    static apiUrl = getApiUrl('https://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
 
     static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📱 CaseSuppliers: Getting cases cost`);
@@ -284,7 +284,7 @@ export class CaseSuppliers {
 
 
 export class ScreenSuppliers {
-    static apiUrl = getApiUrl('https://screen-supplier-api.projects.bbdgrad.com/api', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
+    static apiUrl = getApiUrl('https://screen-supplier-api.projects.bbdgrad.com/', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
 
     static async getScreensCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📺 ScreenSuppliers: Getting screens cost`);
@@ -335,7 +335,7 @@ export class ScreenSuppliers {
 
 
 export class ElectronicsSuppliers {
-    static apiUrl = getApiUrl('http://electronics-supplier-api.projects.bbdgrad.com/api', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
+    static apiUrl = getApiUrl('https://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
 
     static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`🔌 ElectronicsSuppliers: Getting electronics cost`);
@@ -386,7 +386,7 @@ export class ElectronicsSuppliers {
 
 
 export class THOHAPI {
-    static apiUrl = getApiUrl('https://thoh-api.projects.bbdgrad.com/api', '/thoh/api', 'USE_TEST_THOH');
+    static apiUrl = getApiUrl('https://thoh-api.projects.bbdgrad.com', '/thoh/api', 'USE_TEST_THOH');
 
     static async purchaseMachine(machineName: string, quantity: number): Promise<MachinePurchaseResponse> {
         console.log(`🏭 THOHAPI: Purchasing machine - Name: ${machineName}, Quantity: ${quantity}`);
@@ -417,10 +417,10 @@ export class THOHAPI {
         }
     }
 
-    static async notifyDelivery(orderId: number) {
-        console.log(`📨 THOHAPI: Notifying delivery for order ID: ${orderId}`);
+    static async notifyDelivery(orderItems: any) {
+        console.log(`📨 THOHAPI: Notifying delivery for order ID: ${orderItems}`);
         try {
-            const payload = {orderid: orderId};
+            const payload = {items: orderItems};
             console.log(`📨 THOHAPI: Sending POST to ${this.apiUrl}/order-notification with payload:`, payload);
             const response = await axiosInstance.post(`${this.apiUrl}/order-notification`, payload);
             console.log(`✅ THOHAPI: Delivery notification successful! Response:`, response.data);

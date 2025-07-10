@@ -122,7 +122,9 @@ export class LogisticsController {
                 throw new NotFoundError('Order not found');
             }
 
-            const result = await THOHAPI.notifyDelivery(order.orderId);
+            const orderItems = await OrderRepository.getOrderItemsById(order.orderId);
+
+            const result = await THOHAPI.notifyDelivery(orderItems);
 
             handleSuccess(res, result);
             console.log('Notification notified: ', deliveryReference);

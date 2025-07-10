@@ -132,7 +132,7 @@ export class LogisticsService {
             console.log('LogisticsService::handlePhonesCollection - Final collection reached, releasing stock and updating order status');
             
             for (const item of orderItems) {
-                await StockRepository.releaseReservedStock(item.phoneId, item.quantity);
+                await StockRepository.releaseReservedStock(item.phoneId!, item.quantity);
                 console.log('LogisticsService::handlePhonesCollection - Released reserved stock', { phoneId: item.phoneId, quantity: item.quantity });
             }
             

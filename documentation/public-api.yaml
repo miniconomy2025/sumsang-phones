@@ -6,25 +6,28 @@ info:
     Public endpoints used for communication to SumSang Phones
 
 servers:
-  - url: https://localhost:8080/public-api
+  - url: https://sumsang-phones-api.projects.bbdgrad.com/public-api
 
 components:
   schemas:
     Order:
       type: object
       required:
+        - account_number
         - items
       properties:
+        account_number:
+          type: string
         items:
           type: array
           items:
             type: object
             required: 
-              - phoneId
+              - model
               - quantity
             properties:
-              phoneId: 
-                type: number
+              model: 
+                type: string
               quantity: 
                 type: number
 
@@ -119,8 +122,8 @@ paths:
             schema:
               $ref: '#/components/schemas/Order'
       responses:
-        '201':
-          description: Order placed successfully. Items reserved for 24 hours awaiting payment.
+        '200':
+          description: Order placed successfully.
           content:
             application/json:
               schema:
@@ -143,33 +146,6 @@ paths:
                     description: Bank account number for SumSang phones
         '400':
           description: Invalid order data
-
-  /pop:
-    post:
-      summary: Notify that payment has been made to SumSang phones
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - reference
-                - amount
-              properties:
-                reference:
-                  type: number
-                  description: Order id
-                amount:
-                  type: number
-                  format: float
-                  description: Payment amount
-      responses:
-        '200':
-          description: Payment accepted
-        '400':
-          description: Invalid payment data
-
 
   /logistics:
     post:
@@ -221,3 +197,24 @@ paths:
           description: Delivery request accepted
         '400':
           description: Invalid delivery data
+          
+  /logistics/notification:
+    post:
+      summary: Notify an order has been delivered
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - delivery_reference
+              properties:
+                delivery_reference: 
+                  type: string
+      responses:
+        '200':
+          description: Accepted
+
+        '400':
+          description: Invalid delivery reference

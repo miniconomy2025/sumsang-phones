@@ -3,6 +3,7 @@ import { DatabaseError } from '../utils/errors.js';
 import { OrderItem } from '../types/OrderItemType.js';
 import { Status } from '../types/Status.js';
 import { Order } from '../types/OrderType.js';
+import { PhoneRepository } from './PhoneRepository.js';
 
 export class OrderRepository {
     static async createOrder(accountNumber: string, price: number, items: OrderItem[]) {
@@ -27,9 +28,10 @@ export class OrderRepository {
                 INSERT INTO order_items (order_id, phone_id, quantity)
                 VALUES ($1, $2, $3)
             `;
-
+            
             for (const item of items) {
-                await db.query(insertItemQuery, [orderId, item.phoneId, item.quantity]);
+                const phone = await PhoneRepository.getPhoneByModel(item.model!);
+                await db.query(insertItemQuery, [orderId, phone.phone_id, item.quantity]);
             }
 
             await db.query('COMMIT');
@@ -61,6 +63,34 @@ export class OrderRepository {
             accountNumber: row.account_number
         };
     }
+
+    static async getOrderItemsById(orderId: number) {
+        const result = await db.query(
+            `SELECT order_id, price, amount_paid, status, created_at, account_number
+            FROM orders 
+            WHERE order_id = $1`,
+            [orderId]
+        );
+        const row = result.rows[0];
+        if (!row) 
+            return null;
+
+        const itemsResult = await db.query(
+            `SELECT p.model, oi.quantity
+            FROM order_items oi
+            JOIN phones p ON oi.phone_id = p.phone_id
+            WHERE oi.order_id = $1`,
+            [orderId]
+        );
+
+        const items = itemsResult.rows.map((r: any) => ({
+            model: r.model,
+            quantity: r.quantity
+        }));
+
+        return items;
+    }
+
 
     static async updateAmountPaid(orderId: number, amountPaid: number) {
         await db.query(
