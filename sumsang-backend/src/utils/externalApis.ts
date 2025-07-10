@@ -293,4 +293,14 @@ export class THOHAPI {
             throw new Error("Could not get list of machines");
         }
     }
+
+    static async notifyDelivery(orderId: number) {
+        try {
+            const response = await axiosInstance.post(`${this.apiUrl}/order-notification`, {orderid: orderId});
+            return { success: true, response};
+        } catch {
+            throw new Error("Failed to notify");
+        } 
+    }
+
 }

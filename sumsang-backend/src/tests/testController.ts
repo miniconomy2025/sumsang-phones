@@ -169,6 +169,33 @@ export class TestCommercialBankController {
     }
 }
 
+export class TestRetailBankController {
+    static async requestTransfer(req: Request, res: Response) {
+        console.log('===== TestRetailBankController.requestTransfer START =====');
+        console.log('Request body:', req.body);
+
+        const { from, to, ammountCents, reference } = req.body;
+
+        console.log(`From: ${from}, To: ${to}, Amount (cents): ${ammountCents}, Reference: ${reference}`);
+
+        // Simulate insufficient funds for small random percentage of requests
+        const simulateInsufficientFunds = Math.random() < 0.2;
+
+        if (simulateInsufficientFunds) {
+            console.log('Simulating insufficient funds');
+
+            res.status(409);
+            console.log('===== TestRetailBankController.requestTransfer END =====');
+            return;
+        }
+
+        console.log('Response:', 'Ok');
+        res.status(200);
+        console.log('===== TestRetailBankController.requestTransfer END =====');
+    }
+}
+
+
 export class TestCaseSuppliersController {
     static async getCasesCost(req: Request, res: Response) {
         console.log('===== TestSupplierPricingController.getCasesCost START =====');
