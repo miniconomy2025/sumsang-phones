@@ -57,10 +57,47 @@ paths:
   /simulations:
     post:
       summary: Start a new simulation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - unixEpochStartTime
+              properties:
+                unixEpochStartTime:
+                  type: string
+                  description: Unix epoch time of simulation start
       responses:
         '200':
           description: Simulation started
           
+  /machine-failure:
+    post:
+      summary: Break a machine random event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - machineName
+                - failureQuantity
+              properties:
+                machineName:
+                  type: string
+                  example: cosmos_z25_machine
+                failureQuantity:
+                  type: number
+                  example: 5
+      responses:
+        '200':
+          description: Random event processed sucessfully
+        '400':
+          description: Invalid request body
+
   /stock:
     get:
       summary: Get current phone stock
@@ -142,22 +179,43 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - id
-                - type
-                - quantity
-              properties:
-                id:
-                  type: number
-                  description: orderId or pickuprequestId
-                type:
-                  type: string
-                  description: PICKUP/DELIVERY
-                  example: PICKUP/DELIVERY
-                quantity:
-                  type: number
-                  description: The amount being picked up or being delivered
+              oneOf:
+                - type: object
+                  required: [type, id, quantity]
+                  properties:
+                    type:
+                      type: string
+                      enum: [PICKUP]
+                      description: Type of logistics request
+                    id:
+                      type: string
+                      description: Delivery reference for consumer logistics
+                    quantity:
+                      type: number
+                      description: Quantity being picked up
+                - type: object
+                  required: [type, id, items]
+                  properties:
+                    type:
+                      type: string
+                      enum: [DELIVERY]
+                      description: Type of logistics request
+                    id:
+                      type: number
+                      description: Delivery reference for bulk logistics
+                    items:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          itemName:
+                            type: string
+                          quantity:
+                            type: number
+                          measurementType:
+                            type: string
+                            description: "UNIT/KG"
+                      description: Array of items being delivered
       responses:
         '200':
           description: Delivery request accepted
