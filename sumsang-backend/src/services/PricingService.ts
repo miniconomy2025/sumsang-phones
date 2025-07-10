@@ -1,6 +1,7 @@
 import { PhoneRepository } from "../repositories/PhoneRepository.js";
 import { MachineRepository } from "../repositories/MachineRepository.js";
 import { CaseSuppliers, ScreenSuppliers, ElectronicsSuppliers } from "../utils/externalApis.js";
+import { SupplierRepository } from "../repositories/SupplierRepository.js";
 
 export class PricingService {
 
@@ -14,6 +15,7 @@ export class PricingService {
             const caseResponse = await CaseSuppliers.getCasesCost();
             if (caseResponse.success && caseResponse.cost) {
                 partCosts.set(1, caseResponse.cost);
+                await SupplierRepository.updateCost(caseResponse.cost, 1);
                 console.log(`PricingService::getPartCosts - Fetched Case cost: ${caseResponse.cost}`);
             } else {
                 console.error("PricingService::getPartCosts - Failed to fetch cost for Cases.");
@@ -27,7 +29,8 @@ export class PricingService {
             const screenResponse = await ScreenSuppliers.getScreensCost();
             if (screenResponse.success && screenResponse.cost) {
                 partCosts.set(2, screenResponse.cost);
-                 console.log(`PricingService::getPartCosts - Fetched Screen cost: ${screenResponse.cost}`);
+                await SupplierRepository.updateCost(screenResponse.cost, 2);
+                console.log(`PricingService::getPartCosts - Fetched Screen cost: ${screenResponse.cost}`);
             } else {
                 console.error("PricingService::getPartCosts - Failed to fetch cost for Screens.");
             }
@@ -40,6 +43,7 @@ export class PricingService {
             const electronicsResponse = await ElectronicsSuppliers.getElectronicsCost();
             if (electronicsResponse.success && electronicsResponse.cost) {
                 partCosts.set(3, electronicsResponse.cost);
+                await SupplierRepository.updateCost(electronicsResponse.cost, 3);
                 console.log(`PricingService::getPartCosts - Fetched Electronics cost: ${electronicsResponse.cost}`);
             } else {
                 console.error("PricingService::getPartCosts - Failed to fetch cost for Electronics.");

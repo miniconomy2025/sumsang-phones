@@ -99,14 +99,17 @@ export class SimulationService {
 		const accountNumber = await BankService.openAccount();
 		console.log('SimulationService::StartSimulation - Bank account opened', { accountNumber });
 
+		console.log('SimulationService::StartSimulation - Saving system settings (account number)');
+		await SystemSettingsRepository.upsertByKey(systemSettingKeys.accountNumber, accountNumber);
+		console.log('SimulationService::StartSimulation - System settings saved (account number)');
+
 		console.log('SimulationService::StartSimulation - Applying for loan', { loanAmount: this.loanAmount });
 		const { loan_number } = await LoanService.applyWithFallback(this.loanAmount);
 		console.log('SimulationService::StartSimulation - Loan approved', { loan_number });
 		
-		console.log('SimulationService::StartSimulation - Saving system settings');
-		await SystemSettingsRepository.upsertByKey(systemSettingKeys.accountNumber, accountNumber);
+		console.log('SimulationService::StartSimulation - Saving system settings (loan number)');
 		await SystemSettingsRepository.upsertByKey(systemSettingKeys.loanNumber, loan_number);
-		console.log('SimulationService::StartSimulation - System settings saved');
+		console.log('SimulationService::StartSimulation - System settings saved (loan number)');
 
 		console.log('SimulationService::StartSimulation - Making initial parts purchase orders');
 		await DailyTasksService.makePartsPurchaseOrder(1, 250);

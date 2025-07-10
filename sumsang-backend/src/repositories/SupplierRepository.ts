@@ -18,4 +18,13 @@ export class SupplierRepository {
             address: result.rows[0].address
         }
     }
+
+    static async updateCost(cost: number, partId: number): Promise<void> {
+        await db.query(
+            `UPDATE suppliers
+            SET cost = $1
+            WHERE part_id = $2; 
+            `, [cost, partId]
+        );
+    }
 }
