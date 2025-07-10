@@ -185,10 +185,10 @@ export class OrderService {
         const result = await ConsumerDeliveriesAPI.requestDelivery(units);
         console.log('OrderService::makeDeliveryRequest - Delivery request response', { result });
 
-        if (result.success && result.referenceno && result.amount && result.account_number) {
+        if (result.success && result.referenceNo && result.amount && result.accountNumber) {
             console.log('OrderService::makeDeliveryRequest - Delivery request successful, inserting delivery record');
             
-            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.referenceno, result.amount, result.account_number);
+            await ConsumerDeliveryRepository.insertConsumerDelivery(order.orderId, result.referenceNo, result.amount, result.accountNumber);
             console.log('OrderService::makeDeliveryRequest - Consumer delivery record inserted');
 
             await OrderRepository.updateStatus(order.orderId, Status.PendingDeliveryPayment);

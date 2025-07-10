@@ -43,9 +43,9 @@ export class TestConsumerDeliveriesController {
         
         const response: ConsumerDeliveriesResponse = {
             success: true,
-            referenceno: `REF-${Date.now()}`,
+            referenceNo: `REF-${Date.now()}`,
             amount: quantity * 50, // Mock cost of R150 per unit
-            account_number: "100000000000"
+            accountNumber: "100000000000"
         };
         
         console.log('Response:', response);
