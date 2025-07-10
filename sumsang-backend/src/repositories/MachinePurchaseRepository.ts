@@ -7,7 +7,7 @@ import { MachinePurchaseRecord } from "../types/MachinePurchaseType.js";
 export class MachinePurchaseRepository {
     static async getAll(): Promise<MachinePurchaseRecord[]> {
         const result = await db.query(
-            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference FROM machine_purchases`,
+            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference_number as "reference" FROM machine_purchases`,
         )
 
         return result.rows;
@@ -18,7 +18,7 @@ export class MachinePurchaseRepository {
 
         const result = await db.query(
             `INSERT INTO machine_purchases 
-        (phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference) 
+        (phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference_number) 
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING machine_purchases_id`,
             [phoneId, machinesPurchased, totalCost, weightPerMachine, ratePerDay, ratio, status, accountNumber, reference]
@@ -29,7 +29,7 @@ export class MachinePurchaseRepository {
 
     static async getMachinePurchaseById(machineId: number): Promise<MachinePurchaseRecord> {
         const result = await db.query(
-            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference FROM machine_purchases
+            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference_number as "reference"
              FROM machine_purchases
              WHERE machine_purchases_id = $1`,
             [machineId]
@@ -55,7 +55,8 @@ export class MachinePurchaseRepository {
         const placeholders = statuses.map((_, i) => `$${i + 1}`).join(', ');
 
         const result = await db.query(
-            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference FROM machine_purchases
+            `SELECT machine_purchases_id, phone_id, machines_purchased, total_cost, weight_per_machine, rate_per_day, ratio, status, account_number, reference_number as "reference" 
+             FROM machine_purchases
              WHERE status IN (${placeholders})`, statuses);
 
         return result.rows.map(row => ({
@@ -76,7 +77,7 @@ export class MachinePurchaseRepository {
         await db.query(
             `UPDATE machine_purchases
             SET status = $1 
-            WHERE machine_purchase_id = $2`,
+            WHERE machine_purchases_id = $2`,
             [status, machinePurchaseId]
         );
     }
@@ -91,6 +92,19 @@ export class MachinePurchaseRepository {
             return null;
         }
 
-        return result.rows[0];
+        const row = result.rows[0];
+
+        return {
+            machinePurchasesId: row.machine_purchases_id,
+            phoneId: row.phone_id,
+            machinesPurchased: row.machines_purchased,
+            totalCost: row.total_cost,
+            weightPerMachine: row.weight_per_machine,
+            ratePerDay: row.rate_per_day,
+            ratio: row.ratio,
+            status: row.status,
+            accountNumber: row.account_number,
+            reference: row.reference_number
+        };
     }
 }

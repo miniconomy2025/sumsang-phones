@@ -43,6 +43,29 @@ export class MachineDeliveryRepository {
         };
     }
 
+    static async getDeliveryByMachinePurchaseId(machinePurchaseId: number): Promise<MachineDelivery | null> {
+        const result = await db.query(
+            `SELECT machine_deliveries_id, machine_purchases_id, delivery_reference, cost, units_received, address, account_number, created_at
+             FROM machine_deliveries
+             WHERE machine_purchases_id = $1`,
+            [machinePurchaseId]
+        );
+
+        if (result.rows.length === 0) return null;
+
+        const row = result.rows[0];
+        return {
+            machineDeliveriesId: row.machine_deliveries_id,
+            machinePurchasesId: row.machine_purchases_id,
+            deliveryReference: row.delivery_reference,
+            cost: row.cost,
+            unitsReceived: row.units_received,
+            address: row.address,
+            accountNumber: row.account_number,
+            createdAt: row.created_at
+        };
+    }
+
     static async updateUnitsReceived(machineDeliveriesId: number, unitsToAdd: number): Promise<void> {
         await db.query(
             `UPDATE machine_deliveries
