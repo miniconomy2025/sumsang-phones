@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 import fs from 'fs';
 import https from 'https';
@@ -20,13 +19,13 @@ export const axiosInstance = axios.create({
 });
 
 // Helper function to get the full URL based on environment variable
-function getApiUrl(productionUrl: string, servicePath: string): string {
-    const useTestEndpoints = process.env.USE_TEST_ENDPOINTS === 'true';
+function getApiUrl(productionUrl: string, servicePath: string, envVariable: string): string {
+    const useTestEndpoints = process.env[envVariable] === 'true';
     return useTestEndpoints ? `http://localhost:3000/test-endpoints${servicePath}` : productionUrl;
 }
 
 export class ConsumerDeliveriesAPI {
-    static apiUrl = getApiUrl('https://f85q1igme7.execute-api.af-south-1.amazonaws.com/api', '/consumerdeliveries/api');
+    static apiUrl = getApiUrl('https://f85q1igme7.execute-api.af-south-1.amazonaws.com/api', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
 
     static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         try {
@@ -47,7 +46,7 @@ export class ConsumerDeliveriesAPI {
 }
 
 export class BulkDeliveriesAPI {
-    static apiUrl = getApiUrl('https://bulk-logistics-api.projects.bbdgrad.com/api', '/bulkdeliveries/api');
+    static apiUrl = getApiUrl('https://bulk-logistics-api.projects.bbdgrad.com/api', '/bulkdeliveries/api', 'USE_TEST_BULK_DELIVERIES');
 
     static async requestDelivery(orderId: number, units: number, from: string, item: string): Promise<BulkDeliveriesResponse> {
         try {
@@ -87,7 +86,7 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static apiUrl = getApiUrl('https://commercialbank/api', '/commercialbank/api');
+    static apiUrl = getApiUrl('https://commercialbank/api', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
 
     static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         try {
@@ -142,7 +141,7 @@ export class CommercialBankAPI {
 }
 
 export class RetailBankAPI {
-    static apiUrl = getApiUrl('https://retailbank/api', '/retail-bank/api');
+    static apiUrl = getApiUrl('https://retailbank/api', '/retail-bank/api', 'USE_TEST_RETAIL_BANK');
 
     static async requestPayment(from: string, to: string, ammountCents: number, reference: number) {
         try {
@@ -167,7 +166,7 @@ export class RetailBankAPI {
 }
 
 export class CaseSuppliers {
-    static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api');
+    static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
 
     static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         try {
@@ -202,7 +201,7 @@ export class CaseSuppliers {
 
 
 export class ScreenSuppliers {
-    static apiUrl = getApiUrl('https://screen-suppliers/api', '/screen-suppliers/api');
+    static apiUrl = getApiUrl('https://screen-suppliers/api', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
 
     static async getScreensCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         try {
@@ -238,7 +237,7 @@ export class ScreenSuppliers {
 
 
 export class ElectronicsSuppliers {
-    static apiUrl = getApiUrl('http://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api');
+    static apiUrl = getApiUrl('http://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
 
     static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         try {
@@ -274,7 +273,7 @@ export class ElectronicsSuppliers {
 
 
 export class THOHAPI {
-    static apiUrl = getApiUrl('https://thoh/api', '/thoh/api');
+    static apiUrl = getApiUrl('https://thoh/api', '/thoh/api', 'USE_TEST_THOH');
 
     static async purchaseMachine(machineName: string, quantity: number): Promise<MachinePurchaseResponse> {
         try {
