@@ -243,6 +243,15 @@ jobs:
                 echo "NODE_ENV=production" | sudo tee -a /etc/environment
                 echo "CLIENT_CERT_PATH=${{ env.CLIENT_CERT_PATH }}" | sudo tee -a /etc/environment
                 echo "CLIENT_KEY_PATH=${{ env.CLIENT_KEY_PATH }}" | sudo tee -a /etc/environment
+                echo "USE_MANUAL_TICKS=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_DB=false" | sudo tee -a /etc/environment
+                echo "USE_TEST_CONSUMER_DELIVERIES=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_BULK_DELIVERIES=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_COMMERCIAL_BANK=false" | sudo tee -a /etc/environment
+                echo "USE_TEST_RETAIL_BANK=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_CASE_SUPPLIERS=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_SCREEN_SUPPLIERS=true" | sudo tee -a /etc/environment
+                echo "USE_TEST_THOH=true" | sudo tee -a /etc/environment
               '
       
       - name: Deploy
