@@ -10,11 +10,11 @@ console.log('🚀 Initializing API client module');
 const httpsAgent = new https.Agent({
     cert: fs.readFileSync(path.resolve(process.env.CLIENT_CERT_PATH === undefined ? './certs/sumsang-company-client.crt' : process.env.CLIENT_CERT_PATH)),
     key: fs.readFileSync(path.resolve(process.env.CLIENT_KEY_PATH === undefined ? './certs/sumsang-company-client.key' : process.env.CLIENT_KEY_PATH)),
-    rejectUnauthorized: true,
+    rejectUnauthorized: false
 });
 
 console.log(process.env.CLIENT_CERT_PATH);
-console.log(process.env.CLIENT_KEY_PATH)
+console.log(process.env.CLIENT_KEY_PATH);
 
 console.log('🔐 HTTPS agent configured with certificates');
 
