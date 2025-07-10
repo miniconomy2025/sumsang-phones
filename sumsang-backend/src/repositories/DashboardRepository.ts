@@ -261,6 +261,8 @@ export class DashboardRepository {
                 SELECT p.model, SUM(oi.quantity) AS totalPhonesSold
                 FROM order_items oi
                 JOIN phones p ON oi.phone_id = p.phone_id
+                JOIN orders ord ON ord.order_id = oi.order_id
+                WHERE ord.status != 7
                 GROUP BY p.model;
             `);
             const result: Record<string, number> = {};
@@ -277,6 +279,8 @@ export class DashboardRepository {
                 SELECT p.model, SUM(oi.quantity * p.price) AS phoneModelRevenue
                 FROM order_items oi
                 JOIN phones p ON oi.phone_id = p.phone_id
+                JOIN orders ord ON ord.order_id = oi.order_id
+                WHERE ord.status != 7
                 GROUP BY p.model;
             `);
             const result: Record<string, number> = {};
