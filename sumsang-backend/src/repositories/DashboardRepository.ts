@@ -74,63 +74,35 @@ export class DashboardRepository {
             const bulkTransfersInRows = await this.fetchBulkTransfersIn();
             const consumerTransfersOutRows = await this.fetchConsumerTransfersOut();
 
-            const allParts = [...new Set(bulkTransfersInRows.map(row => row.part_name.toLowerCase()))];
-            const allPhoneModels = [...new Set(consumerTransfersOutRows.map(row => row.phone_model))];
-
-            const allDates = [...new Set([
-                ...bulkTransfersInRows.map(row => row.delivery_date),
-                ...consumerTransfersOutRows.map(row => row.delivery_date)
-            ])].sort();
-
             const bulkTransfersInMap: Record<string, any> = {};
             for (const row of bulkTransfersInRows) {
                 const date = row.delivery_date;
-                const partName = row.part_name.toLowerCase();
                 if (!bulkTransfersInMap[date]) bulkTransfersInMap[date] = {};
-                bulkTransfersInMap[date][partName] = {
+                bulkTransfersInMap[date][row.part_name] = {
                     volumeMoved: Number(row.total_quantity_received),
                     cost: Number(row.allocated_delivery_cost)
                 };
             }
 
+            const bulkTransfersIn = Object.entries(bulkTransfersInMap).map(([date, parts]) => ({
+                date: new Date(date).toISOString().split('T')[0],
+                ...parts
+            }));
+
             const consumerTransfersOutMap: Record<string, any> = {};
             for (const row of consumerTransfersOutRows) {
                 const date = row.delivery_date;
-                const phoneModel = row.phone_model;
                 if (!consumerTransfersOutMap[date]) consumerTransfersOutMap[date] = {};
-                consumerTransfersOutMap[date][phoneModel] = {
+                consumerTransfersOutMap[date][row.phone_model] = {
                     phonesDelivered: Number(row.phones_delivered),
                     cost: Number(row.total_delivery_cost)
                 };
             }
 
-            const bulkTransfersIn = allDates.map(date => {
-                const dateFormatted = new Date(date).toISOString().split('T')[0];
-                const dayData: any = { date: dateFormatted };
-                
-                for (const part of allParts) {
-                    dayData[part] = bulkTransfersInMap[date]?.[part] || {
-                        volumeMoved: 0,
-                        cost: 0
-                    };
-                }
-                
-                return dayData;
-            });
-
-            const consumerTransfersOut = allDates.map(date => {
-                const dateFormatted = new Date(date).toISOString().split('T')[0];
-                const dayData: any = { date: dateFormatted };
-                
-                for (const model of allPhoneModels) {
-                    dayData[model] = consumerTransfersOutMap[date]?.[model] || {
-                        phonesDelivered: 0,
-                        cost: 0
-                    };
-                }
-                
-                return dayData;
-            });
+            const consumerTransfersOut = Object.entries(consumerTransfersOutMap).map(([date, models]) => ({
+                date: new Date(date).toISOString().split('T')[0],
+                ...models
+            }));
 
             return {
                 bulkTransfersIn,
