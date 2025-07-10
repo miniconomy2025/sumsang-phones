@@ -11,10 +11,15 @@ import { PartsPurchase } from '../types/PartsPurchaseType.js';
 import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository.js';
 import { MachinePurchaseService } from './MachinePurchaseService.js';
 import { PartsRepository } from '../repositories/PartsRepository.js';
+import { PricingService } from './PricingService.js';
 
 export class DailyTasksService {
     static async executeDailyTasks(): Promise<void> {
         console.log("DailyTasksService::executeDailyTasks - Starting daily tasks execution");
+
+        // 0. Update phone prices daily
+        console.log("DailyTasksService::executeDailyTasks - Step 0: Updating phone prices");
+        await PricingService.updatePhonePricesDaily();
         
         // 1. Cancel outstanding orders (2+ days old with insufficient payment)
         console.log("DailyTasksService::executeDailyTasks - Step 1: Canceling outstanding orders");

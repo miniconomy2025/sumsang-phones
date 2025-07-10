@@ -38,6 +38,17 @@ export class MachineRepository {
     }));
   }
 
+  static async getRatiosForMachine(machineId: number): Promise<{ partId: number, quantity: number }[]> {
+    const result = await db.query(`
+        SELECT part_id, quantity
+        FROM machine_ratios
+        WHERE machine_id = $1
+    `, [machineId]);
+    return result.rows.map(row => ({
+        partId: row.part_id,
+        quantity: Number(row.quantity)
+    }));
+  }
 
   static async createMachinesAndRatiosFromPurchase(machinePurchase: MachinePurchaseRecord): Promise<void> {
 

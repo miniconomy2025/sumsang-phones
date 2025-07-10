@@ -170,6 +170,20 @@ export class TestCommercialBankController {
 }
 
 export class TestCaseSuppliersController {
+    static async getCasesCost(req: Request, res: Response) {
+        console.log('===== TestSupplierPricingController.getCasesCost START =====');
+
+        const response = {
+            available_units: 800,
+            price_per_unit: 25
+        };
+
+        console.log('Response:', response);
+        res.json(response);
+
+        console.log('===== TestSupplierPricingController.getCasesCost END =====');
+    }
+
     static async purchaseCases(req: Request, res: Response) {
         console.log('===== TestCaseSuppliersController.purchaseCases START =====');
         console.log('Request body:', req.body);
@@ -191,6 +205,22 @@ export class TestCaseSuppliersController {
 }
 
 export class TestScreenSuppliersController {
+    static async getScreensCost(req: Request, res: Response) {
+        console.log('===== TestSupplierPricingController.getScreensCost START =====');
+
+        const response = {
+            screens: {
+                quantity: 500,
+                price: 20
+            }
+        };
+
+        console.log('Response:', response);
+        res.json(response);
+
+        console.log('===== TestSupplierPricingController.getScreensCost END =====');
+    }
+
     static async purchaseScreens(req: Request, res: Response) {
         console.log('===== TestScreenSuppliersController.purchaseScreens START =====');
         console.log('Request body:', req.body);
@@ -211,6 +241,20 @@ export class TestScreenSuppliersController {
 }
 
 export class TestElectronicsSuppliersController {
+    static async getElectronicsCost(req: Request, res: Response) {
+        console.log('===== TestSupplierPricingController.getElectronicsCost START =====');
+
+        const response = {
+            availableStock: 1000,
+            pricePerUnit: 30 // mock cost of R30 per unit
+        };
+
+        console.log('Response:', response);
+        res.json(response);
+
+        console.log('===== TestSupplierPricingController.getElectronicsCost END =====');
+    }
+    
     static async purchaseElectronics(req: Request, res: Response) {
         console.log('===== TestElectronicsSuppliersController.purchaseElectronics START =====');
         console.log('Request body:', req.body);
