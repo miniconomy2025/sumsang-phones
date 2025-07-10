@@ -321,6 +321,7 @@ jobs:
             ~OU=consumer-logistics yes;
             ~OU=bulk-logistics yes;
             ~OU=commercial-bank yes;
+            ~OU=pear-company yes;
             ~OU=thoh yes;
             ~OU=recycler yes;
             ~OU=electronics-supplier yes;
