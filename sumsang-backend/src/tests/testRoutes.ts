@@ -44,7 +44,7 @@ router.post('/screen-suppliers/api/order', TestScreenSuppliersController.purchas
 
 // Electronics Suppliers API routes
 router.get('/electronics-suppliers/api/electronics', TestElectronicsSuppliersController.getElectronicsCost);
-router.post('/electronics-suppliers/api/order', TestElectronicsSuppliersController.purchaseElectronics);
+router.post('/electronics-suppliers/api/orders', TestElectronicsSuppliersController.purchaseElectronics);
 
 // THOH API routes
 router.post('/thoh/api/machines', TestTHOHController.purchaseMachine);

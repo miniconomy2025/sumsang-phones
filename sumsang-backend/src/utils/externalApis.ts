@@ -205,13 +205,13 @@ export class CommercialBankAPI {
 export class RetailBankAPI {
     static apiUrl = getApiUrl('https://retail-bank-api.projects.bbdgrad.com', '/retail-bank/api', 'USE_TEST_RETAIL_BANK');
 
-    static async requestPayment(from: string, to: string, ammountCents: number, reference: number) {
-        console.log(`🏪 RetailBankAPI: Requesting payment - From: ${from}, To: ${to}, Amount: ${ammountCents} cents, Reference: ${reference}`);
+    static async requestPayment(from: string, to: string, amountCents: number, reference: number) {
+        console.log(`🏪 RetailBankAPI: Requesting payment - From: ${from}, To: ${to}, Amount: ${amountCents} cents, Reference: ${reference}`);
         try {
             const payload = {
                 from,
                 to,
-                ammountCents,
+                AmountCents: amountCents,
                 reference
             };
             console.log(`🏪 RetailBankAPI: Sending POST to ${this.apiUrl}/transfers with payload:`, payload);

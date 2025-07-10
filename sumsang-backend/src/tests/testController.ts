@@ -174,9 +174,9 @@ export class TestRetailBankController {
         console.log('===== TestRetailBankController.requestTransfer START =====');
         console.log('Request body:', req.body);
 
-        const { from, to, ammountCents, reference } = req.body;
+        const { from, to, AmountCents, reference } = req.body;
 
-        console.log(`From: ${from}, To: ${to}, Amount (cents): ${ammountCents}, Reference: ${reference}`);
+        console.log(`From: ${from}, To: ${to}, Amount (cents): ${AmountCents}, Reference: ${reference}`);
 
         // Simulate insufficient funds for small random percentage of requests
         const simulateInsufficientFunds = Math.random() < 0.02;
