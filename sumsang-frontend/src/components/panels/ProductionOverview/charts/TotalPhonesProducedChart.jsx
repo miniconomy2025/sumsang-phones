@@ -29,7 +29,7 @@ function TotalPhonesProducedChart({ data }) {
 
 	return (
 		<div className={styles.chartContainer}>
-			<h2 className={styles.chartTitle}>Total Phones Produced</h2>
+			<h2 className={styles.chartTitle}>Current Phones in Stock</h2>
 			<ResponsiveContainer width="100%" height="100%">
 				<BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
 					<CartesianGrid strokeDasharray="3 3" />

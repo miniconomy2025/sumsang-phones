@@ -147,7 +147,7 @@ export class CommercialBankAPI {
         console.log(`🏦 CommercialBankAPI: Opening new account`);
         try {
             console.log(`🏦 CommercialBankAPI: Sending POST to ${this.apiUrl}/account`);
-            const response = await axiosInstance.post(`${this.apiUrl}/account`, {notification_url : ""});
+            const response = await axiosInstance.post(`${this.apiUrl}/account`, {notification_url : "hi"});
             console.log(`✅ CommercialBankAPI: Account opened successfully! Response:`, response.data);
             return response.data;
         } catch (error: any) {
@@ -339,7 +339,7 @@ export class ScreenSuppliers {
 
 
 export class ElectronicsSuppliers {
-    static apiUrl = getApiUrl('https://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
+    static apiUrl = getApiUrl('https://electronics-supplier-api', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
 
     static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`🔌 ElectronicsSuppliers: Getting electronics cost`);
@@ -367,7 +367,7 @@ export class ElectronicsSuppliers {
         try {
             const payload = { quantity };
             console.log(`🛒 ElectronicsSuppliers: Sending POST to ${this.apiUrl}/order with payload:`, payload);
-            const response = await axiosInstance.post(`${this.apiUrl}/order`, payload);
+            const response = await axiosInstance.post(`${this.apiUrl}/orders`, payload);
 
             console.log(`🛒 ElectronicsSuppliers: Raw purchase response:`, response.data);
             const raw: PurchaseElectronicsResponse = response.data;

@@ -421,17 +421,15 @@ export class DashboardRepository {
 
     private static async fetchPhonesProduced() {
         try {
-            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
             SELECT 
                 ph.model AS phone_model,
-                TO_CHAR(($1::timestamp + s.updated_at * INTERVAL '1 day'), 'YYYY-MM-DD') AS production_date,
-                SUM(s.quantity_available + s.quantity_reserved) AS total_produced
+                SUM(s.quantity_available) AS total_produced
             FROM stock s
             JOIN phones ph ON s.phone_id = ph.phone_id
-            GROUP BY ph.model, s.updated_at
-            ORDER BY production_date, ph.model;
-        `, [startEpoch]);
+            GROUP BY ph.model
+            ORDER BY ph.model;
+        `, []);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch number of phones produced: ${(error as Error).message}`);
