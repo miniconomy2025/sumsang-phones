@@ -49,7 +49,7 @@ function ProductionCapacityChart({ data }) {
 					<Line type="monotone" dataKey="Cosmos Z25" stroke="#82ca9d" strokeWidth={2} />
 					<Line
 						type="monotone"
-						dataKey="Cosmos Z25 ultra"
+						dataKey="Cosmos Z25 Ultra"
 						stroke="#ffc658"
 						strokeWidth={2}
 					/>
