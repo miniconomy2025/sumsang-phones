@@ -3,11 +3,11 @@ import { DatabaseError, ValidationError } from '../utils/errors.js';
 import { Phone } from '../types/PhoneType.js';
 
 export class PhoneRepository {
-    static async phoneExists(phoneId: number): Promise<boolean> {
+    static async phoneExists(model: string): Promise<boolean> {
         try {
             const result = await db.query(
-                `SELECT 1 FROM phones WHERE phone_id = $1 LIMIT 1`,
-                [phoneId]
+                `SELECT 1 FROM phones WHERE model = $1 LIMIT 1`,
+                [model]
             );
             return (result.rowCount ?? 0) > 0;
         } catch (error) {
@@ -40,7 +40,7 @@ export class PhoneRepository {
 
     static async getPhoneByModel(model: string): Promise<Phone> {
         const result = await db.query(
-            `SELECT * FROM phones WHERE model = $1 LIMIT 1`,
+            `SELECT phone_id, model, price  FROM phones WHERE model = $1 LIMIT 1`,
             [model]
         );
 

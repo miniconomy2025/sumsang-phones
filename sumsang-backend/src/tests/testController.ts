@@ -179,18 +179,18 @@ export class TestRetailBankController {
         console.log(`From: ${from}, To: ${to}, Amount (cents): ${ammountCents}, Reference: ${reference}`);
 
         // Simulate insufficient funds for small random percentage of requests
-        const simulateInsufficientFunds = Math.random() < 0.2;
+        const simulateInsufficientFunds = Math.random() < 0.02;
 
         if (simulateInsufficientFunds) {
             console.log('Simulating insufficient funds');
 
-            res.status(409);
+            res.status(409).end();
             console.log('===== TestRetailBankController.requestTransfer END =====');
             return;
         }
 
         console.log('Response:', 'Ok');
-        res.status(200);
+        res.status(200).end();
         console.log('===== TestRetailBankController.requestTransfer END =====');
     }
 }

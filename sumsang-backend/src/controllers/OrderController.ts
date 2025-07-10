@@ -23,7 +23,7 @@ export class OrderController {
             const invalidItems = items.some(item => {
                 console.log('Validating item:', item);
                 const isValid = typeof item === 'object' &&
-                    typeof item.phoneId === 'number' &&
+                    typeof item.model === 'string' &&
                     typeof item.quantity === 'number' &&
                     item.quantity > 0;
                 console.log('Item validation result:', isValid);
@@ -32,7 +32,7 @@ export class OrderController {
 
             if (invalidItems) {
                 console.log('Found invalid items');
-                throw new BadRequestError('Invalid items format. Each item must have a numeric phoneId and a positive quantity.'); 
+                throw new BadRequestError('Invalid items format. Each item must have a string phone model and a positive quantity.'); 
             }
 
             console.log('Placing order...');
