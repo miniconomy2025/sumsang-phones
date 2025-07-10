@@ -421,7 +421,6 @@ export class DashboardRepository {
 
     private static async fetchPhonesProduced() {
         try {
-            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
             SELECT 
                 ph.model AS phone_model,
@@ -430,7 +429,7 @@ export class DashboardRepository {
             JOIN phones ph ON s.phone_id = ph.phone_id
             GROUP BY ph.model
             ORDER BY ph.model;
-        `, [startEpoch]);
+        `, []);
             return res.rows;
         } catch (error) {
             throw new DatabaseError(`Failed to fetch number of phones produced: ${(error as Error).message}`);
