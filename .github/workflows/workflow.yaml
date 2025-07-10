@@ -344,7 +344,7 @@ jobs:
                 proxy_pass http://localhost:3000;
             }
         }
-                NGINX_CONF
+        NGINX_CONF
         EOF
 
     - name: Verify and Reload nginx on API
