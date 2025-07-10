@@ -106,10 +106,7 @@ export class PricingService {
 
             // Step 4: Calculate selling price at 50% profit
             const profitMargin = 1.50; // 100% (cost) + 50% (profit)
-            const newSellingPrice = costPrice * profitMargin;
-            
-            // Round to 2 decimal places for currency
-            const finalPrice = Math.round(newSellingPrice * 100) / 100;
+            const finalPrice = Math.ceil(costPrice * profitMargin);
 
             // Step 5: Update the phone's selling price in the database
             await PhoneRepository.updatePhonePrice(phone.model, finalPrice);
