@@ -428,7 +428,7 @@ export class DashboardRepository {
                 SUM(s.quantity_available) AS total_produced
             FROM stock s
             JOIN phones ph ON s.phone_id = ph.phone_id
-            GROUP BY ph.model,
+            GROUP BY ph.model
             ORDER BY ph.model;
         `, [startEpoch]);
             return res.rows;
