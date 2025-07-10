@@ -339,7 +339,7 @@ export class ScreenSuppliers {
 
 
 export class ElectronicsSuppliers {
-    static apiUrl = getApiUrl('https://electronics-supplier-api', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
+    static apiUrl = getApiUrl('https://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
 
     static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`🔌 ElectronicsSuppliers: Getting electronics cost`);
