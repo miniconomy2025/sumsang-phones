@@ -1,11 +1,16 @@
 .gridContainer {
   grid-template-columns: 2fr 1fr 2fr;
-  grid-template-rows: 1fr;
+  grid-template-rows: 3fr 2fr;
 }
 
 .phonesProduced {
   grid-column: 1 / 3;
   grid-row: 1 / 2;
+}
+
+.productionCapacity {
+  grid-column: 1 / 4;
+  grid-row: 2 / 3;
 }
 
 .costBreakdown {
