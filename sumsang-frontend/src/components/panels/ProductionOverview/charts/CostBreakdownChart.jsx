@@ -31,7 +31,7 @@ function CostBreakdownChart({ data }) {
 				>
 					<option value="Cosmos Z25 FE">Cosmos Z25 FE</option>
 					<option value="Cosmos Z25">Cosmos Z25</option>
-					<option value="Cosmos Z25 ultra">Z25 Ultra</option>
+					<option value="Cosmos Z25 Ultra">Cosmos Z25 Ultra</option>
 				</select>
 			</div>
 			<ResponsiveContainer width="100%" height="100%">

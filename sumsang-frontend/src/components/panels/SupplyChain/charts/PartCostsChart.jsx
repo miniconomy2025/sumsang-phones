@@ -14,14 +14,23 @@ function PartCostsChart({ data }) {
 	const transformPartCostsData = (data) => {
 		if (!data?.partCostsOverTime) return [];
 
-		const dates = data.partCostsOverTime.electronics?.map((item) => item.date) || [];
+		const allDates = new Set();
+		Object.keys(data.partCostsOverTime).forEach((part) => {
+			data.partCostsOverTime[part].forEach((item) => {
+				allDates.add(item.date);
+			});
+		});
 
-		return dates.map((date) => {
-			const result = { date: date.split('-').slice(1).join('/') }; // Format: MM/DD
+		const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
+
+		return sortedDates.map((date) => {
+			const result = { date: date.split('-').slice(1).join('/') };
 
 			Object.keys(data.partCostsOverTime).forEach((part) => {
 				const entry = data.partCostsOverTime[part].find((item) => item.date === date);
-				result[part] = entry ? entry.value : 0;
+				if (entry) {
+					result[part] = entry.value;
+				}
 			});
 
 			return result;
@@ -29,6 +38,10 @@ function PartCostsChart({ data }) {
 	};
 
 	const chartData = transformPartCostsData(data);
+
+	const partCategories = data?.partCostsOverTime ? Object.keys(data.partCostsOverTime) : [];
+	
+	const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#00ff00', '#ff00ff'];
 
 	return (
 		<div className={styles.chartContainer}>
@@ -38,11 +51,22 @@ function PartCostsChart({ data }) {
 					<CartesianGrid strokeDasharray="3 3" />
 					<XAxis dataKey="date" />
 					<YAxis />
-					<Tooltip formatter={(value) => `Ð${value}`} />
+					<Tooltip 
+						formatter={(value) => value !== null ? `Ð${value}` : 'No data'} 
+						labelFormatter={(label) => `Date: ${label}`}
+					/>
 					<Legend />
-					<Line type="monotone" dataKey="electronics" stroke="#8884d8" strokeWidth={2} />
-					<Line type="monotone" dataKey="screens" stroke="#82ca9d" strokeWidth={2} />
-					<Line type="monotone" dataKey="cases" stroke="#ffc658" strokeWidth={2} />
+					{partCategories.map((part, index) => (
+						<Line
+							key={part}
+							type="monotone"
+							dataKey={part}
+							stroke={colors[index % colors.length]}
+							strokeWidth={2}
+							connectNulls={true}
+							dot={{ fill: colors[index % colors.length], strokeWidth: 2, r: 4 }}
+						/>
+					))}
 				</LineChart>
 			</ResponsiveContainer>
 		</div>
