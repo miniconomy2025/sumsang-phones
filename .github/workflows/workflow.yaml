@@ -251,6 +251,7 @@ jobs:
                 echo "USE_TEST_RETAIL_BANK=true" | sudo tee -a /etc/environment
                 echo "USE_TEST_CASE_SUPPLIERS=true" | sudo tee -a /etc/environment
                 echo "USE_TEST_SCREEN_SUPPLIERS=true" | sudo tee -a /etc/environment
+                echo "USE_ELECTRONICS_SUPPLIERS=true" | sudo tee -a /etc/environment
                 echo "USE_TEST_THOH=true" | sudo tee -a /etc/environment
               '
       
