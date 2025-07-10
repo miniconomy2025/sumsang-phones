@@ -13,6 +13,9 @@ const httpsAgent = new https.Agent({
     rejectUnauthorized: true,
 });
 
+console.log(process.env.CLIENT_CERT_PATH);
+console.log(process.env.CLIENT_KEY_PATH)
+
 console.log('🔐 HTTPS agent configured with certificates');
 
 export const axiosInstance = axios.create({
@@ -23,6 +26,7 @@ export const axiosInstance = axios.create({
 });
 
 console.log('📡 Axios instance created');
+console.log(httpsAgent)
 
 // Helper function to get the full URL based on environment variable
 function getApiUrl(productionUrl: string, servicePath: string, envVariable: string): string {
