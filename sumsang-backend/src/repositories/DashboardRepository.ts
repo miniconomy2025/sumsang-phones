@@ -235,7 +235,7 @@ export class DashboardRepository {
             SELECT
                 p.name AS part_name,
                 TO_CHAR(($1::timestamp + pp.purchased_at * INTERVAL '1 day'), 'YYYY-MM-DD') AS purchase_date,
-                ROUND(AVG(pp.cost), 2) AS unit_price
+                ROUND(AVG(pp.cost/pp.quantity), 2) AS unit_price
             FROM parts_purchases pp
             JOIN parts p ON pp.part_id = p.part_id
             GROUP BY p.name, pp.purchased_at
