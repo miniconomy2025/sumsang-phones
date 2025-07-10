@@ -147,7 +147,7 @@ export class CommercialBankAPI {
         console.log(`🏦 CommercialBankAPI: Opening new account`);
         try {
             console.log(`🏦 CommercialBankAPI: Sending POST to ${this.apiUrl}/account`);
-            const response = await axiosInstance.post(`${this.apiUrl}/account`);
+            const response = await axiosInstance.post(`${this.apiUrl}/account`, {notification_url : ""});
             console.log(`✅ CommercialBankAPI: Account opened successfully! Response:`, response.data);
             return response.data;
         } catch (error: any) {
