@@ -43,7 +43,7 @@ export class ConsumerDeliveriesAPI {
         console.log(`📦 ConsumerDeliveriesAPI: Requesting delivery for ${units} units`);
         try {
             const payload = {
-                quantity: units,
+                quantity: Number(units),
                 companyName: "sumsang-company",
                 recipient: "thoh"
             };
