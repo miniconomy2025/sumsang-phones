@@ -315,6 +315,15 @@ jobs:
         map $ssl_client_s_dn $is_valid_ou {
             default no;
             ~OU=sumsang-company yes;
+            ~OU=retail-bank yes;
+            ~OU=screen-supplier yes;
+            ~OU=case-supplier yes;
+            ~OU=consumer-logistics yes;
+            ~OU=bulk-logistics yes;
+            ~OU=commercial-bank yes;
+            ~OU=thoh yes;
+            ~OU=recycler yes;
+            ~OU=electronics-supplier yes;
         }
 
         server {
