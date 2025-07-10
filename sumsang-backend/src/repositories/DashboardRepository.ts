@@ -306,7 +306,7 @@ export class DashboardRepository {
     private static async fetchPartsCosts() {
         try {
             const res = await db.query(`
-                SELECT SUM(cost * quantity) AS total_parts_cost
+                SELECT SUM(cost) AS total_parts_cost
                 FROM parts_purchases;
             `);
             return Number(res.rows[0]?.total_parts_cost || 0);
