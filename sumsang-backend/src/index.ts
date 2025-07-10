@@ -24,8 +24,7 @@ app.use('/public-api', MachineRoutes);
 
 app.use('/internal-api', DashboardRoutes);
 
-if (process.env.USE_TEST_ENDPOINTS==='true')
-	app.use('/test-endpoints', TestRoutes);
+app.use('/test-endpoints', TestRoutes);
 
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
