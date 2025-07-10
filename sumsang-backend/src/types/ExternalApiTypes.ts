@@ -76,3 +76,19 @@ export interface MachineInfo {
     productionRate: number;
     price: number;
 }
+
+export interface LoanPayment {
+    timestamp: number;
+    amount: number;
+    is_interest: boolean;
+}
+
+export interface LoanDetailsResponse {
+    loanNumber: string;
+    initialAmount: number;
+    outstanding: number;
+    interestRate: number;
+    startedAt: number;
+    writeOff: boolean;
+    payments?: LoanPayment[];
+}

@@ -11,11 +11,13 @@ import { PartsPurchase } from '../types/PartsPurchaseType.js';
 import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository.js';
 import { MachinePurchaseService } from './MachinePurchaseService.js';
 import { PartsRepository } from '../repositories/PartsRepository.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
+import { LoanService } from './LoanService.js';
 
 export class DailyTasksService {
     static async executeDailyTasks(): Promise<void> {
         console.log("DailyTasksService::executeDailyTasks - Starting daily tasks execution");
-        
+
         // 1. Cancel outstanding orders (2+ days old with insufficient payment)
         console.log("DailyTasksService::executeDailyTasks - Step 1: Canceling outstanding orders");
         await this.cancelOutstandingOrders();
@@ -40,12 +42,16 @@ export class DailyTasksService {
         console.log("DailyTasksService::executeDailyTasks - Step 6: Processing pending machine purchases");
         await MachinePurchaseService.processPendingMachinePurchases();
 
-        console.log("DailyTasksService::executeDailyTasks - Daily tasks execution completed");
+        // 7. Maybe apply for loan (depends on whether our funds are loan OR we have too high of a loan amount outstanding)
+        console.log("DailyTasksService::executeDailyTasks - Step 7: Maybe apply for loan")
+        await LoanService.maybeApplyForLoan();
+
+        console.log("DailyTasksService::executeDailyTasks - Daily tasks execution completed")
     }
 
     static async cancelOutstandingOrders(): Promise<void> {
         console.log("DailyTasksService::cancelOutstandingOrders - Starting order cancellation process");
-        
+
         const twoDaysAgo = 2;
         const outstandingOrders = await OrderRepository.getOrdersWithInsufficientPayment(twoDaysAgo);
         console.log("DailyTasksService::cancelOutstandingOrders - Found outstanding orders:", outstandingOrders.length);
@@ -54,13 +60,13 @@ export class DailyTasksService {
             console.log("DailyTasksService::cancelOutstandingOrders - Canceling order:", order.orderId);
             await OrderRepository.updateStatus(order.orderId, Status.Cancelled);
         }
-        
+
         console.log("DailyTasksService::cancelOutstandingOrders - Order cancellation process completed");
     }
 
     static async processAllOrders(): Promise<void> {
         console.log("DailyTasksService::processAllOrders - Starting order processing");
-        
+
         const pendingOrders = await OrderRepository.getPendingOrders();
         console.log("DailyTasksService::processAllOrders - Found pending orders:", pendingOrders.length);
 
@@ -68,23 +74,23 @@ export class DailyTasksService {
             console.log("DailyTasksService::processAllOrders - Processing order:", order.orderId);
             await OrderService.processOrder(order);
         }
-        
+
         console.log("DailyTasksService::processAllOrders - Order processing completed");
     }
 
     static async makePhones(): Promise<void> {
         console.log("DailyTasksService::makePhones - Starting phone production");
-        
+
         const machines = await MachineRepository.getActiveMachines();
         console.log("DailyTasksService::makePhones - Found active machines:", machines.length);
-        
+
         const machineCapacityByPhone = new Map<number, number>();
 
         for (const machine of machines) {
             const currentCapacity = machineCapacityByPhone.get(machine.phoneId) || 0;
             machineCapacityByPhone.set(machine.phoneId, currentCapacity + machine.ratePerDay);
         }
-        
+
         console.log("DailyTasksService::makePhones - Machine capacity by phone:", Array.from(machineCapacityByPhone.entries()));
 
         const demandAnalysis = await this.analyzeDemand();
@@ -99,13 +105,13 @@ export class DailyTasksService {
                 await this.producePhones(phoneId, quantity);
             }
         }
-        
+
         console.log("DailyTasksService::makePhones - Phone production completed");
     }
 
     static async analyzeDemand(): Promise<Map<number, number>> {
         console.log("DailyTasksService::analyzeDemand - Starting demand analysis");
-        
+
         const demandMap = new Map<number, number>();
 
         const machines = await MachineRepository.getActiveMachines();
@@ -122,7 +128,7 @@ export class DailyTasksService {
                 pendingDemand.set(item.phoneId, current + item.quantity);
             }
         }
-        
+
         console.log("DailyTasksService::analyzeDemand - Pending demand:", Array.from(pendingDemand.entries()));
 
         const currentStock = await StockRepository.getCurrentStockMap();
@@ -170,7 +176,7 @@ export class DailyTasksService {
         machineCapacityByPhone: Map<number, number>
     ): Promise<Map<number, number>> {
         console.log("DailyTasksService::calculateProductionPlan - Starting production plan calculation");
-        
+
         const productionPlan = new Map<number, number>();
 
         for (const [phoneId, demand] of demandAnalysis) {
@@ -204,7 +210,7 @@ export class DailyTasksService {
 
     static async getMaxProducibleQuantity(phoneId: number): Promise<number> {
         console.log("DailyTasksService::getMaxProducibleQuantity - Calculating max producible for phone:", phoneId);
-        
+
         const machineRatios = await MachineRepository.getMachineRatios(phoneId);
         const inventory = await InventoryRepository.getCurrentInventoryMapped();
         console.log("DailyTasksService::getMaxProducibleQuantity - Machine ratios:", machineRatios);
@@ -216,7 +222,7 @@ export class DailyTasksService {
             const availableParts = inventory.get(ratio.partId) || 0;
             const possibleUnits = Math.floor(availableParts / ratio.totalQuantity);
             maxProducible = Math.min(maxProducible, possibleUnits);
-            
+
             console.log("DailyTasksService::getMaxProducibleQuantity - Part constraint:", {
                 partId: ratio.partId,
                 availableParts,
@@ -233,10 +239,10 @@ export class DailyTasksService {
 
     static async producePhones(phoneId: number, quantity: number): Promise<void> {
         console.log("DailyTasksService::producePhones - Starting phone production:", { phoneId, quantity });
-        
+
         const machineRatios = await MachineRepository.getMachineRatios(phoneId);
         const inventoryMapped = await InventoryRepository.getCurrentInventoryMapped();
-        
+
         console.log("DailyTasksService::producePhones - Machine ratios:", machineRatios);
         console.log("DailyTasksService::producePhones - Current inventory:", Array.from(inventoryMapped.entries()));
 
@@ -244,7 +250,7 @@ export class DailyTasksService {
         for (const ratio of machineRatios) {
             const partsNeeded = ratio.totalQuantity * quantity;
             const availableParts = inventoryMapped.get(ratio.partId) || 0;
-            
+
             if (availableParts < partsNeeded) {
                 console.log("DailyTasksService::producePhones - Insufficient parts:", {
                     partId: ratio.partId,
@@ -265,13 +271,13 @@ export class DailyTasksService {
         // Add produced phones to stock
         console.log("DailyTasksService::producePhones - Adding to stock:", { phoneId, quantity });
         await StockRepository.addStock(phoneId, quantity);
-        
+
         console.log("DailyTasksService::producePhones - Phone production completed");
     }
 
     static async orderParts(): Promise<void> {
         console.log("DailyTasksService::orderParts - Starting parts ordering process");
-        
+
         const partsToOrder = await this.calculatePartsToOrder();
         console.log("DailyTasksService::orderParts - Parts to order:", Array.from(partsToOrder.entries()));
 
@@ -285,13 +291,13 @@ export class DailyTasksService {
             const partsPurchaseId = await this.makePartsPurchaseOrder(partId, quantity);
             console.log("DailyTasksService::orderParts - Purchase order created:", partsPurchaseId);
         }
-        
+
         console.log("DailyTasksService::orderParts - Parts ordering process completed");
     }
 
     static async calculatePartsToOrder(): Promise<Map<number, number>> {
         console.log("DailyTasksService::calculatePartsToOrder - Starting parts calculation");
-        
+
         const partsToOrder = new Map<number, number>();
 
         const inventory = await InventoryRepository.getCurrentInventoryMapped();
@@ -341,7 +347,7 @@ export class DailyTasksService {
 
     static async getPendingPartsOrders(): Promise<Map<number, number>> {
         console.log("DailyTasksService::getPendingPartsOrders - Getting pending parts orders");
-        
+
         const pendingParts = new Map<number, number>();
 
         const pendingPurchases = await PartsPurchaseRepository.getPurchasesByStatus([
@@ -366,7 +372,7 @@ export class DailyTasksService {
 
     static async calculateExpectedPartsUsage(): Promise<Map<number, number>> {
         console.log("DailyTasksService::calculateExpectedPartsUsage - Calculating expected parts usage");
-        
+
         const partsUsage = new Map<number, number>();
 
         const machines = await MachineRepository.getActiveMachines();
@@ -392,7 +398,7 @@ export class DailyTasksService {
                 const dailyUsage = expectedDailyProduction * ratio.totalQuantity;
                 const currentUsage = partsUsage.get(ratio.partId) || 0;
                 partsUsage.set(ratio.partId, currentUsage + dailyUsage);
-                
+
                 console.log("DailyTasksService::calculateExpectedPartsUsage - Part usage:", {
                     partId: ratio.partId,
                     dailyUsage,
@@ -407,7 +413,7 @@ export class DailyTasksService {
 
     static async makePartsPurchaseOrder(partId: number, quantity: number): Promise<number> {
         console.log("DailyTasksService::makePartsPurchaseOrder - Making purchase order:", { partId, quantity });
-        
+
         const supplier = await SupplierRepository.getSupplierByPartId(partId);
         console.log("DailyTasksService::makePartsPurchaseOrder - Found supplier:", supplier);
 
@@ -428,13 +434,13 @@ export class DailyTasksService {
 
         console.log("DailyTasksService::makePartsPurchaseOrder - Purchase order response:", purchaseOrder);
 
-        const partsPurchaseId = await PartsPurchaseRepository.createPartsPurchase({ 
-            partId: partId, 
-            referenceNumber: purchaseOrder?.referenceNumber!, 
-            cost: purchaseOrder?.cost!, 
-            quantity: quantity, 
-            accountNumber: purchaseOrder?.accountNumber!, 
-            status: Status.PendingPayment 
+        const partsPurchaseId = await PartsPurchaseRepository.createPartsPurchase({
+            partId: partId,
+            referenceNumber: purchaseOrder?.referenceNumber!,
+            cost: purchaseOrder?.cost!,
+            quantity: quantity,
+            accountNumber: purchaseOrder?.accountNumber!,
+            status: Status.PendingPayment
         });
 
         console.log("DailyTasksService::makePartsPurchaseOrder - Created parts purchase:", partsPurchaseId);
@@ -443,10 +449,10 @@ export class DailyTasksService {
 
     static async processPendingPartsPurchases() {
         console.log("DailyTasksService::processPendingPartsPurchases - Processing pending parts purchases");
-        
+
         const pendingPartsPurchases = await PartsPurchaseRepository.getPurchasesByStatus([
-            Status.PendingPayment, 
-            Status.PendingDeliveryRequest, 
+            Status.PendingPayment,
+            Status.PendingDeliveryRequest,
             Status.PendingDeliveryPayment
         ]);
 
@@ -456,13 +462,13 @@ export class DailyTasksService {
             console.log("DailyTasksService::processPendingPartsPurchases - Processing purchase:", partsPurchase.partsPurchaseId);
             await this.processPartsPurchase(partsPurchase.partsPurchaseId!);
         }
-        
+
         console.log("DailyTasksService::processPendingPartsPurchases - Processing completed");
     }
 
     static async processPartsPurchase(partsPurchaseId: number) {
         console.log("DailyTasksService::processPartsPurchase - Processing parts purchase:", partsPurchaseId);
-        
+
         let partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
         console.log("DailyTasksService::processPartsPurchase - Current status:", partsPurchase.status);
 
@@ -483,13 +489,13 @@ export class DailyTasksService {
             await this.makeBulkDeliveryPayment(partsPurchase);
             partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
         }
-        
+
         console.log("DailyTasksService::processPartsPurchase - Processing completed for:", partsPurchaseId);
     }
 
     static async makePartsPurchasePayment(partsPurchase: PartsPurchase): Promise<void> {
         console.log("DailyTasksService::makePartsPurchasePayment - Making payment for purchase:", partsPurchase.partsPurchaseId);
-        
+
         const result = await CommercialBankAPI.makePayment(String(partsPurchase.referenceNumber), partsPurchase.cost, partsPurchase.accountNumber);
         console.log("DailyTasksService::makePartsPurchasePayment - Payment result:", result);
 
@@ -504,10 +510,10 @@ export class DailyTasksService {
 
     static async makeBulkDeliveryRequest(partsPurchase: PartsPurchase) {
         console.log("DailyTasksService::makeBulkDeliveryRequest - Making delivery request for:", partsPurchase.partsPurchaseId);
-        
+
         const supplier = await SupplierRepository.getSupplierByPartId(partsPurchase.partId);
         const part = await PartsRepository.getPartById(partsPurchase.partId);
-        
+
         console.log("DailyTasksService::makeBulkDeliveryRequest - Supplier and part info:", { supplier, part });
 
         const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name, part.name);
@@ -526,7 +532,7 @@ export class DailyTasksService {
 
     static async makeBulkDeliveryPayment(partsPurchase: PartsPurchase) {
         console.log("DailyTasksService::makeBulkDeliveryPayment - Making delivery payment for:", partsPurchase.partsPurchaseId);
-        
+
         const bulkDelivery = await BulkDeliveryRepository.getDeliveryByPartsPurchaseId(partsPurchase.partsPurchaseId!);
         console.log("DailyTasksService::makeBulkDeliveryPayment - Bulk delivery info:", bulkDelivery);
 
@@ -541,4 +547,5 @@ export class DailyTasksService {
             console.log("DailyTasksService::makeBulkDeliveryPayment - Payment failed, will retry later");
         }
     }
+
 }

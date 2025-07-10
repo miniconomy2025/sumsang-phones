@@ -12,7 +12,7 @@ import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
 export class SimulationService {
 	static async orderInitialMachines(): Promise<void> {
 		console.log('SimulationService::orderInitialMachines - Starting initial machine ordering');
-		
+
 		const totalCapital = this.loanAmount;
 		console.log('SimulationService::orderInitialMachines - Total capital available', { totalCapital });
 
@@ -26,10 +26,10 @@ export class SimulationService {
 
 		for (const model of selectedModels) {
 			console.log('SimulationService::orderInitialMachines - Processing model', { model });
-			
+
 			const availableMachines = await THOHService.getAvailableMachines();
 			console.log('SimulationService::orderInitialMachines - Retrieved available machines', { availableMachinesCount: availableMachines.length });
-			
+
 			let machineName = '';
 
 			if (model === 'Cosmos Z25')
@@ -38,7 +38,7 @@ export class SimulationService {
 				machineName = 'cosmos_z25_ultra_machine';
 			else if (model === 'Cosmos Z25 FE')
 				machineName = 'cosmos_z25_fe_machine';
-			
+
 			console.log(`SimulationService::orderInitialMachines - Machine name: ${machineName} for phone model: ${model}`);
 
 			const machine = availableMachines
@@ -46,14 +46,14 @@ export class SimulationService {
 
 			console.log('SimulationService::orderInitialMachines - Found machine for model', { machine });
 
-            if (!machine) {
-                console.log('SimulationService::orderInitialMachines - Machine not found for model', { model });
-                continue;
-            }
+			if (!machine) {
+				console.log('SimulationService::orderInitialMachines - Machine not found for model', { model });
+				continue;
+			}
 
 			const units = Math.min(Math.floor(perModelBudget / machine.price), 10);
 			console.log('SimulationService::orderInitialMachines - Calculated units to purchase', { units, machinePrice: machine.price });
-			
+
 			if (units <= 0) {
 				console.log('SimulationService::orderInitialMachines - No units to purchase for model', { model });
 				continue;
@@ -62,12 +62,12 @@ export class SimulationService {
 			console.log('SimulationService::orderInitialMachines - Making machine purchase order', { model, units });
 			await MachinePurchaseService.makeMachinePurchaseOrder(model, units);
 			console.log('SimulationService::orderInitialMachines - Machine purchase order completed');
-			
+
 			console.log('SimulationService::orderInitialMachines - Processing pending machine purchases');
 			await MachinePurchaseService.processPendingMachinePurchases();
 			console.log('SimulationService::orderInitialMachines - Pending machine purchases processed');
 		}
-		
+
 		console.log('SimulationService::orderInitialMachines - Initial machine ordering completed');
 	}
 
@@ -75,7 +75,7 @@ export class SimulationService {
 
 	static async StartSimulation(startEpoch: string) {
 		console.log('SimulationService::StartSimulation - Starting simulation', { startEpoch });
-		
+
 		console.log('SimulationService::StartSimulation - Resetting database');
 		await DatabaseService.resetDatabase();
 		console.log('SimulationService::StartSimulation - Database reset completed');
@@ -100,9 +100,9 @@ export class SimulationService {
 		console.log('SimulationService::StartSimulation - Bank account opened', { accountNumber });
 
 		console.log('SimulationService::StartSimulation - Applying for loan', { loanAmount: this.loanAmount });
-		const { loan_number } = await LoanService.applyWithFallback(this.loanAmount);
+		const { loan_number, amount } = await LoanService.applyWithFallback(this.loanAmount);
 		console.log('SimulationService::StartSimulation - Loan approved', { loan_number });
-		
+
 		console.log('SimulationService::StartSimulation - Saving system settings');
 		await SystemSettingsRepository.upsertByKey(systemSettingKeys.accountNumber, accountNumber);
 		await SystemSettingsRepository.upsertByKey(systemSettingKeys.loanNumber, loan_number);
@@ -111,13 +111,13 @@ export class SimulationService {
 		console.log('SimulationService::StartSimulation - Making initial parts purchase orders');
 		await DailyTasksService.makePartsPurchaseOrder(1, 250);
 		console.log('SimulationService::StartSimulation - Parts purchase order 1 completed');
-		
+
 		await DailyTasksService.makePartsPurchaseOrder(2, 250);
 		console.log('SimulationService::StartSimulation - Parts purchase order 2 completed');
-		
+
 		await DailyTasksService.makePartsPurchaseOrder(3, 250);
 		console.log('SimulationService::StartSimulation - Parts purchase order 3 completed');
-		
+
 		console.log('SimulationService::StartSimulation - Processing pending parts purchases');
 		await DailyTasksService.processPendingPartsPurchases();
 		console.log('SimulationService::StartSimulation - Pending parts purchases processed');
@@ -125,7 +125,7 @@ export class SimulationService {
 		console.log('SimulationService::StartSimulation - Ordering initial machines');
 		await this.orderInitialMachines();
 		console.log('SimulationService::StartSimulation - Initial machines ordered');
-		
+
 		console.log('SimulationService::StartSimulation - Simulation startup completed');
 	}
 }

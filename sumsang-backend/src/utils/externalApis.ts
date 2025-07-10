@@ -1,4 +1,4 @@
-import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, PartsPurchaseResponse, MachineInfo } from "../types/ExternalApiTypes.js";
+import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, PartsPurchaseResponse, MachineInfo, LoanDetailsResponse } from "../types/ExternalApiTypes.js";
 
 // Helper function to get the full URL based on environment variable
 function getApiUrl(productionUrl: string, servicePath: string): string {
@@ -50,7 +50,7 @@ export class BulkDeliveriesAPI {
                     originalExternalOrderId: orderId,
                     originCompanyId: from,
                     destinationCompanyId: 'sumsang-company',
-                    items: [{itemName: item, quantity: units, measurementType: "UNIT"}]
+                    items: [{ itemName: item, quantity: units, measurementType: "UNIT" }]
                 }),
             });
 
@@ -163,7 +163,7 @@ export class CommercialBankAPI {
         }
     }
 
-    static async getLoanInfo(loanNumber: string): Promise<{ outstandingAmount: number }> {
+    static async getLoanInfo(loanNumber: string): Promise<LoanDetailsResponse> {
         try {
             const response = await fetch(`${this.apiUrl}/loan/${loanNumber}`, {
                 method: "GET",
@@ -177,7 +177,15 @@ export class CommercialBankAPI {
             return await response.json();
         } catch (error) {
             console.error("Failed to retrieve loan info:", error);
-            return { outstandingAmount: 0 };
+            return {
+                loanNumber: loanNumber,
+                initialAmount: 0,
+                outstanding: 0,
+                interestRate: 0,
+                startedAt: Date.now(),
+                writeOff: false,
+                payments: []
+            };
         }
     }
 
@@ -197,6 +205,21 @@ export class CommercialBankAPI {
         catch (error) {
             console.error("Could not pay loan");
             return { success: false, paid: 0 }
+        }
+    }
+
+    static async getBalance(): Promise<{ balance: number }> {
+        try {
+            const response = await fetch(`${this.apiUrl}/account/me/balance`,
+                {
+                    method: "GET",
+                    headers: { "Content-Type": "application/json" }
+                })
+            return response.json();
+        }
+        catch (error) {
+            console.error("Could not get account balance");
+            return { balance: 0 };
         }
     }
 }
@@ -225,7 +248,7 @@ export class CaseSuppliers {
                 accountNumber: raw.bankNumber,
                 cost: raw.total_price,
                 referenceNumber: raw.id
-            } 
+            }
             return result;
         } catch (error) {
             return { success: false, message: (error as Error).message };
