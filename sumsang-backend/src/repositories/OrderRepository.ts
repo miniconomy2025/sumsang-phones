@@ -5,19 +5,19 @@ import { Status } from '../types/Status.js';
 import { Order } from '../types/OrderType.js';
 
 export class OrderRepository {
-    static async createOrder(price: number, items: OrderItem[]) {
+    static async createOrder(accountNumber: string, price: number, items: OrderItem[]) {
         try {
             await db.query('BEGIN');
 
             // Insert into orders table
             const orderResult = await db.query(
-                `INSERT INTO orders (price, amount_paid, status, created_at)
+                `INSERT INTO orders (price, amount_paid, status, created_at, account_number)
                     VALUES ($1, 0, $2, COALESCE(
                     (SELECT value::int FROM system_settings WHERE key = 'current_day'),
                     0
-                )) 
+                ), $3) 
                 RETURNING order_id`,
-                [price, Status.PendingPayment]
+                [price, Status.PendingPayment, accountNumber]
             );
 
             const orderId = orderResult.rows[0].order_id;
@@ -43,7 +43,7 @@ export class OrderRepository {
 
     static async getOrderById(orderId: number): Promise<Order | null> {
         const result = await db.query(
-            `SELECT order_id, price, amount_paid, status, created_at
+            `SELECT order_id, price, amount_paid, status, created_at, account_number
             FROM orders 
             WHERE order_id = $1`,
             [orderId]
@@ -57,7 +57,8 @@ export class OrderRepository {
             price: row.price,
             amountPaid: row.amount_paid,
             status: row.status,
-            createdAt: row.created_at
+            createdAt: row.created_at,
+            accountNumber: row.account_number
         };
     }
 
@@ -104,7 +105,7 @@ export class OrderRepository {
     static async getOrdersWithInsufficientPayment(cutoffDays = 2): Promise<Order[]> {
         const result = await db.query(
             `SELECT 
-            order_id, price, amount_paid, status, created_at
+            order_id, price, amount_paid, status, created_at, account_number
             FROM orders 
             WHERE created_at < COALESCE(
                 (SELECT value::int - $1 FROM system_settings WHERE key = 'current_day'),
@@ -119,13 +120,14 @@ export class OrderRepository {
             price: row.price,
             amountPaid: row.amount_paid,
             status: row.status,
-            createdAt: row.created_at
+            createdAt: row.created_at,
+            accountNumber: row.account_number
         }));
     }
 
     static async getPendingOrders(): Promise<Order[]> {
         const result = await db.query(
-            `SELECT order_id, price, amount_paid, status, created_at
+            `SELECT order_id, price, amount_paid, status, created_at, account_number
             FROM orders 
             WHERE status IN ($1, $2, $3)
             ORDER BY created_at ASC`,
@@ -140,7 +142,8 @@ export class OrderRepository {
             price: row.price,
             amountPaid: row.amount_paid,
             status: row.status,
-            createdAt: row.created_at
+            createdAt: row.created_at,
+            accountNumber: row.account_number
         }));
     }
 

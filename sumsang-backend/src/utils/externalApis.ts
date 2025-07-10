@@ -141,6 +141,30 @@ export class CommercialBankAPI {
     }
 }
 
+export class RetailBankAPI {
+    static apiUrl = getApiUrl('https://retailbank/api', '/retail-bank/api');
+
+    static async requestPayment(from: string, to: string, ammountCents: number, reference: number) {
+        try {
+            const response = await axiosInstance.post(`${this.apiUrl}/transfers`, {
+                from,
+                to,
+                ammountCents,
+                reference
+            });
+
+            if (response.status === 200) {
+                return { success: false, message: "Not enough money"}
+            }
+            
+            return {
+                success: true,
+            };
+        } catch (error: any) {
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
+}
 
 export class CaseSuppliers {
     static apiUrl = getApiUrl('http://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api');

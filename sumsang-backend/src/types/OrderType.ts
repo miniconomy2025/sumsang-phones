@@ -4,4 +4,5 @@ export type Order = {
     amountPaid: number;
     status: number;
     createdAt: number;
+    accountNumber?: string;
 };
