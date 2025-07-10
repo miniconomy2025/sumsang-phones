@@ -17,7 +17,7 @@ function PartsInventoryChart({ data }) {
 		return Object.entries(data.currentPartsInventory).map(([part, count]) => ({
 			part: part.charAt(0).toUpperCase() + part.slice(1),
 			count,
-			fill: part === 'electronics' ? '#8884d8' : part === 'screens' ? '#82ca9d' : '#ffc658',
+			fill: part === 'Electronics' ? '#8884d8' : part === 'Screens' ? '#82ca9d' : '#ffc658',
 		}));
 	};
 
