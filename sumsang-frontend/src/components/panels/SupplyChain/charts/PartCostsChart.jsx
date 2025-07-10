@@ -24,7 +24,7 @@ function PartCostsChart({ data }) {
 		const sortedDates = Array.from(allDates).sort((a, b) => new Date(a) - new Date(b));
 
 		return sortedDates.map((date) => {
-			const result = { date: date.split('-').slice(1).join('/') }; // Format: MM/DD
+			const result = { date: date.split('-').slice(1).join('/') };
 
 			Object.keys(data.partCostsOverTime).forEach((part) => {
 				const entry = data.partCostsOverTime[part].find((item) => item.date === date);
@@ -63,7 +63,7 @@ function PartCostsChart({ data }) {
 							dataKey={part}
 							stroke={colors[index % colors.length]}
 							strokeWidth={2}
-							connectNulls={true} // Don't connect lines across missing data points
+							connectNulls={true}
 							dot={{ fill: colors[index % colors.length], strokeWidth: 2, r: 4 }}
 						/>
 					))}
