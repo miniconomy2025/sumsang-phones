@@ -19,9 +19,6 @@ function ProductionOverview() {
 				<section className={`grid-panel ${styles.phonesProduced}`}>
 					<TotalPhonesProducedChart data={data} />
 				</section>
-				<section className={`grid-panel ${styles.productionCapacity}`}>
-					<ProductionCapacityChart data={data} />
-				</section>
 				<section className={`grid-panel ${styles.costBreakdown}`}>
 					<CostBreakdownChart data={data} />
 				</section>
