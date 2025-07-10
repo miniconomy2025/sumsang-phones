@@ -4,6 +4,9 @@ import { BulkDeliveryRepository } from '../repositories/BulkDeliveriesRepository
 import { MachineDeliveryRepository } from '../repositories/MachineDeliveryRepository.js';
 import { BadRequestError, NotFoundError } from '../utils/errors.js';
 import { handleSuccess, handleFailure } from '../utils/handleResponses.js';
+import { THOHAPI } from '../utils/externalApis.js';
+import { OrderRepository } from '../repositories/OrderRepository.js';
+import { ConsumerDeliveryRepository } from '../repositories/ConsumerDeliveriesRepository.js';
 
 export class LogisticsController {
     
@@ -94,6 +97,38 @@ export class LogisticsController {
         } catch (error) {
             console.log('Error in logistics handling:', error);
             handleFailure(res, error, 'Error processing logistics request');
+        }
+        console.log('===== LogisticsController.handleLogistics END =====');
+    }
+
+    static async handleNotification(req: Request, res: Response): Promise<void> {
+        try {
+            console.log('===== LogisticsController.handleLogistics END =====');
+            const deliveryReference = req.body.delivery_reference;
+
+            if (!deliveryReference || isNaN(Number(deliveryReference))) {
+                console.log('Delivery reference not found passed.');
+                throw new BadRequestError('Required a delivery reference');
+            }
+            
+            const delivery = await ConsumerDeliveryRepository.getDeliveryByDeliveryReference(deliveryReference);
+            if (!delivery) {
+                console.log('Delivery reference not found ', deliveryReference);
+                throw new NotFoundError('Deliver reference not found')
+            }
+            const order = await OrderRepository.getOrderById(delivery.orderId);
+            if (!order) {
+                console.log('Order not found ', delivery.orderId);
+                throw new NotFoundError('Order not found');
+            }
+
+            const result = await THOHAPI.notifyDelivery(order.orderId);
+
+            handleSuccess(res, result);
+            console.log('Notification notified: ', deliveryReference);
+        } catch (error) {
+            console.log('Error in notification handling:', error);
+            handleFailure(res, error, 'Error processing notification');
         }
         console.log('===== LogisticsController.handleLogistics END =====');
     }

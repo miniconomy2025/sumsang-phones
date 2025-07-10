@@ -7,7 +7,8 @@ import {
     TestScreenSuppliersController,
     TestElectronicsSuppliersController,
     TestTHOHController,
-    ManualTestEndpoints
+    ManualTestEndpoints,
+    TestRetailBankController
 } from './testController.js';
 
 const router = Router();
@@ -29,6 +30,9 @@ router.post('/commercialbank/api/account', TestCommercialBankController.openAcco
 router.post('/commercialbank/api/loan', TestCommercialBankController.applyForLoan);
 router.get('/commercialbank/api/loan/:loanNumber', TestCommercialBankController.getLoanInfo);
 router.post('/commercialbank/api/loan/:loan_number/pay', TestCommercialBankController.repayLoan);
+
+// Retail Bank API routes
+router.post('/retail-bank/api/transfers', TestRetailBankController.requestTransfer);
 
 // Case Suppliers API routes
 router.get('/case-suppliers/api/cases', TestCaseSuppliersController.getCasesCost);

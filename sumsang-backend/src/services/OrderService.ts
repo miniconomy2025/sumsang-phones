@@ -1,15 +1,17 @@
 import { OrderRepository } from '../repositories/OrderRepository.js';
 import { OrderItem } from '../types/OrderItemType.js';
 import { PhoneRepository } from '../repositories/PhoneRepository.js';
-import { ValidationError } from '../utils/errors.js';
+import { ForbiddenError, NotFoundError, ValidationError } from '../utils/errors.js';
 import { Status } from '../types/Status.js';
 import { Order } from '../types/OrderType.js';
 import { StockRepository } from '../repositories/StockRepository.js';
-import { CommercialBankAPI, ConsumerDeliveriesAPI } from '../utils/externalApis.js';
+import { CommercialBankAPI, ConsumerDeliveriesAPI, RetailBankAPI } from '../utils/externalApis.js';
 import { ConsumerDeliveryRepository } from '../repositories/ConsumerDeliveriesRepository.js';
+import { SystemSettingsRepository } from '../repositories/SystemSettingRepository.js';
+import { systemSettingKeys } from '../constants/SystemSettingKeys.js';
 
 export class OrderService {
-    static async placeOrder(items: OrderItem[]) {
+    static async placeOrder(accountNumber: string, items: OrderItem[]) {
         console.log('OrderService::placeOrder - Starting order placement', { items });
         
         if (!items || items.length === 0) {
@@ -37,9 +39,26 @@ export class OrderService {
             console.log('OrderService::placeOrder - Calculated item total', { itemTotal, totalPrice });
         }
 
+        console.log('Getting account number...');
+        const ourAccount = await SystemSettingsRepository.getByKey(systemSettingKeys.accountNumber);
+        console.log('Account number:', accountNumber);
+        if (!ourAccount) {
+            throw Error('We do not have an account yet to accept purchases')
+        }
+        const ourAccountNumber = ourAccount.value;
+
         console.log('OrderService::placeOrder - Creating order', { totalPrice });
-        const order = await OrderRepository.createOrder(totalPrice, items);
-        console.log('OrderService::placeOrder - Order created', { order });
+        const orderId = await OrderRepository.createOrder(accountNumber, totalPrice, items);
+        console.log('OrderService::placeOrder - Order created', { orderId });
+
+        const order = await OrderRepository.getOrderById(Number(orderId));
+        console.log('OrderService::placeOrder - Order ', { order });
+
+        if (!order) {
+            throw new NotFoundError('Something went wrong with creating the order.')
+        }
+
+        await this.getMoneyForOrderFromRetail(ourAccountNumber, order)
 
         return {
             orderId: order.orderId,
@@ -47,26 +66,37 @@ export class OrderService {
         };
     }
 
-    static async processPayment(order: Order, amount: number): Promise<void> {
-        console.log('OrderService::processPayment - Starting payment processing', { order, amount });
-        
-        const newAmountPaid = Number(order.amountPaid) + amount;
-        console.log('OrderService::processPayment - Calculated new amount paid', { newAmountPaid });
+    static async getMoneyForOrderFromRetail(ourAccountNumber: string, order: Order) {
+        console.log(`getMoneyForOrderFromRetail - Requesting payment from RetailBankAPI for Order ID: ${order.orderId}`);
 
-        await OrderRepository.updateAmountPaid(order.orderId, newAmountPaid);
-        console.log('OrderService::processPayment - Updated amount paid in database');
+        const result = await RetailBankAPI.requestPayment(
+            order.accountNumber!,
+            ourAccountNumber,
+            order.price * 100,
+            order.orderId
+        );
 
-        if (newAmountPaid >= Number(order.price)) {
-            console.log('OrderService::processPayment - Payment complete, updating status to PendingStock');
+        if (result.success) {
+            console.log(`getMoneyForOrderFromRetail - Payment successful for Order ID: ${order.orderId}. Updating amount paid and status.`);
+
+            await OrderRepository.updateAmountPaid(order.orderId, order.price);
+            console.log(`getMoneyForOrderFromRetail - Amount paid updated to ${order.price} for Order ID: ${order.orderId}.`);
+
             await OrderRepository.updateStatus(order.orderId, Status.PendingStock);
+            console.log(`getMoneyForOrderFromRetail - Status updated to PendingStock for Order ID: ${order.orderId}.`);
 
             order = await this.getOrder(order.orderId);
-            console.log('OrderService::processPayment - Retrieved updated order', { order });
+            console.log(`getMoneyForOrderFromRetail - Fetched updated order for Order ID: ${order.orderId}. Beginning processing.`);
 
             await this.processOrder(order);
-            console.log('OrderService::processPayment - Order processing completed');
+            console.log(`getMoneyForOrderFromRetail - Order ID: ${order.orderId} processed successfully.`);
         } else {
-            console.log('OrderService::processPayment - Payment insufficient, waiting for more payments');
+            console.log(`getMoneyForOrderFromRetail - Payment failed for Order ID: ${order.orderId}. Updating status to Cancelled.`);
+
+            await OrderRepository.updateStatus(order.orderId, Status.Cancelled);
+            console.log(`getMoneyForOrderFromRetail - Status updated to Cancelled for Order ID: ${order.orderId}.`);
+
+            throw new ForbiddenError("There is not enough money in the account provided. Order canceled");
         }
     }
 

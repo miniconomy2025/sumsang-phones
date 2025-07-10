@@ -1,0 +1,2 @@
+ALTER TABLE orders
+ADD COLUMN account_number VARCHAR(12) NOT NULL;
