@@ -1,11 +1,9 @@
-import { useEffect } from 'react';
 import { getFinancialData } from '../../../api/dataFetcher';
 import { usePollingFetch } from '../../../hooks/usePollingFetch';
 import styles from './FinancialPerformance.module.css';
 import TotalRevenueChart from './charts/TotalRevenueChart';
 import NetProfitChart from './charts/NetProfitChart';
 import TotalExpensesChart from './charts/TotalExpensesChart';
-import LoanStatusChart from './charts/LoanStatusChart';
 import CostVsSellingPriceChart from './charts/CostVsSellingPriceChart';
 
 function FinancialPerformance() {
@@ -26,9 +24,6 @@ function FinancialPerformance() {
 				</section>
 				<section className={`grid-panel ${styles.totalExpenses}`}>
 					<TotalExpensesChart data={data} />
-				</section>
-				<section className={`grid-panel ${styles.loanStatus}`}>
-					<LoanStatusChart data={data} />
 				</section>
 				<section className={`grid-panel ${styles.costVsSelling}`}>
 					<CostVsSellingPriceChart data={data} />
