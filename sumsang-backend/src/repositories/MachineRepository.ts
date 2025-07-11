@@ -106,7 +106,7 @@ export class MachineRepository {
   static async retireMachinesByPhoneId(phoneId: number, quantity: number): Promise<void> {
 		await db.query(
       `WITH to_update AS (
-          SELECT id
+          SELECT machine_id
           FROM machines
           WHERE phone_id = $1 AND date_retired IS NULL
           ORDER BY id
@@ -117,7 +117,7 @@ export class MachineRepository {
                         (SELECT value::int FROM system_settings WHERE key = 'current_day'),
                         0
                     )
-      WHERE id IN (SELECT id FROM to_update)`,
+      WHERE machine_id IN (SELECT machine_id FROM to_update)`,
       [phoneId, quantity]
     );
 	}
