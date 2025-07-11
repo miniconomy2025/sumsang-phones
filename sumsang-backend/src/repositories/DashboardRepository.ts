@@ -261,6 +261,8 @@ export class DashboardRepository {
                 SELECT p.model, SUM(oi.quantity) AS totalPhonesSold
                 FROM order_items oi
                 JOIN phones p ON oi.phone_id = p.phone_id
+                JOIN orders ord ON ord.order_id = oi.order_id
+                WHERE ord.status != 7
                 GROUP BY p.model;
             `);
             const result: Record<string, number> = {};
@@ -277,6 +279,8 @@ export class DashboardRepository {
                 SELECT p.model, SUM(oi.quantity * p.price) AS phoneModelRevenue
                 FROM order_items oi
                 JOIN phones p ON oi.phone_id = p.phone_id
+                JOIN orders ord ON ord.order_id = oi.order_id
+                WHERE ord.status != 7
                 GROUP BY p.model;
             `);
             const result: Record<string, number> = {};
@@ -327,13 +331,19 @@ export class DashboardRepository {
     private static async fetchCostPerModel() {
         try {
             const res = await db.query(`
-                SELECT ph.model AS phone_model, 
-                    SUM(mr.quantity * s.cost) AS cost_per_phone
-                FROM phones ph
-                JOIN machines m ON ph.phone_id = m.phone_id
-                JOIN machine_ratios mr ON m.machine_id = mr.machine_id
-                JOIN suppliers s ON mr.part_id = s.part_id
-                GROUP BY ph.model;
+               SELECT 
+                p.model as phone_model,
+                SUM(mr.quantity * s.cost) as cost_per_phone
+            FROM phones p
+            JOIN (
+                SELECT phone_id, machine_id,
+                    ROW_NUMBER() OVER (PARTITION BY phone_id ORDER BY date_acquired DESC) as rn
+                FROM machines
+                WHERE date_retired IS NULL
+            ) latest_machine ON p.phone_id = latest_machine.phone_id AND latest_machine.rn = 1
+            JOIN machine_ratios mr ON latest_machine.machine_id = mr.machine_id
+            JOIN suppliers s ON mr.part_id = s.part_id
+            GROUP BY p.phone_id, p.model, p.price;
             `);
             return res.rows;
         } catch (error) {
@@ -467,6 +477,8 @@ export class DashboardRepository {
                 JOIN machine_ratios mr ON m.machine_id = mr.machine_id
                 JOIN parts pt ON mr.part_id = pt.part_id
                 JOIN suppliers s ON pt.part_id = s.part_id
+                JOIN orders ord ON ord.order_id = oi.order_id
+                WHERE ord.status != 7
                 GROUP BY ph.model, pt.name
                 ORDER BY ph.model, pt.name;
             `);
