@@ -8,7 +8,7 @@ export class SimulationController {
         console.log('===== SimulationController.startSimulation START =====');
         try {
             console.log('Request body:', req.body);
-            const startEpoch = req.body.unixEpochStartTime;
+            const startEpoch = req.body.epochStartTime;
             console.log('Start epoch time:', startEpoch);
 
             console.log('Starting simulation...');

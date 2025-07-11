@@ -4,6 +4,8 @@ import { usePollingFetch } from '../../../hooks/usePollingFetch';
 import styles from './LogisticsFlow.module.css';
 import TransfersInChart from './charts/TransfersInChart';
 import TransfersOutChart from './charts/TransfersOutChart';
+import TransfersInCostChart from './charts/TransfersInCostChart';
+import TransfersOutCostChart from './charts/TransfersOutCostChart';
 
 function LogisticsFlow() {
 	const { data, loading, error } = usePollingFetch(getLogisticsData, 15000);
@@ -20,6 +22,12 @@ function LogisticsFlow() {
 				</section>
 				<section className={`grid-panel ${styles.transfersOut}`}>
 					<TransfersOutChart data={data} />
+				</section>
+				<section className={`grid-panel ${styles.transfersInCost}`}>
+					<TransfersInCostChart data={data} />
+				</section>
+				<section className={`grid-panel ${styles.transfersOutCost}`}>
+					<TransfersOutCostChart data={data} />
 				</section>
 			</main>
 		</>
