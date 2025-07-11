@@ -332,7 +332,7 @@ export class DashboardRepository {
         try {
             const res = await db.query(`
                 SELECT ph.model AS phone_model, 
-                    SUM(mr.quantity * s.cost) AS cost_per_phone
+                    SUM(s.cost) AS cost_per_phone
                 FROM phones ph
                 JOIN machines m ON ph.phone_id = m.phone_id
                 JOIN machine_ratios mr ON m.machine_id = mr.machine_id
