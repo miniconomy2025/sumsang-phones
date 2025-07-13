@@ -285,7 +285,8 @@ export class DailyTasksService {
             return;
         }
 
-        for (const [partId, quantity] of partsToOrder) {
+        for (let [partId, quantity] of partsToOrder) {
+            quantity = Math.ceil(quantity/1000)*1000;
             console.log("DailyTasksService::orderParts - Making purchase order:", { partId, quantity });
             const partsPurchaseId = await this.makePartsPurchaseOrder(partId, quantity);
             console.log("DailyTasksService::orderParts - Purchase order created:", partsPurchaseId);

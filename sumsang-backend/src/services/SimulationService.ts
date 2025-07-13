@@ -112,13 +112,13 @@ export class SimulationService {
 		console.log('SimulationService::StartSimulation - System settings saved (loan number)');
 
 		console.log('SimulationService::StartSimulation - Making initial parts purchase orders');
-		await DailyTasksService.makePartsPurchaseOrder(1, 250);
+		await DailyTasksService.makePartsPurchaseOrder(1, 1000);
 		console.log('SimulationService::StartSimulation - Parts purchase order 1 completed');
 		
-		await DailyTasksService.makePartsPurchaseOrder(2, 250);
+		await DailyTasksService.makePartsPurchaseOrder(2, 1000);
 		console.log('SimulationService::StartSimulation - Parts purchase order 2 completed');
 		
-		await DailyTasksService.makePartsPurchaseOrder(3, 250);
+		await DailyTasksService.makePartsPurchaseOrder(3, 1000);
 		console.log('SimulationService::StartSimulation - Parts purchase order 3 completed');
 		
 		console.log('SimulationService::StartSimulation - Processing pending parts purchases');
