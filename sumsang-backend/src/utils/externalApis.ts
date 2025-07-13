@@ -127,7 +127,7 @@ export class CommercialBankAPI {
             const payload = {
                 to_account_number: accountNumber,
                 to_bank_name: "commercial-bank",
-                amount,
+                amount: Number(amount),
                 description: reference_number
             };
             console.log(`💰 CommercialBankAPI: Sending POST to ${this.apiUrl}/transaction with payload:`, payload);
