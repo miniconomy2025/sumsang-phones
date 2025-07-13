@@ -410,8 +410,8 @@ export class THOHAPI {
     static async getAvailableMachines(): Promise<MachineInfo[]> {
         console.log(`🔍 THOHAPI: Getting available machines`);
         try {
-            console.log(`🔍 THOHAPI: Sending GET to ${this.apiUrl}/simulation/machines`);
-            const response = await axiosInstance.get(`${this.apiUrl}/simulation/machines`);
+            console.log(`🔍 THOHAPI: Sending GET to ${this.apiUrl}/machines`);
+            const response = await axiosInstance.get(`${this.apiUrl}/machines`);
             console.log(`✅ THOHAPI: Available machines retrieved successfully:`, response.data);
             return response.data;
         } catch (error: any) {

@@ -48,6 +48,6 @@ router.post('/electronics-suppliers/api/orders', TestElectronicsSuppliersControl
 
 // THOH API routes
 router.post('/thoh/api/machines', TestTHOHController.purchaseMachine);
-router.get('/thoh/api/simulation/machines', TestTHOHController.getAvailableMachines);
+router.get('/thoh/api/machines', TestTHOHController.getAvailableMachines);
 
 export default router;
