@@ -567,7 +567,7 @@ export class DailyTasksService {
         
         console.log("DailyTasksService::makeBulkDeliveryRequest - Supplier and part info:", { supplier, part });
 
-        const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name, part.name);
+        const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name, part.name.toLowerCase());
         console.log("DailyTasksService::makeBulkDeliveryRequest - Delivery request result:", result);
 
         if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
