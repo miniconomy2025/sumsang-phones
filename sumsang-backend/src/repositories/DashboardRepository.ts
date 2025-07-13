@@ -9,11 +9,15 @@ export class DashboardRepository {
             const currentPartsInventory = await this.fetchCurrentPartsInventory();
             const currentPhonesInventory = await this.fetchCurrentPhonesInventory();
             const partCostsOverTime = await this.fetchPartCostsOverTime();
+            const currentMachines = await this.fetchCurrentMachines();
+
+            console.log("current machiens", currentMachines);
 
             return {
                 currentPartsInventory,
                 currentPhonesInventory,
-                partCostsOverTime
+                partCostsOverTime, 
+                currentMachines
             };
         } catch (error) {
             throw new DatabaseError(`Failed to get supply chain information: ${(error as Error).message}`);
@@ -254,6 +258,31 @@ export class DashboardRepository {
         }
     }
 
+    private static async fetchCurrentMachines() {
+        try {
+            const startEpoch = await this.getStartingEpoch();
+            const res = await db.query(`
+                SELECT
+                    TO_CHAR(($1::timestamp + m.date_acquired * INTERVAL '1 day'), 'YYYY-MM-DD') AS purchase_date,
+                    p.model,
+                    COUNT(CASE WHEN m.date_retired = 0 THEN 1 END) AS operational_machines,
+                    COUNT(CASE WHEN m.date_retired != 0 THEN 1 END) AS broken_machines,
+                    SUM(CASE WHEN m.date_retired = 0 THEN m.rate_per_day ELSE 0 END) AS production_capacity
+                FROM machines m
+                JOIN phones p ON m.phone_id = p.phone_id
+                GROUP BY p.model, m.date_acquired;
+            `, [startEpoch])
+
+            return res.rows.map(row => ({
+                phoneName: row.model,
+                operationalMachines: Number(row.operational_machines),
+                brokenMachines: Number(row.broken_machines),
+                productionCapacity: Number(row.production_capacity)
+            }));
+        } catch(error) {
+            throw new DatabaseError(`Failed to fetch current machines: ${(error as Error).message}`);
+        }
+    }
 
     private static async fetchTotalPhonesSold() {
         try {
