@@ -62,7 +62,7 @@ export class TestBulkDeliveriesController {
         console.log('Original external order ID:', originalExternalOrderId);
         console.log('Origin company ID:', originCompanyId);
         console.log('Destination company ID:', destinationCompanyId);
-        console.log('Items:', items);
+        console.log('Items:', 'something');
         
         const totalCost = items.reduce((total: number, item: any) => {
             return total + (item.quantity * 5);

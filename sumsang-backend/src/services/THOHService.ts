@@ -21,7 +21,8 @@ export class THOHService {
         console.log('THOHService::getAvailableMachines - Starting available machines retrieval');
         
         const response = await THOHAPI.getAvailableMachines();
-        console.log('THOHService::getAvailableMachines - Received available machines response', { response });
+        // console.log('THOHService::getAvailableMachines - Received available machines response', { response });
+        console.log('THOHService::getAvailableMachines - Received available machines response');
 
         if (!response) {
             console.log('THOHService::getAvailableMachines - Failed to get machines');

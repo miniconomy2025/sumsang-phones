@@ -14,8 +14,9 @@ import { MachineDeliveryRepository } from "../repositories/MachineDeliveryReposi
 export class MachinePurchaseService {
 
     static async recordMachinePurchase(machinePurchase: MachinePurchaseResponse): Promise<number> {
-        console.log('MachinePurchaseService::recordMachinePurchase - Starting machine purchase recording', { machinePurchase });
-        
+        // console.log('MachinePurchaseService::recordMachinePurchase - Starting machine purchase recording', { machinePurchase });
+        console.log('MachinePurchaseService::recordMachinePurchase - Starting machine purchase recording', machinePurchase.orderId );
+
         let modelName = '';
 
         if (machinePurchase.machineName === 'cosmos_z25_machine')
