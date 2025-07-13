@@ -71,8 +71,9 @@ export interface MachinePurchaseResponse {
 
 export interface MachineInfo {
     machineName: string;
+    inputs: string;
     quantity: number;
-    materialRatio: string;
+    inputRatio: any;
     productionRate: number;
     price: number;
 }

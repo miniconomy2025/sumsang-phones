@@ -350,31 +350,46 @@ export class TestTHOHController {
         const machines: MachineInfo[] = 
             [
                 {
-                    machineName: "cosmos_z25_machine",
-                    quantity: 100,
-                    materialRatio: "1:3:2 (cases:screens:electronics)",
-                    productionRate: 30,
-                    price: 20000
-                },
-                {
-                    machineName: "cosmos_z25_fe_machine",
-                    quantity: 100,
-                    materialRatio: "1:3:2 (cases:screens:electronics)",
-                    productionRate: 30,
-                    price: 30000
-                },
-                {
-                    machineName: "cosmos_z25_ultra_machine",
-                    quantity: 100,
-                    materialRatio: "1:3:2 (cases:screens:electronics)",
-                    productionRate: 30,
-                    price: 50000
-                }
+            machineName: "cosmos_z25_machine",
+            inputs: "cases : screens : electronics",
+            quantity: 120,
+            inputRatio: {
+                cases: 1,
+                screens: 2,
+                electronics: 5
+            },
+            productionRate: 45,
+            price: 18157
+        },
+        {
+            machineName: "cosmos_z25_ultra_machine",
+            inputs: "cases : screens : electronics",
+            quantity: 120,
+            inputRatio: {
+                cases: 1,
+                screens: 3,
+                electronics: 11
+            },
+            productionRate: 25,
+            price: 26105
+        },
+        {
+            machineName: "cosmos_z25_fe_machine",
+            inputs: "cases : screens : electronics",
+            quantity: 119,
+            inputRatio: {
+                cases: 1,
+                screens: 2,
+                electronics: 8
+            },
+            productionRate: 35,
+            price: 18920
+        }
             ]
         ;
         
         console.log('Response:', machines);
-        res.json(machines);
+        res.json({machines});
         console.log('===== TestTHOHController.getAvailableMachines END =====');
     }
 }

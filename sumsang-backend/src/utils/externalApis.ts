@@ -413,7 +413,7 @@ export class THOHAPI {
             console.log(`🔍 THOHAPI: Sending GET to ${this.apiUrl}/machines`);
             const response = await axiosInstance.get(`${this.apiUrl}/machines`);
             console.log(`✅ THOHAPI: Available machines retrieved successfully:`, response.data);
-            return response.data;
+            return response.data.machines;
         } catch (error: any) {
             console.error(`❌ THOHAPI: Failed to get available machines:`, error.response?.data || error.message);
             console.error(`❌ THOHAPI: Status:`, error.response?.status);

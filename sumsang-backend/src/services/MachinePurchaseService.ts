@@ -28,7 +28,7 @@ export class MachinePurchaseService {
         console.log(`SimulationService::orderInitialMachines - Phone model: ${modelName} for machine name: ${machinePurchase.machineName}`);
 
         // Map machineName to phoneId
-        const phone = await PhoneRepository.getPhoneByModel(machinePurchase.machineName!);
+        const phone = await PhoneRepository.getPhoneByModel(modelName);
         console.log('MachinePurchaseService::recordMachinePurchase - Found phone for machine', { phone });
 
         const machineRecord: MachinePurchaseRecord = {

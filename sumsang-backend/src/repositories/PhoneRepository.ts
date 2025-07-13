@@ -40,7 +40,7 @@ export class PhoneRepository {
 
     static async getPhoneByModel(model: string): Promise<Phone> {
         const result = await db.query(
-            `SELECT phone_id, model, price  FROM phones WHERE model = $1 LIMIT 1`,
+            `SELECT phone_id, model, price FROM phones WHERE model = $1 LIMIT 1`,
             [model]
         );
 

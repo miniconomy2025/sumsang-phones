@@ -42,7 +42,7 @@ export class SimulationService {
 			console.log(`SimulationService::orderInitialMachines - Machine name: ${machineName} for phone model: ${model}`);
 
 			const machine = availableMachines
-				.find((m) => m.machineName.toLowerCase() === machineName);
+				.find((m) => m.machineName.toLowerCase() === machineName.toLowerCase());
 
 			console.log('SimulationService::orderInitialMachines - Found machine for model', { machine });
 
