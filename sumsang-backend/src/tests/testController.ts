@@ -330,9 +330,9 @@ export class TestTHOHController {
             machineDetails: {
                 requiredMaterials: machine.materials,
                 inputRatio: {
-                    additionalProp1: 1,
-                    additionalProp2: 3,
-                    additionalProp3: 2
+                    cases: 1,
+                    screens: 3,
+                    electronics: 2
                 },
                 productionRate: 30
             },
