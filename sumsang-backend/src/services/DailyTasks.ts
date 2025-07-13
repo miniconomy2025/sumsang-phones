@@ -570,9 +570,9 @@ export class DailyTasksService {
         const result = await BulkDeliveriesAPI.requestDelivery(partsPurchase.referenceNumber, partsPurchase.quantity, supplier.name, part.name.toLowerCase());
         console.log("DailyTasksService::makeBulkDeliveryRequest - Delivery request result:", result);
 
-        if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
+        if (result.success && result.pickupRequestId && result.cost && result.accountNumber) {
             console.log("DailyTasksService::makeBulkDeliveryRequest - Creating bulk delivery record");
-            await BulkDeliveryRepository.insertBulkDelivery(partsPurchase.partsPurchaseId!, result.pickupRequestId, result.cost, supplier.address, result.bulkLogisticsBankAccountNumber);
+            await BulkDeliveryRepository.insertBulkDelivery(partsPurchase.partsPurchaseId!, result.pickupRequestId, result.cost, supplier.address, result.accountNumber);
 
             console.log("DailyTasksService::makeBulkDeliveryRequest - Updating status to PendingDeliveryPayment");
             await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryPayment);

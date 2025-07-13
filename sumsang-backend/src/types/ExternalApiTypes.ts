@@ -11,7 +11,7 @@ export interface BulkDeliveriesResponse {
     pickupRequestId?: number;
     cost?: number;
     paymentReferenceId?: string;
-    bulkLogisticsBankAccountNumber?: string;
+    accountNumber?: string;
     status?: string;
     statusCheckUrl?: string;
     message?: string;

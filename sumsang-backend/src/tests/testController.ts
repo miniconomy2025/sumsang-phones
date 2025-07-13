@@ -74,7 +74,7 @@ export class TestBulkDeliveriesController {
             pickupRequestId: Math.floor(Math.random() * 10000),
             cost: totalCost,
             paymentReferenceId: `PAY-${Date.now()}`,
-            bulkLogisticsBankAccountNumber: "200000000000",
+            accountNumber: "200000000000",
             status: "PENDING",
             statusCheckUrl: `http://localhost:3000/test-endpoints/bulkdeliveries/api/status/${Math.floor(Math.random() * 10000)}`
         };

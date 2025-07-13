@@ -118,10 +118,10 @@ export class MachinePurchaseService {
         const result = await BulkDeliveriesAPI.requestMachineDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
         console.log('MachinePurchaseService::makeMachineDeliveryRequest - Received delivery request response', { result });
 
-        if (result.success && result.pickupRequestId && result.cost && result.bulkLogisticsBankAccountNumber) {
+        if (result.success && result.pickupRequestId && result.cost && result.accountNumber) {
             console.log('MachinePurchaseService::makeMachineDeliveryRequest - Delivery request successful, inserting delivery record');
             
-            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.pickupRequestId! , result.cost, "thoh", result.bulkLogisticsBankAccountNumber);
+            await MachineDeliveryRepository.insertMachineDelivery(machinePurchase.machinePurchasesId!, result.pickupRequestId! , result.cost, "thoh", result.accountNumber);
             console.log('MachinePurchaseService::makeMachineDeliveryRequest - Machine delivery record inserted');
 
             await MachinePurchaseRepository.updateStatus(machinePurchase.machinePurchasesId!, Status.PendingDeliveryPayment);
