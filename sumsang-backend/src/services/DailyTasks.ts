@@ -472,6 +472,8 @@ export class DailyTasksService {
         console.log("DailyTasksService::processPartsPurchase - Current status:", partsPurchase.status);
 
         if (partsPurchase.status === Status.PendingPayment) {
+            
+
             console.log("DailyTasksService::processPartsPurchase - Making payment");
             await this.makePartsPurchasePayment(partsPurchase);
             partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
@@ -490,6 +492,21 @@ export class DailyTasksService {
         }
         
         console.log("DailyTasksService::processPartsPurchase - Processing completed for:", partsPurchaseId);
+    }
+
+    static async checkIfOrderStillActive(partsPurchase: PartsPurchase): Promise<void> {
+        console.log("DailyTasksService::makePartsPurchasePayment - Making payment for purchase:", partsPurchase.partsPurchaseId);
+        
+        const result = await CommercialBankAPI.makePayment(String(partsPurchase.referenceNumber), partsPurchase.cost, partsPurchase.accountNumber);
+        console.log("DailyTasksService::makePartsPurchasePayment - Payment result:", result);
+
+        if (result.success) {
+            console.log("DailyTasksService::makePartsPurchasePayment - Payment successful, updating status");
+            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryRequest);
+        }
+        else {
+            console.log("DailyTasksService::makePartsPurchasePayment - Payment failed, will retry later");
+        }
     }
 
     static async makePartsPurchasePayment(partsPurchase: PartsPurchase): Promise<void> {

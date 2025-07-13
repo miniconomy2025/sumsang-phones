@@ -55,12 +55,12 @@ export class SimulationService {
 			console.log('SimulationService::orderInitialMachines - Calculated units to purchase', { units, machinePrice: machine.price });
 			
 			if (units <= 0) {
-				console.log('SimulationService::orderInitialMachines - No units to purchase for model', { model });
+				console.log('SimulationService::orderInitialMachines - No units to purchase for model', { machineName });
 				continue;
 			}
 
-			console.log('SimulationService::orderInitialMachines - Making machine purchase order', { model, units });
-			await MachinePurchaseService.makeMachinePurchaseOrder(model, units);
+			console.log('SimulationService::orderInitialMachines - Making machine purchase order', { machineName, units });
+			await MachinePurchaseService.makeMachinePurchaseOrder(machineName, units);
 			console.log('SimulationService::orderInitialMachines - Machine purchase order completed');
 			
 			console.log('SimulationService::orderInitialMachines - Processing pending machine purchases');
