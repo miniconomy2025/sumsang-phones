@@ -109,7 +109,7 @@ export class MachineRepository {
           SELECT machine_id
           FROM machines
           WHERE phone_id = $1 AND date_retired IS NULL
-          ORDER BY id
+          ORDER BY machine_id
           LIMIT $2
       )
       UPDATE machines
