@@ -411,7 +411,7 @@ export class DailyTasksService {
         return partsUsage;
     }
 
-    static async makePartsPurchaseOrder(partId: number, quantity: number): Promise<number> {
+    static async makePartsPurchaseOrder(partId: number, quantity: number): Promise<number | null> {
         console.log("DailyTasksService::makePartsPurchaseOrder - Making purchase order:", { partId, quantity });
         
         const supplier = await SupplierRepository.getSupplierByPartId(partId);
@@ -434,17 +434,22 @@ export class DailyTasksService {
 
         console.log("DailyTasksService::makePartsPurchaseOrder - Purchase order response:", purchaseOrder);
 
-        const partsPurchaseId = await PartsPurchaseRepository.createPartsPurchase({ 
-            partId: partId, 
-            referenceNumber: purchaseOrder?.referenceNumber!, 
-            cost: purchaseOrder?.cost!, 
-            quantity: quantity, 
-            accountNumber: purchaseOrder?.accountNumber!, 
-            status: Status.PendingPayment 
-        });
+        if (purchaseOrder?.success) {
+            const partsPurchaseId = await PartsPurchaseRepository.createPartsPurchase({ 
+                partId: partId, 
+                referenceNumber: purchaseOrder?.referenceNumber!, 
+                cost: purchaseOrder?.cost!, 
+                quantity: quantity, 
+                accountNumber: purchaseOrder?.accountNumber!, 
+                status: Status.PendingPayment 
+            });
 
-        console.log("DailyTasksService::makePartsPurchaseOrder - Created parts purchase:", partsPurchaseId);
-        return partsPurchaseId;
+            console.log("DailyTasksService::makePartsPurchaseOrder - Created parts purchase:", partsPurchaseId);
+            return partsPurchaseId;
+        }
+        else {
+            return null;
+        }
     }
 
     static async processPendingPartsPurchases() {
