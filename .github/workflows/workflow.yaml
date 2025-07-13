@@ -354,6 +354,8 @@ jobs:
             }
 
             location / {
+                proxy_set_header X-Client-OU $ssl_client_s_dn_ou;
+                proxy_set_header X-Client-CN $ssl_client_s_dn_cn;
                 proxy_pass http://localhost:3000;
             }
         }
