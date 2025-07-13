@@ -130,9 +130,9 @@ export class CommercialBankAPI {
                 amount,
                 description: reference_number
             };
-            console.log(`💰 CommercialBankAPI: Sending POST to ${this.apiUrl}/make-payment with payload:`, payload);
+            console.log(`💰 CommercialBankAPI: Sending POST to ${this.apiUrl}/transaction with payload:`, payload);
 
-            const response = await axiosInstance.post(`${this.apiUrl}/make-payment`, payload);
+            const response = await axiosInstance.post(`${this.apiUrl}/transaction`, payload);
 
             console.log(`✅ CommercialBankAPI: Payment success! Response:`, response.data);
             return response.data;

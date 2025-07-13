@@ -25,7 +25,7 @@ router.post('/consumerdeliveries/api/pickups', TestConsumerDeliveriesController.
 router.post('/bulkdeliveries/api/pickup-request', TestBulkDeliveriesController.requestPickup);
 
 // Commercial Bank API routes
-router.post('/commercialbank/api/make-payment', TestCommercialBankController.makePayment);
+router.post('/commercialbank/api/transaction', TestCommercialBankController.makePayment);
 router.post('/commercialbank/api/account', TestCommercialBankController.openAccount);
 router.post('/commercialbank/api/loan', TestCommercialBankController.applyForLoan);
 router.get('/commercialbank/api/loan/:loanNumber', TestCommercialBankController.getLoanInfo);
