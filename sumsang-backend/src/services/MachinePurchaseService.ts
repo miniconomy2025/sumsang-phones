@@ -37,7 +37,7 @@ export class MachinePurchaseService {
             totalCost: machinePurchase.totalPrice!,
             weightPerMachine: machinePurchase.unitWeight!,
             ratePerDay: machinePurchase.machineDetails!.productionRate,
-            ratio: `${machinePurchase.machineDetails!.inputRatio.additionalProp1}|${machinePurchase.machineDetails!.inputRatio.additionalProp2}|${machinePurchase.machineDetails!.inputRatio.additionalProp3}`,
+            ratio: `${machinePurchase.machineDetails!.inputRatio.cases}|${machinePurchase.machineDetails!.inputRatio.screens}|${machinePurchase.machineDetails!.inputRatio.electronics}`,
             status: Status.PendingPayment,
             accountNumber: machinePurchase.bankAccount!,
             reference: machinePurchase.orderId!
