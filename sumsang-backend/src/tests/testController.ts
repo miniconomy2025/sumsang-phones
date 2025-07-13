@@ -35,7 +35,7 @@ export class ManualTestEndpoints {
 export class TestConsumerDeliveriesController {
     static async requestDelivery(req: Request, res: Response) {
         console.log('===== TestConsumerDeliveriesController.requestDelivery START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { quantity, companyName, recipient } = req.body;
         console.log('Quantity:', quantity);
         console.log('Company name:', companyName);
@@ -57,7 +57,7 @@ export class TestConsumerDeliveriesController {
 export class TestBulkDeliveriesController {
     static async requestPickup(req: Request, res: Response) {
         console.log('===== TestBulkDeliveriesController.requestPickup START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { originalExternalOrderId, originCompanyId, destinationCompanyId, items } = req.body;
         console.log('Original external order ID:', originalExternalOrderId);
         console.log('Origin company ID:', originCompanyId);
@@ -88,7 +88,7 @@ export class TestBulkDeliveriesController {
 export class TestCommercialBankController {
     static async makePayment(req: Request, res: Response) {
         console.log('===== TestCommercialBankController.makePayment START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { to_account_number, to_bank_name, amount, description } = req.body;
         console.log('To account number:', to_account_number);
         console.log('To bank name:', to_bank_name);
@@ -108,7 +108,7 @@ export class TestCommercialBankController {
     
     static async openAccount(req: Request, res: Response) {
         console.log('===== TestCommercialBankController.openAccount START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const response = {
             account_number: `ACC-${Date.now()}`
         };
@@ -120,7 +120,7 @@ export class TestCommercialBankController {
     
     static async applyForLoan(req: Request, res: Response) {
         console.log('===== TestCommercialBankController.applyForLoan START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { amount } = req.body;
         console.log('Loan amount:', amount);
         
@@ -152,7 +152,7 @@ export class TestCommercialBankController {
     static async repayLoan(req: Request, res: Response) {
         console.log('===== TestCommercialBankController.repayLoan START =====');
         console.log('Request params:', req.params);
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { loan_number } = req.params;
         const { amount } = req.body;
         console.log('Loan number:', loan_number);
@@ -172,7 +172,7 @@ export class TestCommercialBankController {
 export class TestRetailBankController {
     static async requestTransfer(req: Request, res: Response) {
         console.log('===== TestRetailBankController.requestTransfer START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
 
         const { from, to, AmountCents, reference } = req.body;
 
@@ -213,7 +213,7 @@ export class TestCaseSuppliersController {
 
     static async purchaseCases(req: Request, res: Response) {
         console.log('===== TestCaseSuppliersController.purchaseCases START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { quantity } = req.body;
         console.log('Quantity:', quantity);
         
@@ -250,7 +250,7 @@ export class TestScreenSuppliersController {
 
     static async purchaseScreens(req: Request, res: Response) {
         console.log('===== TestScreenSuppliersController.purchaseScreens START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { quantity } = req.body;
         console.log('Quantity:', quantity);
         
@@ -284,7 +284,7 @@ export class TestElectronicsSuppliersController {
     
     static async purchaseElectronics(req: Request, res: Response) {
         console.log('===== TestElectronicsSuppliersController.purchaseElectronics START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { quantity } = req.body;
         console.log('Quantity:', quantity);
         
@@ -304,7 +304,7 @@ export class TestElectronicsSuppliersController {
 export class TestTHOHController {
     static async purchaseMachine(req: Request, res: Response) {
         console.log('===== TestTHOHController.purchaseMachine START =====');
-        console.log('Request body:', req.body);
+        // console.log('Request body:', req.body);
         const { machineName, quantity } = req.body;
         console.log('Machine name:', machineName);
         console.log('Quantity:', quantity);
