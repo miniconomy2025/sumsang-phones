@@ -15,9 +15,13 @@ export class SimulationController {
             console.log('Response:', response);
             handleSuccess(res, response);
 
-            console.log('Starting simulation...');
-            await SimulationService.StartSimulation(startEpoch);
-            console.log('Simulation started successfully');            
+            setTimeout( async () => {
+                console.log('Starting simulation...');
+                await SimulationService.StartSimulation(startEpoch);
+                console.log('Simulation started successfully');    
+            }, 10000);
+
+                    
         }
         catch (error) {
             console.log('Error in startSimulation:', error);
