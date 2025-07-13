@@ -29,4 +29,21 @@ export class SimulationController {
         }
         console.log('===== SimulationController.startSimulation END =====');
     }
+
+        static async deleteSimulation(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log('===== SimulationController.deleteSimulation START =====');
+        try {
+            console.log('Request body:', req.body);
+            
+            SimulationService.stopSimulation();
+            const response = { message: "Simulation stopped successfully" };
+            console.log('Response:', response);
+            handleSuccess(res, response);      
+        }
+        catch (error) {
+            console.log('Error in stopSimulation:', error);
+            handleFailure(res, error, 'Failed to stop simulation properly');
+        }
+        console.log('===== SimulationController.deleteSimulation END =====');
+    }
 }

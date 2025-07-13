@@ -131,4 +131,8 @@ export class SimulationService {
 		
 		console.log('SimulationService::StartSimulation - Simulation startup completed');
 	}
+
+	static async stopSimulation(): Promise<void> {
+		TickService.stop();
+	}
 }
