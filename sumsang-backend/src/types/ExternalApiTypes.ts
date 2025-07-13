@@ -59,9 +59,9 @@ export interface MachinePurchaseResponse {
     {
         requiredMaterials: string;
         inputRatio: {
-            additionalProp1: number;
-            additionalProp2: number;
-            additionalProp3: number;
+            cases: number;
+            screens: number;
+            electronics: number;
         };
         productionRate: number
     }
