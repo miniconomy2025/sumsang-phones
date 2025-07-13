@@ -249,7 +249,7 @@ jobs:
               USE_TEST_BULK_DELIVERIES=true
               USE_TEST_COMMERCIAL_BANK=false
               USE_TEST_RETAIL_BANK=true
-              USE_TEST_CASE_SUPPLIERS=true
+              USE_TEST_CASE_SUPPLIERS=false
               USE_TEST_SCREEN_SUPPLIERS=true
               USE_TEST_ELECTRONICS_SUPPLIERS=true
               USE_TEST_THOH=true
