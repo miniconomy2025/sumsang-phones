@@ -22,7 +22,7 @@ export interface PurchaseCasesResponse {
     order_status_id: number;
     quantity: number;
     total_price: number;
-    bankNumber: string;
+    account_number: string;
 }
 
 export interface PurchaseScreensResponse {

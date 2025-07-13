@@ -272,7 +272,7 @@ export class CaseSuppliers {
             const raw: PurchaseCasesResponse = response.data;
             const result = {
                 success: true,
-                accountNumber: raw.bankNumber,
+                accountNumber: raw.account_number,
                 cost: raw.total_price,
                 referenceNumber: raw.id
             };

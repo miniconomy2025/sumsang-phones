@@ -222,7 +222,7 @@ export class TestCaseSuppliersController {
             order_status_id: 1,
             quantity: quantity,
             total_price: quantity * 25, // Mock cost of R25 per case
-            bankNumber: "300000000000"
+            account_number: "300000000000"
         };
         
         console.log('Response:', response);
