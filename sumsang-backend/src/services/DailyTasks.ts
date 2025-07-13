@@ -434,7 +434,7 @@ export class DailyTasksService {
 
         console.log("DailyTasksService::makePartsPurchaseOrder - Purchase order response:", purchaseOrder);
 
-        if (purchaseOrder?.success) {
+        if (purchaseOrder?.success && purchaseOrder.referenceNumber && purchaseOrder?.cost && purchaseOrder?.accountNumber) {
             const partsPurchaseId = await PartsPurchaseRepository.createPartsPurchase({ 
                 partId: partId, 
                 referenceNumber: purchaseOrder?.referenceNumber!, 

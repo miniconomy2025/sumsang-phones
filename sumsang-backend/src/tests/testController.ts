@@ -15,16 +15,16 @@ import { handleSuccess } from '../utils/handleResponses.js';
 // ======================== Manual test endpoints ==============================
 export class ManualTestEndpoints {
   static async manualTick(req: Request, res: Response) {
-    console.log('===== ManualTestEndpoints.manualTick START =====');
-    console.log('Checking and updating day...');
+    // console.log('===== ManualTestEndpoints.manualTick START =====');
+    // console.log('Checking and updating day...');
     const isNextDay: boolean = await SystemSettingsRepository.checkAndUpdateDay();
-    console.log('Is next day:', isNextDay);
+    // console.log('Is next day:', isNextDay);
     if (isNextDay) {
-      console.log('Executing daily tasks...');
+      // console.log('Executing daily tasks...');
       await DailyTasksService.executeDailyTasks();
-      console.log('Daily tasks executed');
+      // console.log('Daily tasks executed');
     }
-    console.log('===== ManualTestEndpoints.manualTick END =====');
+    // console.log('===== ManualTestEndpoints.manualTick END =====');
 
     handleSuccess(res, { message: 'Tick-ed succesfully.'})
   }
@@ -34,12 +34,12 @@ export class ManualTestEndpoints {
 // ====================== Simulated test endpoints ==============================
 export class TestConsumerDeliveriesController {
     static async requestDelivery(req: Request, res: Response) {
-        console.log('===== TestConsumerDeliveriesController.requestDelivery START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestConsumerDeliveriesController.requestDelivery START =====');
+        // // console.log('Request body:', req.body);
         const { quantity, companyName, recipient } = req.body;
-        console.log('Quantity:', quantity);
-        console.log('Company name:', companyName);
-        console.log('Recipient:', recipient);
+        // console.log('Quantity:', quantity);
+        // console.log('Company name:', companyName);
+        // console.log('Recipient:', recipient);
         
         const response: ConsumerDeliveriesResponse = {
             success: true,
@@ -48,26 +48,26 @@ export class TestConsumerDeliveriesController {
             accountNumber: "100000000000"
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestConsumerDeliveriesController.requestDelivery END =====');
+        // console.log('===== TestConsumerDeliveriesController.requestDelivery END =====');
     }
 }
 
 export class TestBulkDeliveriesController {
     static async requestPickup(req: Request, res: Response) {
-        console.log('===== TestBulkDeliveriesController.requestPickup START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestBulkDeliveriesController.requestPickup START =====');
+        // // console.log('Request body:', req.body);
         const { originalExternalOrderId, originCompanyId, destinationCompanyId, items } = req.body;
-        console.log('Original external order ID:', originalExternalOrderId);
-        console.log('Origin company ID:', originCompanyId);
-        console.log('Destination company ID:', destinationCompanyId);
-        console.log('Items:', 'something');
+        // console.log('Original external order ID:', originalExternalOrderId);
+        // console.log('Origin company ID:', originCompanyId);
+        // console.log('Destination company ID:', destinationCompanyId);
+        // console.log('Items:', 'something');
         
         const totalCost = items.reduce((total: number, item: any) => {
             return total + (item.quantity * 5);
         }, 0);
-        console.log('Total cost calculated:', totalCost);
+        // console.log('Total cost calculated:', totalCost);
         
         const response: BulkDeliveriesResponse = {
             success: true,
@@ -79,21 +79,21 @@ export class TestBulkDeliveriesController {
             statusCheckUrl: `http://localhost:3000/test-endpoints/bulkdeliveries/api/status/${Math.floor(Math.random() * 10000)}`
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestBulkDeliveriesController.requestPickup END =====');
+        // console.log('===== TestBulkDeliveriesController.requestPickup END =====');
     }
 }
 
 export class TestCommercialBankController {
     static async makePayment(req: Request, res: Response) {
-        console.log('===== TestCommercialBankController.makePayment START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestCommercialBankController.makePayment START =====');
+        // // console.log('Request body:', req.body);
         const { to_account_number, to_bank_name, amount, description } = req.body;
-        console.log('To account number:', to_account_number);
-        console.log('To bank name:', to_bank_name);
-        console.log('Amount:', amount);
-        console.log('Description:', description);
+        // console.log('To account number:', to_account_number);
+        // console.log('To bank name:', to_bank_name);
+        // console.log('Amount:', amount);
+        // console.log('Description:', description);
         
         const response = {
             success: true,
@@ -101,121 +101,121 @@ export class TestCommercialBankController {
             transactionId: `TXN-${Date.now()}`
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCommercialBankController.makePayment END =====');
+        // console.log('===== TestCommercialBankController.makePayment END =====');
     }
     
     static async openAccount(req: Request, res: Response) {
-        console.log('===== TestCommercialBankController.openAccount START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestCommercialBankController.openAccount START =====');
+        // // console.log('Request body:', req.body);
         const response = {
             account_number: `ACC-${Date.now()}`
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCommercialBankController.openAccount END =====');
+        // console.log('===== TestCommercialBankController.openAccount END =====');
     }
     
     static async applyForLoan(req: Request, res: Response) {
-        console.log('===== TestCommercialBankController.applyForLoan START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestCommercialBankController.applyForLoan START =====');
+        // // console.log('Request body:', req.body);
         const { amount } = req.body;
-        console.log('Loan amount:', amount);
+        // console.log('Loan amount:', amount);
         
         const response = {
             success: true,
             loan_number: `LOAN-${Date.now()}`
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCommercialBankController.applyForLoan END =====');
+        // console.log('===== TestCommercialBankController.applyForLoan END =====');
     }
     
     static async getLoanInfo(req: Request, res: Response) {
-        console.log('===== TestCommercialBankController.getLoanInfo START =====');
-        console.log('Request params:', req.params);
+        // console.log('===== TestCommercialBankController.getLoanInfo START =====');
+        // console.log('Request params:', req.params);
         const { loanNumber } = req.params;
-        console.log('Loan number:', loanNumber);
+        // console.log('Loan number:', loanNumber);
         
         const response = {
             outstandingAmount: Math.floor(Math.random() * 100000) + 10000 // Random amount between 10k-110k
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCommercialBankController.getLoanInfo END =====');
+        // console.log('===== TestCommercialBankController.getLoanInfo END =====');
     }
     
     static async repayLoan(req: Request, res: Response) {
-        console.log('===== TestCommercialBankController.repayLoan START =====');
-        console.log('Request params:', req.params);
-        // console.log('Request body:', req.body);
+        // console.log('===== TestCommercialBankController.repayLoan START =====');
+        // console.log('Request params:', req.params);
+        // // console.log('Request body:', req.body);
         const { loan_number } = req.params;
         const { amount } = req.body;
-        console.log('Loan number:', loan_number);
-        console.log('Repayment amount:', amount);
+        // console.log('Loan number:', loan_number);
+        // console.log('Repayment amount:', amount);
         
         const response = {
             success: true,
             paid: amount
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCommercialBankController.repayLoan END =====');
+        // console.log('===== TestCommercialBankController.repayLoan END =====');
     }
 }
 
 export class TestRetailBankController {
     static async requestTransfer(req: Request, res: Response) {
-        console.log('===== TestRetailBankController.requestTransfer START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestRetailBankController.requestTransfer START =====');
+        // // console.log('Request body:', req.body);
 
         const { from, to, AmountCents, reference } = req.body;
 
-        console.log(`From: ${from}, To: ${to}, Amount (cents): ${AmountCents}, Reference: ${reference}`);
+        // console.log(`From: ${from}, To: ${to}, Amount (cents): ${AmountCents}, Reference: ${reference}`);
 
         // Simulate insufficient funds for small random percentage of requests
         const simulateInsufficientFunds = Math.random() < 0.02;
 
         if (simulateInsufficientFunds) {
-            console.log('Simulating insufficient funds');
+            // console.log('Simulating insufficient funds');
 
             res.status(409).end();
-            console.log('===== TestRetailBankController.requestTransfer END =====');
+            // console.log('===== TestRetailBankController.requestTransfer END =====');
             return;
         }
 
-        console.log('Response:', 'Ok');
+        // console.log('Response:', 'Ok');
         res.status(200).end();
-        console.log('===== TestRetailBankController.requestTransfer END =====');
+        // console.log('===== TestRetailBankController.requestTransfer END =====');
     }
 }
 
 
 export class TestCaseSuppliersController {
     static async getCasesCost(req: Request, res: Response) {
-        console.log('===== TestSupplierPricingController.getCasesCost START =====');
+        // console.log('===== TestSupplierPricingController.getCasesCost START =====');
 
         const response = {
             available_units: 800,
             price_per_unit: 25
         };
 
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
 
-        console.log('===== TestSupplierPricingController.getCasesCost END =====');
+        // console.log('===== TestSupplierPricingController.getCasesCost END =====');
     }
 
     static async purchaseCases(req: Request, res: Response) {
-        console.log('===== TestCaseSuppliersController.purchaseCases START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestCaseSuppliersController.purchaseCases START =====');
+        // // console.log('Request body:', req.body);
         const { quantity } = req.body;
-        console.log('Quantity:', quantity);
+        // console.log('Quantity:', quantity);
         
         const response: PurchaseCasesResponse = {
             id: Math.floor(Math.random() * 10000),
@@ -225,15 +225,15 @@ export class TestCaseSuppliersController {
             account_number: "300000000000"
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestCaseSuppliersController.purchaseCases END =====');
+        // console.log('===== TestCaseSuppliersController.purchaseCases END =====');
     }
 }
 
 export class TestScreenSuppliersController {
     static async getScreensCost(req: Request, res: Response) {
-        console.log('===== TestSupplierPricingController.getScreensCost START =====');
+        // console.log('===== TestSupplierPricingController.getScreensCost START =====');
 
         const response = {
             screens: {
@@ -242,17 +242,17 @@ export class TestScreenSuppliersController {
             }
         };
 
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
 
-        console.log('===== TestSupplierPricingController.getScreensCost END =====');
+        // console.log('===== TestSupplierPricingController.getScreensCost END =====');
     }
 
     static async purchaseScreens(req: Request, res: Response) {
-        console.log('===== TestScreenSuppliersController.purchaseScreens START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestScreenSuppliersController.purchaseScreens START =====');
+        // // console.log('Request body:', req.body);
         const { quantity } = req.body;
-        console.log('Quantity:', quantity);
+        // console.log('Quantity:', quantity);
         
         const response: PurchaseScreensResponse = {
             orderId: Math.floor(Math.random() * 10000),
@@ -261,32 +261,32 @@ export class TestScreenSuppliersController {
             orderStatusLink: `http://localhost:3000/test-endpoints/screen-suppliers/api/order/${Math.floor(Math.random() * 10000)}/status`
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestScreenSuppliersController.purchaseScreens END =====');
+        // console.log('===== TestScreenSuppliersController.purchaseScreens END =====');
     }
 }
 
 export class TestElectronicsSuppliersController {
     static async getElectronicsCost(req: Request, res: Response) {
-        console.log('===== TestSupplierPricingController.getElectronicsCost START =====');
+        // console.log('===== TestSupplierPricingController.getElectronicsCost START =====');
 
         const response = {
             availableStock: 1000,
             pricePerUnit: 30 // mock cost of R30 per unit
         };
 
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
 
-        console.log('===== TestSupplierPricingController.getElectronicsCost END =====');
+        // console.log('===== TestSupplierPricingController.getElectronicsCost END =====');
     }
     
     static async purchaseElectronics(req: Request, res: Response) {
-        console.log('===== TestElectronicsSuppliersController.purchaseElectronics START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestElectronicsSuppliersController.purchaseElectronics START =====');
+        // // console.log('Request body:', req.body);
         const { quantity } = req.body;
-        console.log('Quantity:', quantity);
+        // console.log('Quantity:', quantity);
         
         const response: PurchaseElectronicsResponse = {
             orderId: Math.floor(Math.random() * 10000),
@@ -295,29 +295,29 @@ export class TestElectronicsSuppliersController {
             quantity: quantity
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestElectronicsSuppliersController.purchaseElectronics END =====');
+        // console.log('===== TestElectronicsSuppliersController.purchaseElectronics END =====');
     }
 }
 
 export class TestTHOHController {
     static async purchaseMachine(req: Request, res: Response) {
-        console.log('===== TestTHOHController.purchaseMachine START =====');
-        // console.log('Request body:', req.body);
+        // console.log('===== TestTHOHController.purchaseMachine START =====');
+        // // console.log('Request body:', req.body);
         const { machineName, quantity } = req.body;
-        console.log('Machine name:', machineName);
-        console.log('Quantity:', quantity);
+        // console.log('Machine name:', machineName);
+        // console.log('Quantity:', quantity);
         
         const mockMachines = {
             "cosmos_z25_machine": { price: 20000, weight: 1800, materials: "cases,screens,electronics" },
             "cosmos_z25_fe_machine": { price: 30000, weight: 2500, materials: "cases,screens,electronics" },
             "cosmos_z25_ultra_machine": { price: 50000, weight: 3200, materials: "cases,screens,electronics" }
         };
-        console.log('Mock machines data:', mockMachines);
+        // console.log('Mock machines data:', mockMachines);
 
         const machine = mockMachines[machineName as keyof typeof mockMachines] || mockMachines["cosmos_z25_machine"];
-        console.log('Selected machine:', machine);
+        // console.log('Selected machine:', machine);
         
         const response: MachinePurchaseResponse = {
             success: true,
@@ -339,14 +339,14 @@ export class TestTHOHController {
             bankAccount: "THOH-BANK"
         };
         
-        console.log('Response:', response);
+        // console.log('Response:', response);
         res.json(response);
-        console.log('===== TestTHOHController.purchaseMachine END =====');
+        // console.log('===== TestTHOHController.purchaseMachine END =====');
     }
     
     static async getAvailableMachines(req: Request, res: Response) {
-        console.log('===== TestTHOHController.getAvailableMachines START =====');
-        console.log('Getting available machines...');
+        // console.log('===== TestTHOHController.getAvailableMachines START =====');
+        // console.log('Getting available machines...');
         const machines: MachineInfo[] = 
             [
                 {
@@ -388,8 +388,8 @@ export class TestTHOHController {
             ]
         ;
         
-        console.log('Response:', machines);
+        // console.log('Response:', machines);
         res.json({machines});
-        console.log('===== TestTHOHController.getAvailableMachines END =====');
+        // console.log('===== TestTHOHController.getAvailableMachines END =====');
     }
 }
