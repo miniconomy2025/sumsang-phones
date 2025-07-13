@@ -106,7 +106,7 @@ export class LogisticsController {
             console.log('===== LogisticsController.handleLogistics END =====');
             const deliveryReference = req.body.delivery_reference;
 
-            if (!deliveryReference || isNaN(Number(deliveryReference))) {
+            if (!deliveryReference || typeof deliveryReference !== 'string') {
                 console.log('Delivery reference not found passed.');
                 throw new BadRequestError('Required a delivery reference');
             }

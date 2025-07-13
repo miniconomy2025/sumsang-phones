@@ -7,7 +7,7 @@ export class LoanService {
      */
     static async applyWithFallback(
         primaryAmount: number,
-        fallbackAmounts: number[] = [15_000_000, 10_000_000, 5_000_000]
+        fallbackAmounts: number[] = [15_000_000, 10_000_000, 5_000_000, 1_000_000, 500_000, 100_000, 50_000, 10_000, 5_000, 1_000]
     ): Promise<{ success: boolean; loan_number: string; amount: number }> {
         console.log("LoanService::applyWithFallback - Starting loan application with fallback", { primaryAmount, fallbackAmounts });
         
