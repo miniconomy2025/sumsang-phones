@@ -52,10 +52,10 @@ export class MachinePurchaseService {
         return result;
     }
 
-    static async makeMachinePurchaseOrder(modelName: string, quantity: number): Promise<number> {
-        console.log('MachinePurchaseService::makeMachinePurchaseOrder - Starting machine purchase order', { modelName, quantity });
+    static async makeMachinePurchaseOrder(machineName: string, quantity: number): Promise<number> {
+        console.log('MachinePurchaseService::makeMachinePurchaseOrder - Starting machine purchase order', { machineName, quantity });
         
-        const purchase: MachinePurchaseResponse = await THOHService.purchaseMachine(modelName, quantity);
+        const purchase: MachinePurchaseResponse = await THOHService.purchaseMachine(machineName, quantity);
         console.log('MachinePurchaseService::makeMachinePurchaseOrder - Received purchase response', { purchase });
 
         const result = await this.recordMachinePurchase(purchase);
