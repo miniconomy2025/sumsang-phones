@@ -4,6 +4,6 @@ import { verifyOU } from '../middleware/verifyOU.js';
 import { OrganizationalUnit } from '../types/OrganizationalUnitOptions.js';
 const router = Router();
 
-router.post('/machine-failure', verifyOU([OrganizationalUnit.thoh, OrganizationalUnit.sumsangCompany]), MachineController.breakMachine);
+router.post('/machines/failure', verifyOU([OrganizationalUnit.thoh, OrganizationalUnit.sumsangCompany]), MachineController.breakMachine);
 
 export default router;
