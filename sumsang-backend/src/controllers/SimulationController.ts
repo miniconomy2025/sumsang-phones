@@ -11,13 +11,13 @@ export class SimulationController {
             const startEpoch = req.body.epochStartTime;
             console.log('Start epoch time:', startEpoch);
 
-            console.log('Starting simulation...');
-            await SimulationService.StartSimulation(startEpoch);
-            console.log('Simulation started successfully');
-            
             const response = { message: "Simulation started successfully" };
             console.log('Response:', response);
             handleSuccess(res, response);
+
+            console.log('Starting simulation...');
+            await SimulationService.StartSimulation(startEpoch);
+            console.log('Simulation started successfully');            
         }
         catch (error) {
             console.log('Error in startSimulation:', error);
