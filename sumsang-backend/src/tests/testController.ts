@@ -229,6 +229,32 @@ export class TestCaseSuppliersController {
         res.json(response);
         // console.log('===== TestCaseSuppliersController.purchaseCases END =====');
     }
+
+    static async getOrderStatus(req: Request, res: Response) {
+        // console.log('===== TestCaseSuppliersController.getOrderStatus START =====');
+        // console.log('Request params:', req.params);
+        const { id } = req.params;
+        // console.log('Order ID:', orderId);
+        
+        // Mock order statuses
+        const mockStatuses = ['PENDING', 'payment_pending', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+        const randomStatus = "payment_pending";
+        
+        const response = {
+            id: parseInt(id),
+            status: randomStatus,
+            order_status_id: mockStatuses.indexOf(randomStatus) + 1,
+            quantity: Math.floor(Math.random() * 100) + 10,
+            total_price: Math.floor(Math.random() * 5000) + 500,
+            account_number: "300000000000",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        
+        // console.log('Response:', response);
+        res.json(response);
+        // console.log('===== TestCaseSuppliersController.getOrderStatus END =====');
+    }
 }
 
 export class TestScreenSuppliersController {
@@ -299,25 +325,51 @@ export class TestElectronicsSuppliersController {
         res.json(response);
         // console.log('===== TestElectronicsSuppliersController.purchaseElectronics END =====');
     }
+
+    static async getElectronicsOrder(req: Request, res: Response) {
+        // console.log('===== TestElectronicsSuppliersController.getElectronicsOrder START =====');
+        // console.log('Request params:', req.params);
+        const { id } = req.params;
+        // console.log('Order ID:', orderId);
+        
+        // Mock order statuses
+        const mockStatuses = ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'];
+        const randomStatus = mockStatuses[Math.floor(Math.random() * mockStatuses.length)];
+        
+        const response = {
+            orderId: parseInt(id),
+            status: randomStatus,
+            quantity: Math.floor(Math.random() * 50) + 5,
+            amountDue: Math.floor(Math.random() * 3000) + 300,
+            bankNumber: "500000000000",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            estimatedDelivery: new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() // Random date within next 7 days
+        };
+        
+        // console.log('Response:', response);
+        res.json(response);
+        // console.log('===== TestElectronicsSuppliersController.getElectronicsOrder END =====');
+    }
 }
 
 export class TestTHOHController {
     static async purchaseMachine(req: Request, res: Response) {
-        // console.log('===== TestTHOHController.purchaseMachine START =====');
+        // // console.log('===== TestTHOHController.purchaseMachine START =====');
         // // console.log('Request body:', req.body);
         const { machineName, quantity } = req.body;
-        // console.log('Machine name:', machineName);
-        // console.log('Quantity:', quantity);
+        // // console.log('Machine name:', machineName);
+        // // console.log('Quantity:', quantity);
         
         const mockMachines = {
             "cosmos_z25_machine": { price: 20000, weight: 1800, materials: "cases,screens,electronics" },
             "cosmos_z25_fe_machine": { price: 30000, weight: 2500, materials: "cases,screens,electronics" },
             "cosmos_z25_ultra_machine": { price: 50000, weight: 3200, materials: "cases,screens,electronics" }
         };
-        // console.log('Mock machines data:', mockMachines);
+        // // console.log('Mock machines data:', mockMachines);
 
         const machine = mockMachines[machineName as keyof typeof mockMachines] || mockMachines["cosmos_z25_machine"];
-        // console.log('Selected machine:', machine);
+        // // console.log('Selected machine:', machine);
         
         const response: MachinePurchaseResponse = {
             success: true,
@@ -339,14 +391,14 @@ export class TestTHOHController {
             bankAccount: "TREASURY_ACCOUNT"
         };
         
-        // console.log('Response:', response);
+        // // console.log('Response:', response);
         res.json(response);
-        // console.log('===== TestTHOHController.purchaseMachine END =====');
+        // // console.log('===== TestTHOHController.purchaseMachine END =====');
     }
     
     static async getAvailableMachines(req: Request, res: Response) {
-        // console.log('===== TestTHOHController.getAvailableMachines START =====');
-        // console.log('Getting available machines...');
+        // // console.log('===== TestTHOHController.getAvailableMachines START =====');
+        // // console.log('Getting available machines...');
         const machines: MachineInfo[] = 
             [
                 {
@@ -388,8 +440,8 @@ export class TestTHOHController {
             ]
         ;
         
-        // console.log('Response:', machines);
+        // // console.log('Response:', machines);
         res.json({machines});
-        // console.log('===== TestTHOHController.getAvailableMachines END =====');
+        // // console.log('===== TestTHOHController.getAvailableMachines END =====');
     }
 }

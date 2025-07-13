@@ -284,6 +284,30 @@ export class CaseSuppliers {
             return { success: false, message: error.response?.statusText || error.message };
         }
     }
+
+    static async getOrderStatus(orderId: number): Promise<{ success: boolean; status?: string; order?: any; message?: string }> {
+        console.log(`📦 CaseSuppliers: Checking status of order ID: ${orderId}`);
+        try {
+            const url = `${this.apiUrl}/orders/${orderId}`;
+            console.log(`📦 CaseSuppliers: Sending GET to ${url}`);
+
+            const response = await axiosInstance.get(url);
+
+            // Assuming the response conforms to the GetCaseOrderResponse schema
+            const order = response.data;
+            console.log(`✅ CaseSuppliers: Order retrieved successfully:`, order);
+
+            return {
+            success: true,
+            status: order.status,  // adjust this key if the actual field differs
+            order,
+            };
+        } catch (error: any) {
+            console.error(`❌ CaseSuppliers: Failed to get status:`, error.response?.data || error.message);
+            console.error(`❌ CaseSuppliers: Status:`, error.response?.status);
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
 }
 
 
@@ -300,7 +324,7 @@ export class ScreenSuppliers {
             const raw: {screens: {quantity: number, price: number}} = response.data;
             const result = {
                 success: true,
-                cost: raw.screens.quantity
+                cost: raw.screens.price
             };
             console.log(`✅ ScreenSuppliers: Cost retrieved successfully:`, result);
             return result;
@@ -381,6 +405,35 @@ export class ElectronicsSuppliers {
             return result;
         } catch (error: any) {
             console.error(`❌ ElectronicsSuppliers: Purchase failed:`, error.response?.data || error.message);
+            console.error(`❌ ElectronicsSuppliers: Status:`, error.response?.status);
+            return { success: false, message: error.response?.statusText || error.message };
+        }
+    }
+
+    static async getElectronicsOrder(orderId: number): Promise<{
+        success: boolean;
+        status?: string;
+        order?: any;
+        message?: string;
+        }> {
+        console.log(`🔌 ElectronicsSuppliers: Fetching electronics order with ID: ${orderId}`);
+
+        try {
+            const url = `${this.apiUrl}/orders/${orderId}`;
+            console.log(`🔌 ElectronicsSuppliers: Sending GET request to ${url}`);
+
+            const response = await axiosInstance.get(url);
+            const order = response.data;
+
+            console.log(`✅ ElectronicsSuppliers: Electronics order retrieved:`, order);
+
+            return {
+            success: true,
+            status: order.status,
+            order,
+            };
+        } catch (error: any) {
+            console.error(`❌ ElectronicsSuppliers: Failed to get status:`, error.response?.data || error.message);
             console.error(`❌ ElectronicsSuppliers: Status:`, error.response?.status);
             return { success: false, message: error.response?.statusText || error.message };
         }

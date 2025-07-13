@@ -36,7 +36,9 @@ router.post('/retail-bank/api/transfers', TestRetailBankController.requestTransf
 
 // Case Suppliers API routes
 router.get('/case-suppliers/api/cases', TestCaseSuppliersController.getCasesCost);
+router.get('/case-suppliers/api/orders/:id', TestCaseSuppliersController.getOrderStatus);
 router.post('/case-suppliers/api/orders', TestCaseSuppliersController.purchaseCases);
+
 
 // Screen Suppliers API routes
 router.get('/screen-suppliers/api/screens', TestScreenSuppliersController.getScreensCost);
@@ -44,6 +46,7 @@ router.post('/screen-suppliers/api/order', TestScreenSuppliersController.purchas
 
 // Electronics Suppliers API routes
 router.get('/electronics-suppliers/api/electronics', TestElectronicsSuppliersController.getElectronicsCost);
+router.get('/electronics-suppliers/api/orders/:id', TestElectronicsSuppliersController.getElectronicsOrder);
 router.post('/electronics-suppliers/api/orders', TestElectronicsSuppliersController.purchaseElectronics);
 
 // THOH API routes

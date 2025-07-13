@@ -288,7 +288,12 @@ export class DailyTasksService {
         for (let [partId, quantity] of partsToOrder) {
             quantity = Math.ceil(quantity/1000)*1000;
             console.log("DailyTasksService::orderParts - Making purchase order:", { partId, quantity });
-            const partsPurchaseId = await this.makePartsPurchaseOrder(partId, quantity);
+
+            let partsPurchaseId = null
+            while (!partsPurchaseId && quantity >= 1000) {
+                partsPurchaseId = await this.makePartsPurchaseOrder(partId, quantity);
+                quantity = quantity - 1000;
+            }
             console.log("DailyTasksService::orderParts - Purchase order created:", partsPurchaseId);
         }
         
@@ -478,11 +483,16 @@ export class DailyTasksService {
         console.log("DailyTasksService::processPartsPurchase - Current status:", partsPurchase.status);
 
         if (partsPurchase.status === Status.PendingPayment) {
-            
-
-            console.log("DailyTasksService::processPartsPurchase - Making payment");
-            await this.makePartsPurchasePayment(partsPurchase);
-            partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+            if (await this.checkIfOrderStillActive(partsPurchase)) {
+                console.log("DailyTasksService::processPartsPurchase - Making payment");
+                await this.makePartsPurchasePayment(partsPurchase);
+                partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+            }
+            else {
+                console.log("DailyTasksService::processPartsPurchase - Order canceled by supplier");
+                await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.Cancelled);
+                partsPurchase = await PartsPurchaseRepository.getPartsPurchaseById(partsPurchaseId);
+            }
         }
 
         if (partsPurchase.status === Status.PendingDeliveryRequest) {
@@ -500,18 +510,37 @@ export class DailyTasksService {
         console.log("DailyTasksService::processPartsPurchase - Processing completed for:", partsPurchaseId);
     }
 
-    static async checkIfOrderStillActive(partsPurchase: PartsPurchase): Promise<void> {
-        console.log("DailyTasksService::makePartsPurchasePayment - Making payment for purchase:", partsPurchase.partsPurchaseId);
-        
-        const result = await CommercialBankAPI.makePayment(String(partsPurchase.referenceNumber), partsPurchase.cost, partsPurchase.accountNumber);
-        console.log("DailyTasksService::makePartsPurchasePayment - Payment result:", result);
+    static async checkIfOrderStillActive(partsPurchase: PartsPurchase): Promise<boolean> {
+        console.log("DailyTasksService::checkIfOrderStillActive - Checking  for:", partsPurchase.partsPurchaseId);
+        if (partsPurchase.partId === 1) {
+            console.log("DailyTasksService::checkIfOrderStillActive - Part id:", partsPurchase.partId);
+            const response = await CaseSuppliers.getOrderStatus(partsPurchase.referenceNumber);
 
-        if (result.success) {
-            console.log("DailyTasksService::makePartsPurchasePayment - Payment successful, updating status");
-            await PartsPurchaseRepository.updateStatus(partsPurchase.partsPurchaseId!, Status.PendingDeliveryRequest);
+            console.log("DailyTasksService::checkIfOrderStillActive - response:", response);
+
+            if (!response ||  response.status !== 'payment_pending') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else if (partsPurchase.partId === 3) {
+            console.log("DailyTasksService::checkIfOrderStillActive - Part id:", partsPurchase.partId);
+            const response = await ElectronicsSuppliers.getElectronicsOrder(partsPurchase.referenceNumber);
+
+            console.log("DailyTasksService::checkIfOrderStillActive - response:", response);
+
+            if (!response || response.status === 'EXPIRED') {
+                return false;
+            }
+            else {
+                return true;
+            }
         }
         else {
-            console.log("DailyTasksService::makePartsPurchasePayment - Payment failed, will retry later");
+            console.log("DailyTasksService::checkIfOrderStillActive - Part id:", partsPurchase.partId);
+            return true;
         }
     }
 
