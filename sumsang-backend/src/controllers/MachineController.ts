@@ -3,6 +3,7 @@ import { handleSuccess, handleFailure } from '../utils/handleResponses.js';
 import { MachineRepository } from '../repositories/MachineRepository.js';
 import { PhoneRepository } from '../repositories/PhoneRepository.js';
 import { BadRequestError } from '../utils/errors.js';
+import { MachinePurchaseService } from '../services/MachinePurchaseService.js';
 
 export class MachineController {
 	static async breakMachine(req: Request, res: Response): Promise<void> {
@@ -46,8 +47,18 @@ export class MachineController {
 			console.log('Machines retired successfully');
 
 			const response = { message: `${quantity} machines for ${machineName} retired.` };
+
 			console.log('Response:', response);
 			handleSuccess(res, response);
+
+			console.log('MachineController::replacingmachines - Making machine purchase order', { machineName, quantity });
+			await MachinePurchaseService.makeMachinePurchaseOrder(machineName, quantity);
+			console.log('MachineController::replacingmachines - Machine purchase order completed');
+			
+			console.log('MachineController::replacingmachines - Processing pending machine purchases');
+			await MachinePurchaseService.processPendingMachinePurchases();
+			console.log('MachineController::replacingmachines - Pending machine purchases processed');
+
 		} catch (error) {
 			console.log('Error in breakMachine:', error);
 			handleFailure(res, error, 'Error failing machine');

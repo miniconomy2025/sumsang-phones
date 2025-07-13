@@ -288,7 +288,7 @@ export class CaseSuppliers {
 
 
 export class ScreenSuppliers {
-    static apiUrl = getApiUrl('https://screen-supplier-api.projects.bbdgrad.com/', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
+    static apiUrl = getApiUrl('https://screen-supplier-api.projects.bbdgrad.com', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
 
     static async getScreensCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📺 ScreenSuppliers: Getting screens cost`);
