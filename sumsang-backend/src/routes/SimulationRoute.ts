@@ -5,6 +5,6 @@ import { OrganizationalUnit } from "../types/OrganizationalUnitOptions.js";
 
 const router = express.Router();
 
-router.post("/simulation", verifyOU([OrganizationalUnit.thoh]), SimulationController.startSimulation)
+router.post("/simulation", verifyOU([OrganizationalUnit.thoh, OrganizationalUnit.sumsangCompany]), SimulationController.startSimulation)
 
 export default router;
