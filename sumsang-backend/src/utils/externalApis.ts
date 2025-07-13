@@ -72,8 +72,8 @@ export class BulkDeliveriesAPI {
         try {
             const payload = {
                 originalExternalOrderId: orderId,
-                originCompanyId: from,
-                destinationCompanyId: 'sumsang-company',
+                originCompany: from,
+                destinationCompany: 'sumsang-company',
                 items: [{ itemName: item, quantity: units, measurementType: "UNIT" }]
             };
             console.log(`🚚 BulkDeliveriesAPI: Sending POST to ${this.apiUrl}/pickup-request with payload:`, payload);
@@ -100,8 +100,8 @@ export class BulkDeliveriesAPI {
 
             const payload = {
                 originalExternalOrderId: orderId,
-                originCompanyId: 'thoh',
-                destinationCompanyId: 'sumsang-company',
+                originCompany: 'thoh',
+                destinationCompany: 'sumsang-company',
                 items: repeatedArray
             };
             console.log(`🏭 BulkDeliveriesAPI: Sending POST to ${this.apiUrl}/pickup-request with payload:`, payload);
