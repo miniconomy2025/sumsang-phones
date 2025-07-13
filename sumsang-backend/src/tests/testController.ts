@@ -336,7 +336,7 @@ export class TestTHOHController {
                 },
                 productionRate: 30
             },
-            bankAccount: "THOH-BANK"
+            bankAccount: "TREASURY_ACCOUNT"
         };
         
         // console.log('Response:', response);

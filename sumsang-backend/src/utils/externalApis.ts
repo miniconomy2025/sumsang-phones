@@ -125,8 +125,8 @@ export class CommercialBankAPI {
         console.log(`💰 CommercialBankAPI: Making payment - Reference: ${reference_number}, Amount: ${amount}, Account: ${accountNumber}`);
         try {
             const payload = {
-                to_account_number: accountNumber,
-                to_bank_name: "commercial-bank",
+                to_account_number: accountNumber === 'TREASURY_ACCOUNT' ? '' : accountNumber,
+                to_bank_name: accountNumber === 'TREASURY_ACCOUNT' ? 'thoh' : "commercial-bank",
                 amount: Number(amount),
                 description: reference_number
             };
