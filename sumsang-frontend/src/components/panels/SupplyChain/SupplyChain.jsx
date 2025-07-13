@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
 import { getSupplyChainData } from '../../../api/dataFetcher';
 import { usePollingFetch } from '../../../hooks/usePollingFetch';
 import styles from './SupplyChain.module.css';
+
 import PartCostsChart from './charts/PartCostsChart';
 import PartsInventoryChart from './charts/PartsInventoryChart';
 import GoodsInventoryChart from './charts/GoodsInventoryChart';
+import MachineStatusChart from './charts/MachineStatusChart';
+import ProductionCapacityChart from './charts/ProductionCapacityChart';
 
 function SupplyChain() {
 	const { data, loading, error } = usePollingFetch(getSupplyChainData, 15000);
@@ -24,6 +26,12 @@ function SupplyChain() {
 				</section>
 				<section className={`grid-panel ${styles.goodsInventory}`}>
 					<GoodsInventoryChart data={data} />
+				</section>
+				<section className={`grid-panel ${styles.machineStatus}`}>
+					<MachineStatusChart data={data} />
+				</section>
+				<section className={`grid-panel ${styles.productionCapacity}`}>
+					<ProductionCapacityChart data={data} />
 				</section>
 			</main>
 		</>

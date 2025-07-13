@@ -26,7 +26,7 @@ function TransfersOutCostChart({ data }) {
 
 	return (
 		<div className={styles.chartContainer}>
-			<h3 className={styles.chartTitle}>Consumer Transfers Out (Cost)</h3>
+			<h3 className={styles.chartTitle}>Consumer Delivery Pickup Requests (Cost)</h3>
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
 					<CartesianGrid strokeDasharray="3 3" />

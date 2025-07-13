@@ -26,7 +26,7 @@ function TransfersInChart({ data }) {
 
 	return (
 		<div className={styles.chartContainer}>
-			<h3 className={styles.chartTitle}>Bulk Transfers In (Volume)</h3>
+			<h3 className={styles.chartTitle}>Bulk Pickup Requests</h3>
 			<ResponsiveContainer width="100%" height="100%">
 				<LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
 					<CartesianGrid strokeDasharray="3 3" />
