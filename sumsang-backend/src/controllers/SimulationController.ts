@@ -4,7 +4,7 @@ import { BadRequestError } from '../utils/errors.js';
 import { SimulationService } from '../services/SimulationService.js';
 
 export class SimulationController {
-    static async startSimulation(req: Request, res: Response, next: NextFunction): Promise<void> {
+    static async startSimulation(req: Request, res: Response): Promise<void> {
         console.log('===== SimulationController.startSimulation START =====');
         try {
             console.log('Request body:', req.body);
@@ -30,7 +30,7 @@ export class SimulationController {
         console.log('===== SimulationController.startSimulation END =====');
     }
 
-        static async deleteSimulation(req: Request, res: Response, next: NextFunction): Promise<void> {
+        static async deleteSimulation(req: Request, res: Response): Promise<void> {
         console.log('===== SimulationController.deleteSimulation START =====');
         try {
             console.log('Request body:', req.body);
