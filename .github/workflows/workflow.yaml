@@ -245,9 +245,9 @@ jobs:
               CLIENT_KEY_PATH=${{ env.CLIENT_KEY_PATH }}
               USE_MANUAL_TICKS=true
               USE_TEST_DB=false
-              USE_TEST_CONSUMER_DELIVERIES=false
+              USE_TEST_CONSUMER_DELIVERIES=true
               USE_TEST_BULK_DELIVERIES=true
-              USE_TEST_COMMERCIAL_BANK=false
+              USE_TEST_COMMERCIAL_BANK=true
               USE_TEST_RETAIL_BANK=true
               USE_TEST_CASE_SUPPLIERS=true
               USE_TEST_SCREEN_SUPPLIERS=true

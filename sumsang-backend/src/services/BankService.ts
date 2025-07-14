@@ -39,12 +39,6 @@ export class BankService {
         const result = await CommercialBankAPI.makePayment(String(reference), amount, accountNumber);
         console.log("BankService::makePayment - Received result from CommercialBankAPI:", result);
         
-        if (!result.success) {
-            console.log("BankService::makePayment - Payment failed:", result.message);
-            throw new Error(`Payment failed: ${result.message}`);
-        }
-        
-        console.log("BankService::makePayment - Payment successful:", result);
         return result;
     }
 
