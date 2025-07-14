@@ -243,16 +243,16 @@ jobs:
               NODE_ENV=production
               CLIENT_CERT_PATH=${{ env.CLIENT_CERT_PATH }}
               CLIENT_KEY_PATH=${{ env.CLIENT_KEY_PATH }}
-              USE_MANUAL_TICKS=true
+              USE_MANUAL_TICKS=false
               USE_TEST_DB=false
               USE_TEST_CONSUMER_DELIVERIES=false
-              USE_TEST_BULK_DELIVERIES=true
+              USE_TEST_BULK_DELIVERIES=false
               USE_TEST_COMMERCIAL_BANK=false
-              USE_TEST_RETAIL_BANK=true
-              USE_TEST_CASE_SUPPLIERS=true
-              USE_TEST_SCREEN_SUPPLIERS=true
-              USE_TEST_ELECTRONICS_SUPPLIERS=true
-              USE_TEST_THOH=true
+              USE_TEST_RETAIL_BANK=false
+              USE_TEST_CASE_SUPPLIERS=false
+              USE_TEST_SCREEN_SUPPLIERS=false
+              USE_TEST_ELECTRONICS_SUPPLIERS=false
+              USE_TEST_THOH=false
               ENV_VAR
               EOF
               
