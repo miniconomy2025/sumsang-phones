@@ -263,14 +263,14 @@ export class DashboardRepository {
             const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
                 SELECT
-                    TO_CHAR(($1::timestamp + m.date_acquired * INTERVAL '1 day'), 'YYYY-MM-DD') AS purchase_date,
                     p.model,
-                    COUNT(CASE WHEN m.date_retired = 0 THEN 1 END) AS operational_machines,
-                    COUNT(CASE WHEN m.date_retired != 0 THEN 1 END) AS broken_machines,
-                    SUM(CASE WHEN m.date_retired = 0 THEN m.rate_per_day ELSE 0 END) AS production_capacity
+                    COUNT(CASE WHEN m.date_retired IS NULL THEN 1 END) AS operational_machines,
+                    COUNT(CASE WHEN m.date_retired IS NOT NULL THEN 1 END) AS broken_machines,
+                    SUM(CASE WHEN m.date_retired IS NULL THEN m.rate_per_day ELSE 0 END) AS production_capacity
                 FROM machines m
                 JOIN phones p ON m.phone_id = p.phone_id
                 GROUP BY p.model, m.date_acquired;
+
             `, [startEpoch])
 
             return res.rows.map(row => ({
