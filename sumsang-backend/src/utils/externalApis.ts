@@ -91,11 +91,11 @@ export class BulkDeliveriesAPI {
         }
     }
 
-    static async requestMachineDelivery(orderId: number, units: number, weightPerMachine: number): Promise<BulkDeliveriesResponse> {
+    static async requestMachineDelivery(machineName: string, orderId: number, units: number, weightPerMachine: number): Promise<BulkDeliveriesResponse> {
         console.log(`🏭 BulkDeliveriesAPI: Requesting machine delivery - Order ID: ${orderId}, Units: ${units}, Weight per machine: ${weightPerMachine}kg`);
         try {
             const repeatedArray = Array.from({ length: units }, () => ({
-                itemName: 'Machine',
+                itemName: machineName,
                 quantity: weightPerMachine,
                 measurementType: 'KG'
             }));

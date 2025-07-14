@@ -114,8 +114,17 @@ export class MachinePurchaseService {
 
     static async makeMachineDeliveryRequest(machinePurchase: MachinePurchaseRecord) {
         console.log('MachinePurchaseService::makeMachineDeliveryRequest - Starting machine delivery request', { machinePurchase });
+        
+        let machineName = null;
 
-        const result = await BulkDeliveriesAPI.requestMachineDelivery(machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
+        if (machinePurchase.phoneId == 1)
+            machineName = 'cosmos_z25_machine';
+        else if (machinePurchase.phoneId == 1)
+            machineName = 'cosmos_z25_ultra_machine';
+        else if (machinePurchase.phoneId == 1)
+            machineName = 'cosmos_z25_fe_machine';
+
+        const result = await BulkDeliveriesAPI.requestMachineDelivery(machineName!, machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
         console.log('MachinePurchaseService::makeMachineDeliveryRequest - Received delivery request response', { result });
 
         if (result.success && result.pickupRequestId && result.cost && result.accountNumber) {
