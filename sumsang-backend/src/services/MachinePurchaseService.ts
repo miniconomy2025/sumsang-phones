@@ -119,9 +119,9 @@ export class MachinePurchaseService {
 
         if (machinePurchase.phoneId == 1)
             machineName = 'cosmos_z25_machine';
-        else if (machinePurchase.phoneId == 1)
+        else if (machinePurchase.phoneId == 2)
             machineName = 'cosmos_z25_ultra_machine';
-        else if (machinePurchase.phoneId == 1)
+        else if (machinePurchase.phoneId == 3)
             machineName = 'cosmos_z25_fe_machine';
 
         const result = await BulkDeliveriesAPI.requestMachineDelivery(machineName!, machinePurchase.reference, machinePurchase.machinesPurchased, machinePurchase.weightPerMachine);
