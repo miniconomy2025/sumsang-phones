@@ -4,6 +4,8 @@ import https from 'https';
 import path from 'path';
 
 import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, PartsPurchaseResponse, MachineInfo } from "../types/ExternalApiTypes.js";
+import { Order } from '../types/OrderType.js';
+import { OrderItem } from '../types/OrderItemType.js';
 
 console.log('🚀 Initializing API client module');
 
@@ -474,12 +476,16 @@ export class THOHAPI {
         }
     }
 
-    static async notifyDelivery(orderItems: any) {
+    static async notifyDelivery(order: Order, orderItems: OrderItem[]) {
         console.log(`📨 THOHAPI: Notifying delivery for order ID: ${orderItems}`);
         try {
-            const payload = {items: orderItems};
-            console.log(`📨 THOHAPI: Sending POST to ${this.apiUrl}/order-notification with payload:`, payload);
-            const response = await axiosInstance.post(`${this.apiUrl}/order-notification`, payload);
+            const payload = {
+                accountNumber: order.accountNumber,
+                phoneName: orderItems.toString(),
+                id: order.orderId,
+                description: 'New phones.'};
+            console.log(`📨 THOHAPI: Sending POST to ${this.apiUrl}/receive-phone with payload:`, payload);
+            const response = await axiosInstance.post(`${this.apiUrl}/receive-phone`, payload);
             console.log(`✅ THOHAPI: Delivery notification successful! Response:`, response.data);
             return { success: true, response};
         } catch (error: any) {

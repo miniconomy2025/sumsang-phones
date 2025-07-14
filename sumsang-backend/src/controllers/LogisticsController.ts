@@ -102,9 +102,12 @@ export class LogisticsController {
     }
 
     static async handleNotification(req: Request, res: Response): Promise<void> {
+        let orderItems = null;
+        let deliveryReference = req.body.delivery_reference;
+        let order = null;
+
         try {
             console.log('===== LogisticsController.handleLogistics END =====');
-            const deliveryReference = req.body.delivery_reference;
 
             if (!deliveryReference || typeof deliveryReference !== 'string') {
                 console.log('Delivery reference not found passed.');
@@ -116,22 +119,30 @@ export class LogisticsController {
                 console.log('Delivery reference not found ', deliveryReference);
                 throw new NotFoundError('Deliver reference not found')
             }
-            const order = await OrderRepository.getOrderById(delivery.orderId);
+            
+            order = await OrderRepository.getOrderById(delivery.orderId);
             if (!order) {
                 console.log('Order not found ', delivery.orderId);
                 throw new NotFoundError('Order not found');
             }
 
-            const orderItems = await OrderRepository.getOrderItemsById(order.orderId);
+            orderItems = await OrderRepository.getOrderItemsById(order.orderId);
+            if (!orderItems) {
+                console.log('Order items not found ', order.orderId);
+                throw new NotFoundError('Order not found');
+            }
 
-            const result = await THOHAPI.notifyDelivery(orderItems);
-
-            handleSuccess(res, result);
-            console.log('Notification notified: ', deliveryReference);
+            handleSuccess(res, { message: 'Order notification received'});
+            console.log('Notification receieved successfully');
         } catch (error) {
             console.log('Error in notification handling:', error);
             handleFailure(res, error, 'Error processing notification');
+            return;
         }
+        
+        const result = await THOHAPI.notifyDelivery(order, orderItems);
+
+        console.log('Notification notified: ', result);
         console.log('===== LogisticsController.handleLogistics END =====');
     }
 }
