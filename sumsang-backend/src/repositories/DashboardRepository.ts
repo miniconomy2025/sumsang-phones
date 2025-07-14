@@ -260,7 +260,6 @@ export class DashboardRepository {
 
     private static async fetchCurrentMachines() {
         try {
-            const startEpoch = await this.getStartingEpoch();
             const res = await db.query(`
                 SELECT
                     p.model,
@@ -271,7 +270,7 @@ export class DashboardRepository {
                 JOIN phones p ON m.phone_id = p.phone_id
                 GROUP BY p.model, m.date_acquired;
 
-            `, [startEpoch])
+            `)
 
             return res.rows.map(row => ({
                 phoneName: row.model,
