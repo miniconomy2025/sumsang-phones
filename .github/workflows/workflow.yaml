@@ -213,7 +213,7 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
-            EC2_PRIVATE_KEY, privatekey
+            PRIVATE_KEY, privatekey
             POSTGRES_USER, postgresuser
             POSTGRES_PASS, postgrespass
             DB_HOST, dbhost
@@ -226,7 +226,7 @@ jobs:
 
       - name: Setup private key
         run: |
-          echo "${{ env.EC2_PRIVATE_KEY }}" > privatekey.pem
+          echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
           chmod 0500 privatekey.pem
 
       - name: Set env variables
@@ -295,11 +295,11 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       with:
         secret-ids: |
-          EC2_PRIVATE_KEY, privatekey
+          PRIVATE_KEY, privatekey
 
     - name: Setup api private key
       run: |
-        echo "${{ env.EC2_PRIVATE_KEY }}" > privatekey.pem
+        echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
         chmod 0500 privatekey.pem
 
 
@@ -382,11 +382,11 @@ jobs:
       uses: aws-actions/aws-secretsmanager-get-secrets@v2
       with:
         secret-ids: |
-          EC2_PRIVATE_KEY, privatekey
+          PRIVATE_KEY, privatekey
 
     - name: Setup private key
       run: |
-        echo "${{ env.EC2_PRIVATE_KEY }}" > privatekey.pem
+        echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
         chmod 0500 privatekey.pem
 
     - name: Cerbot
