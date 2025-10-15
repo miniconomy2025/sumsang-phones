@@ -6,7 +6,6 @@ variable "budget_notification_emails" {
     "gregory.conroy@bbd.co.za",
     "kgothatso.moshoeshoe@bbd.co.za",
     "ron.joseph@bbd.co.za",
-    "vusumuzi@bbd.co.za",
     "rudolphe@bbdsoftware.com"
   ]
 }

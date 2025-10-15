@@ -10,7 +10,7 @@ import MachineRoutes from './routes/MachineRoutes.js';
 import TestRoutes from './tests/testRoutes.js';
 
 const app = express();
-const PORT = 3000;
+const PORT = 3030;
 
 app.use(cors());
 app.use(express.json());

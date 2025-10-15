@@ -76,7 +76,7 @@ output "db_host" {
 }
 
 resource "aws_security_group" "ec2_security_group" {
-  name_prefix = "sumsang_api_sg"
+  name_prefix = "sumsang_sg"
 
   ingress {
     from_port   = 22
@@ -114,23 +114,12 @@ resource "aws_security_group" "ec2_security_group" {
   }
 }
 
-resource "aws_instance" "sumsang_api_ec2_instance" {
+resource "aws_instance" "sumsang_ec2_instance" {
   ami           = "ami-0b7e05c6022fc830b"
   instance_type = "t3.micro"
-  key_name      = "sumsang-api-key"
+  key_name      = "sumsang-key"
   tags = {
-    Name = "sumsang_api_ec2_instance"
-  }
-
-  vpc_security_group_ids = [ aws_security_group.ec2_security_group.id ]
-}
-
-resource "aws_instance" "sumsang_web_ec2_instance" {
-  ami           = "ami-0b7e05c6022fc830b"
-  instance_type = "t3.micro"
-  key_name      = "sumsang-web-key"
-  tags = {
-    Name = "sumsang_web_ec2_instance"
+    Name = "sumsang_ec2_instance"
   }
 
   vpc_security_group_ids = [ aws_security_group.ec2_security_group.id ]
@@ -226,22 +215,12 @@ resource "aws_budgets_budget" "sumsang_budget" {
   }
 }
 
-resource "aws_eip" "sumsang_api_ec2_eip" {
-  instance = aws_instance.sumsang_api_ec2_instance.id
+resource "aws_eip" "sumsang_ec2_eip" {
+  instance = aws_instance.sumsang_ec2_instance.id
   domain   = "vpc"
 }
 
-resource "aws_eip" "sumsang_web_ec2_eip" {
-  instance = aws_instance.sumsang_web_ec2_instance.id
-  domain   = "vpc"
-}
-
-output "api_ec2_host" {
-  value       = aws_eip.sumsang_api_ec2_eip.public_dns
-  description = "The endpoint of the EC2 instance for API"
-}
-
-output "web_ec2_host" {
-  value       = aws_eip.sumsang_web_ec2_eip.public_dns
-  description = "The endpoint of the EC2 instance for WebApp"
+output "ec2_host" {
+  value       = aws_eip.sumsang_ec2_eip.public_dns
+  description = "The endpoint of the EC2 instance"
 }
