@@ -67,7 +67,7 @@ jobs:
     name: Run Unit, Integration, Performance and Load Tests
     needs:
       - build-api
-      - build-frontend
+      - build-front-end
       - terraform
     runs-on: ubuntu-latest
     steps:
