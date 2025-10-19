@@ -88,6 +88,9 @@ jobs:
       - name: Run K6 Performance Test
         run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
 
+      - name: Run K6 Load Test
+        run: k6 run sumsang-backend/tests/load-tests/LoadTests.js
+
   build-front-end:
     name: Build front-end
     runs-on: ubuntu-latest

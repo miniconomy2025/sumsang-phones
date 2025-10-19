@@ -1,0 +1,1 @@
+export const BASE_URL = "https://bbd-grad-project.co.za";
