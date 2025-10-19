@@ -37,7 +37,7 @@ function getApiUrl(productionUrl: string, servicePath: string, envVariable: stri
 }
 
 export class ConsumerDeliveriesAPI {
-    static apiUrl = getApiUrl('https://consumer-logistics-api.projects.bbdgrad.com/api', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
+    static apiUrl = getApiUrl('https://afroserve.co.za', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
 
     static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         console.log(`📦 ConsumerDeliveriesAPI: Requesting delivery for ${units} units`);
@@ -65,7 +65,7 @@ export class ConsumerDeliveriesAPI {
 }
 
 export class BulkDeliveriesAPI {
-    static apiUrl = getApiUrl('https://bulk-logistics-api.projects.bbdgrad.com/api', '/bulkdeliveries/api', 'USE_TEST_BULK_DELIVERIES');
+    static apiUrl = getApiUrl('https://team7-todo.xyz/api', '/bulkdeliveries/api', 'USE_TEST_BULK_DELIVERIES');
 
     static async requestDelivery(orderId: number, units: number, from: string, item: string): Promise<BulkDeliveriesResponse> {
         console.log(`🚚 BulkDeliveriesAPI: Requesting delivery - Order ID: ${orderId}, Units: ${units}, From: ${from}, Item: ${item}`);
@@ -119,7 +119,7 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static apiUrl = getApiUrl('https://commercial-bank-api.projects.bbdgrad.com/api', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
+    static apiUrl = getApiUrl('https://commercial-bank-api.subspace.site', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
 
     static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         console.log(`💰 CommercialBankAPI: Making payment - Reference: ${reference_number}, Amount: ${amount}, Account: ${accountNumber}`);
@@ -203,7 +203,7 @@ export class CommercialBankAPI {
 }
 
 export class RetailBankAPI {
-    static apiUrl = getApiUrl('https://retail-bank-api.projects.bbdgrad.com', '/retail-bank/api', 'USE_TEST_RETAIL_BANK');
+    static apiUrl = getApiUrl('https://api.miniconomyretail.za.bz', '/retail-bank/api', 'USE_TEST_RETAIL_BANK');
 
     static async requestPayment(from: string, to: string, amountCents: number, reference: number) {
         console.log(`🏪 RetailBankAPI: Requesting payment - From: ${from}, To: ${to}, Amount: ${amountCents} cents, Reference: ${reference}`);
@@ -238,7 +238,7 @@ export class RetailBankAPI {
 }
 
 export class CaseSuppliers {
-    static apiUrl = getApiUrl('https://case-supplier-api.projects.bbdgrad.com/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
+    static apiUrl = getApiUrl('https://bbd-grad-program-2025.online', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
 
     static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📱 CaseSuppliers: Getting cases cost`);
@@ -312,7 +312,7 @@ export class CaseSuppliers {
 
 
 export class ScreenSuppliers {
-    static apiUrl = getApiUrl('https://screen-supplier-api.projects.bbdgrad.com', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
+    static apiUrl = getApiUrl('https://todosecuritylevelup.com', '/screen-suppliers/api', 'USE_TEST_SCREEN_SUPPLIERS');
 
     static async getScreensCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📺 ScreenSuppliers: Getting screens cost`);
@@ -363,7 +363,7 @@ export class ScreenSuppliers {
 
 
 export class ElectronicsSuppliers {
-    static apiUrl = getApiUrl('https://electronics-supplier-api.projects.bbdgrad.com', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
+    static apiUrl = getApiUrl('https://electronics-supplier.tevlen.co.za', '/electronics-suppliers/api', 'USE_TEST_ELECTRONICS_SUPPLIERS');
 
     static async getElectronicsCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`🔌 ElectronicsSuppliers: Getting electronics cost`);
