@@ -239,7 +239,7 @@ export class RetailBankAPI {
 }
 
 export class CaseSuppliers {
-    static apiUrl = getApiUrl('https://bbd-grad-program-2025.online', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
+    static apiUrl = getApiUrl('https://bbd-grad-program-2025.online/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
 
     static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📱 CaseSuppliers: Getting cases cost`);
