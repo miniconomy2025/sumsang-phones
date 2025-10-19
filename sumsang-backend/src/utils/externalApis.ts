@@ -120,7 +120,7 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static apiUrl = getApiUrl('https://commercial-bank-api.subspace.site', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
+    static apiUrl = getApiUrl('https://commercial-bank-api.subspace.site/api', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
 
     static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         console.log(`💰 CommercialBankAPI: Making payment - Reference: ${reference_number}, Amount: ${amount}, Account: ${accountNumber}`);
