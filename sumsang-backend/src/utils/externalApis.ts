@@ -1,7 +1,5 @@
 import axios from 'axios';
-import fs from 'fs';
 import https from 'https';
-import path from 'path';
 
 import { BulkDeliveriesResponse, ConsumerDeliveriesResponse, PurchaseCasesResponse, PurchaseElectronicsResponse, PurchaseScreensResponse, MachinePurchaseResponse, PartsPurchaseResponse, MachineInfo } from "../types/ExternalApiTypes.js";
 import { Order } from '../types/OrderType.js';
@@ -9,11 +7,11 @@ import { OrderItem } from '../types/OrderItemType.js';
 
 console.log('🚀 Initializing API client module');
 
-// const httpsAgent = new https.Agent({
+ const httpsAgent = new https.Agent({
 //     cert: fs.readFileSync(path.resolve(process.env.CLIENT_CERT_PATH === undefined ? './certs/sumsang-company-client.crt' : process.env.CLIENT_CERT_PATH)),
 //     key: fs.readFileSync(path.resolve(process.env.CLIENT_KEY_PATH === undefined ? './certs/sumsang-company-client.key' : process.env.CLIENT_KEY_PATH)),
-//     rejectUnauthorized: false
-// });
+     rejectUnauthorized: false
+ });
 
 console.log(process.env.CLIENT_CERT_PATH);
 console.log(process.env.CLIENT_KEY_PATH);
@@ -22,9 +20,10 @@ console.log('🔐 HTTPS agent configured with certificates');
 
 export const axiosInstance = axios.create({
     headers: {
-        'Content-Type': 'application/json',
-        'Client-Id': 'sumsang-phones'
-    }
+      'Content-Type': 'application/json',
+      'Client-Id': 'sumsang-phones'
+    },
+    httpsAgent
 });
 
 console.log('📡 Axios instance created');
