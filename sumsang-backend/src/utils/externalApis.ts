@@ -23,7 +23,7 @@ console.log('🔐 HTTPS agent configured with certificates');
 export const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
-        'Client-Id': 'sumsang-phones'
+        'Client-Id': 'sumsang-company'
     }
 });
 
