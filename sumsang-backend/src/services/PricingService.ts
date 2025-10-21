@@ -2,6 +2,7 @@ import { PhoneRepository } from "../repositories/PhoneRepository.js";
 import { MachineRepository } from "../repositories/MachineRepository.js";
 import { CaseSuppliers, ScreenSuppliers, ElectronicsSuppliers } from "../utils/externalApis.js";
 import { SupplierRepository } from "../repositories/SupplierRepository.js";
+import { SimulationService } from "./SimulationService.js";
 
 export class PricingService {
 
@@ -79,6 +80,9 @@ export class PricingService {
         }
 
         console.log(`PricingService::updatePhonePricesDaily - Mapping complete. Found ${phoneToMachineMap.size} phone-to-machine mappings.`);
+
+        if (phoneToMachineMap.size == 0)
+            await SimulationService.orderInitialMachines();
 
         for (const phone of allPhones) {
             const representativeMachineId = phoneToMachineMap.get(phone.phone_id);
