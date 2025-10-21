@@ -81,9 +81,6 @@ export class PricingService {
 
         console.log(`PricingService::updatePhonePricesDaily - Mapping complete. Found ${phoneToMachineMap.size} phone-to-machine mappings.`);
 
-        if (phoneToMachineMap.size == 0)
-            await SimulationService.orderInitialMachines();
-
         for (const phone of allPhones) {
             const representativeMachineId = phoneToMachineMap.get(phone.phone_id);
 
