@@ -20,7 +20,8 @@ console.log('🔐 HTTPS agent configured with certificates');
 
 export const axiosInstance = axios.create({
     headers: {
-        'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Client-Id': 'sumsang-phones'
     },
     httpsAgent
 });
@@ -118,7 +119,7 @@ export class BulkDeliveriesAPI {
 }
 
 export class CommercialBankAPI {
-    static apiUrl = getApiUrl('https://commercial-bank-api.subspace.site', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
+    static apiUrl = getApiUrl('https://commercial-bank-api.subspace.site/api', '/commercialbank/api', 'USE_TEST_COMMERCIAL_BANK');
 
     static async makePayment(reference_number: string, amount: number, accountNumber: string): Promise<{ success: boolean; message?: string }> {
         console.log(`💰 CommercialBankAPI: Making payment - Reference: ${reference_number}, Amount: ${amount}, Account: ${accountNumber}`);
@@ -237,7 +238,7 @@ export class RetailBankAPI {
 }
 
 export class CaseSuppliers {
-    static apiUrl = getApiUrl('https://bbd-grad-program-2025.online', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
+    static apiUrl = getApiUrl('https://bbd-grad-program-2025.online/api', '/case-suppliers/api', 'USE_TEST_CASE_SUPPLIERS');
 
     static async getCasesCost(): Promise<{success: boolean, cost?: number, message?: string}> {
         console.log(`📱 CaseSuppliers: Getting cases cost`);
@@ -442,7 +443,7 @@ export class ElectronicsSuppliers {
 
 
 export class THOHAPI {
-    static apiUrl = getApiUrl('https://thoh-api.projects.bbdgrad.com', '/thoh/api', 'USE_TEST_THOH');
+    static apiUrl = getApiUrl('https://ec2-13-244-65-62.af-south-1.compute.amazonaws.com', '/thoh/api', 'USE_TEST_THOH');
 
     static async purchaseMachine(machineName: string, quantity: number): Promise<MachinePurchaseResponse> {
         console.log(`🏭 THOHAPI: Purchasing machine - Name: ${machineName}, Quantity: ${quantity}`);
