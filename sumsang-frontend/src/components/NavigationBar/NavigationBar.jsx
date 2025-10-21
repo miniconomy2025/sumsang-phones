@@ -39,7 +39,6 @@ function NavigationBar() {
 			nav.style.width = 'auto';
 			nav.style.position = 'absolute';
 			nav.style.visibility = 'hidden';
-
 			nav.style.width = originalWidth;
 			nav.style.position = '';
 			nav.style.visibility = '';
@@ -54,8 +53,20 @@ function NavigationBar() {
 	}, [location.pathname, links]);
 
 	return (
-		<nav className={`${styles.nav} ${isExpanded ? styles.expanded : ''}`}>
-			<div className={styles.toggleButton} onClick={toggleExpanded}>
+		<nav className={`${styles.nav} ${isExpanded ? styles.expanded : ''}`} ref={navRef}>
+			<div
+				className={styles.toggleButton}
+				onClick={toggleExpanded}
+				tabIndex={0}
+				onKeyDown={(e) => {
+					if (e.key === 'Enter' || e.key === ' ') {
+						toggleExpanded();
+					}
+				}}
+				role="button"
+				aria-pressed={isExpanded}
+				aria-label={isExpanded ? 'Collapse navigation' : 'Expand navigation'}
+			>
 				<div className={styles.iconContainer}>
 					{isExpanded ? (
 						<MenuOpenIcon className={styles.toggleIcon} />
@@ -65,19 +76,28 @@ function NavigationBar() {
 				</div>
 			</div>
 			<ul className={styles.navList}>
-				<div
-					className={styles.activeIndicator}
-					style={{ transform: `translateY(${activeIndex * 8}vmin)` }}
-				/>
+				<li aria-hidden="true" role="presentation">
+					<div
+						className={styles.activeIndicator}
+						style={{ transform: `translateY(${activeIndex * 8}vmin)` }}
+					/>
+				</li>
 				{links.map((link, index) => {
 					const IconComponent = link.icon;
+					const isActive = location.pathname === link.href;
+
 					return (
 						<li
 							key={index}
-							className={`${styles.listItem} ${
-								location.pathname === link.href ? styles.active : ''
-							}`}
+							className={`${styles.listItem} ${isActive ? styles.active : ''}`}
 							onClick={() => handleClick(link.href)}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter' || e.key === ' ') {
+									handleClick(link.href);
+								}
+							}}
+							tabIndex={0}
+							aria-current={isActive ? 'page' : undefined}
 							title={!isExpanded ? link.label : ''}
 						>
 							<div className={styles.iconContainer}>
