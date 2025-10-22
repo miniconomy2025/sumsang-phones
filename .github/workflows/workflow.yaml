@@ -85,8 +85,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y k6
 
-      - name: Run front-end tests
+      - name: Run frontend tests
         run: cd sumsang-frontend && npm install && npm run test
+
+      - name: Run backend tests
+        run: cd sumsang-backend && npm install && npm test
 
       - name: Run K6 Performance Test
         run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
