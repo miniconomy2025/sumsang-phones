@@ -6,6 +6,16 @@ import { Stock } from '../../../src/types/StockType.js';
 // Mock the StockRepository
 jest.mock('../../../src/repositories/StockRepository.js');
 
+beforeAll(() => {
+  (['log', 'error', 'warn', 'info', 'debug', 'table', 'trace'] as (keyof Console)[]).forEach((method) => {
+    jest.spyOn(console as any, method).mockImplementation(() => {});
+  });
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
+
 describe('StockService', () => {
   // Clear all mocks before each test
   beforeEach(() => {
