@@ -8,18 +8,24 @@
     "clean-windows": "rmdir /S /Q dist",
     "build-linux": "tsc",
     "build-windows": "npm run clean-windows && npx tsc",
-    "dev": "nodemon --exec node --loader ts-node/esm src/index.ts"
+    "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
+    "@types/jest": "^29.5.14",
     "@types/node": "^24.0.7",
     "@types/pg": "^8.15.4",
     "install": "^0.13.0",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.10",
     "npm": "^11.4.2",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
