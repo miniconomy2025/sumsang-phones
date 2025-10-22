@@ -10,28 +10,31 @@ export class MachineController {
 		console.log('===== MachineController.breakMachine START =====');
 		try {
 			console.log('Request body:', req.body);
-			const { machineName, failureQuantity } = req.body;
-			console.log('Machine name:', machineName);
+			const { itemName, failureQuantity } = req.body;
+			console.log('Machine name:', itemName);
 			console.log('Failure quantity:', failureQuantity);
 			
 			const quantity = Number(failureQuantity);
 			console.log('Parsed quantity:', quantity);
 
-			if (!machineName || !failureQuantity || isNaN(quantity)) {
+			if (!itemName || !failureQuantity || isNaN(quantity)) {
 				console.log('Invalid request parameters');
 				throw new BadRequestError();
 			}
 
 			let phoneName = '';
 
-			if (machineName === 'cosmos_z25_machine') {
+			if (itemName === 'cosmos_z25_machine') {
 				phoneName = 'Cosmos Z25';
 			}
-			if (machineName === 'cosmos_z25_ultra_machine') {
+			else if (itemName === 'cosmos_z25_ultra_machine') {
 				phoneName = 'Cosmos Z25 ultra';
 			}
-			if (machineName === 'cosmos_z25_fe_machine') {
+			else if (itemName === 'cosmos_z25_fe_machine') {
 				phoneName = 'Cosmos Z25 FE';
+			}
+			else {
+				return;
 			}
 
 			console.log('Mapped phone name:', phoneName);
@@ -46,13 +49,13 @@ export class MachineController {
 			await MachineRepository.retireMachinesByPhoneId(phoneId, failureQuantity);
 			console.log('Machines retired successfully');
 
-			const response = { message: `${quantity} machines for ${machineName} retired.` };
+			const response = { message: `${quantity} machines for ${itemName} retired.` };
 
 			console.log('Response:', response);
 			handleSuccess(res, response);
 
-			console.log('MachineController::replacingmachines - Making machine purchase order', { machineName, quantity });
-			await MachinePurchaseService.makeMachinePurchaseOrder(machineName, quantity);
+			console.log('MachineController::replacingmachines - Making machine purchase order', { itemName, quantity });
+			await MachinePurchaseService.makeMachinePurchaseOrder(itemName, quantity);
 			console.log('MachineController::replacingmachines - Machine purchase order completed');
 			
 			console.log('MachineController::replacingmachines - Processing pending machine purchases');
