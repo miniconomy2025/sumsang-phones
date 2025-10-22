@@ -24,7 +24,12 @@ function CostBreakdownChart({ data }) {
 		<div className={styles.chartContainer}>
 			<div className={styles.chartHeader}>
 				<h3 className={styles.chartTitle}>Manufacturing Costs</h3>
+
+				<label htmlFor="modelSelect" className={styles.srOnly}>
+					Select a Model
+				</label>
 				<select
+					id="modelSelect"
 					value={selectedModel}
 					onChange={(e) => setSelectedModel(e.target.value)}
 					className={styles.modelSelector}
@@ -34,6 +39,7 @@ function CostBreakdownChart({ data }) {
 					<option value="Cosmos Z25 Ultra">Cosmos Z25 Ultra</option>
 				</select>
 			</div>
+
 			<ResponsiveContainer width="100%" height="100%">
 				<PieChart>
 					<Pie
