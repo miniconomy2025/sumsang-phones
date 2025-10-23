@@ -37,7 +37,7 @@ function getApiUrl(productionUrl: string, servicePath: string, envVariable: stri
 }
 
 export class ConsumerDeliveriesAPI {
-    static apiUrl = getApiUrl('https://afroserve.co.za', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
+    static apiUrl = getApiUrl('https://afroserve.co.za/api', '/consumerdeliveries/api', 'USE_TEST_CONSUMER_DELIVERIES');
 
     static async requestDelivery(units: number): Promise<ConsumerDeliveriesResponse> {
         console.log(`📦 ConsumerDeliveriesAPI: Requesting delivery for ${units} units`);

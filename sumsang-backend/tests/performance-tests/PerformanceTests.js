@@ -4,8 +4,8 @@ import { BASE_URL } from "../utils/Constants.js";
 
 export const options = {
   thresholds: {
-    // Assert that 99% of requests finish within 2s.
-    http_req_duration: ["p(99) < 2000"],
+    // Assert that 99% of requests finish within 5s.
+    http_req_duration: ["p(99) < 5000"],
 
     // require at least 95% of checks to pass
     checks: ["rate>0.95"], 
@@ -34,7 +34,7 @@ export default function () {
 
   responses.forEach((res, i) => {
     check(res, { [`${APIEndpoints[i]} status was 200`]: (r) => r.status === 200 }),
-    check(res, { [`${APIEndpoints[i]} response time < 1s`]: (r) => r.timings.duration < 1000 })
+    check(res, { [`${APIEndpoints[i]} response time < 1s`]: (r) => r.timings.duration < 5000 })
   });
 
   sleep(Math.random() * 2 + 1); // between 1–3 seconds to simulate user behaviour

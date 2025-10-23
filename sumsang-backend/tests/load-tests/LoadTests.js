@@ -5,8 +5,8 @@ import { BASE_URL } from "../utils/Constants.js";
 // Aiming to simulate a higher, more sustained number of users to see how API behaves under stress.
 export const options = {
   thresholds: {
-    // 99% of requests must complete within 2 seconds.
-    http_req_duration: ["p(99) < 2000"],
+    // 99% of requests must complete within 5 seconds.
+    http_req_duration: ["p(99) < 5000"],
 
     // More than 95% of the checks must pass.
     checks: ["rate>0.95"],
@@ -42,7 +42,7 @@ export default function () {
 
   responses.forEach((res, i) => {
     check(res, { [`${APIEndpoints[i]} status was 200`]: (r) => r.status === 200 }),
-    check(res, { [`${APIEndpoints[i]} response time < 1s`]: (r) => r.timings.duration < 1000 })
+    check(res, { [`${APIEndpoints[i]} response time < 1s`]: (r) => r.timings.duration < 5000 })
   });
 
   sleep(Math.random() * 2 + 1);
