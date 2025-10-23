@@ -178,6 +178,7 @@ export class OrderService {
 
     static async makeDeliveryRequest(order: Order): Promise<void> {
         console.log('OrderService::makeDeliveryRequest - Starting delivery request', { order });
+        console.log(new Date());
         
         const units = await OrderRepository.getOrderItemsCount(order.orderId);
         console.log('OrderService::makeDeliveryRequest - Retrieved order items count', { units });
