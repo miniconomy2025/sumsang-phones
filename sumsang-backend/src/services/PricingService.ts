@@ -2,6 +2,7 @@ import { PhoneRepository } from "../repositories/PhoneRepository.js";
 import { MachineRepository } from "../repositories/MachineRepository.js";
 import { CaseSuppliers, ScreenSuppliers, ElectronicsSuppliers } from "../utils/externalApis.js";
 import { SupplierRepository } from "../repositories/SupplierRepository.js";
+import { SimulationService } from "./SimulationService.js";
 
 export class PricingService {
 
