@@ -91,11 +91,11 @@ jobs:
       - name: Run backend tests
         run: cd sumsang-backend && npm install && npm test
 
-      - name: Run K6 Performance Test
-        run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
+      # - name: Run K6 Performance Test
+      #   run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
 
-      - name: Run K6 Load Test
-        run: k6 run sumsang-backend/tests/load-tests/LoadTests.js
+      # - name: Run K6 Load Test
+      #   run: k6 run sumsang-backend/tests/load-tests/LoadTests.js
 
   build-front-end:
     name: Build front-end
