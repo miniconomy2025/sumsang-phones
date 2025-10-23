@@ -16,9 +16,9 @@ function TransfersInCostChart({ data }) {
 
 		return data.bulkTransfersIn.map((transfer) => ({
 			date: transfer.date.split('-').slice(1).join('/'),
-			electronics: transfer.electronics.cost,
-			screens: transfer.screens.cost,
-			cases: transfer.cases.cost,
+			electronics: transfer.electronics?.cost ?? 0,
+			screens: transfer.screens?.cost ?? 0,
+			cases: transfer.cases?.cost ?? 0,
 		}));
 	};
 
