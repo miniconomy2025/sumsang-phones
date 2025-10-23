@@ -19,7 +19,7 @@ export class SimulationController {
                 console.log('Starting simulation...');
                 await SimulationService.StartSimulation(startEpoch);
                 console.log('Simulation started successfully');    
-            }, 30000);
+            }, 50000);
 
                     
         }
