@@ -16,9 +16,9 @@ function TransfersInChart({ data }) {
 
 		return data.bulkTransfersIn.map((transfer) => ({
 			date: transfer.date.split('-').slice(1).join('/'), // Format: MM/DD
-			electronics: transfer.electronics.volumeMoved,
-			screens: transfer.screens.volumeMoved,
-			cases: transfer.cases.volumeMoved,
+			electronics: transfer.electronics?.volumeMoved ?? 0,
+			screens: transfer.screens?.volumeMoved ?? 0,
+			cases: transfer.cases?.volumeMoved ?? 0,
 		}));
 	};
 
