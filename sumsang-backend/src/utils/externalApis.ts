@@ -443,7 +443,7 @@ export class ElectronicsSuppliers {
 
 
 export class THOHAPI {
-    static apiUrl = getApiUrl('https://ec2-13-244-65-62.af-south-1.compute.amazonaws.com', '/thoh/api', 'USE_TEST_THOH');
+    static apiUrl = getApiUrl('https://ec2-13-244-65-62.af-south-1.compute.amazonaws.com/api', '/thoh/api', 'USE_TEST_THOH');
 
     static async purchaseMachine(machineName: string, quantity: number): Promise<MachinePurchaseResponse> {
         console.log(`🏭 THOHAPI: Purchasing machine - Name: ${machineName}, Quantity: ${quantity}`);
