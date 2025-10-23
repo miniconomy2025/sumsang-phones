@@ -8,6 +8,7 @@ import { MachinePurchaseService } from '../services/MachinePurchaseService.js';
 export class MachineController {
 	static async breakMachine(req: Request, res: Response): Promise<void> {
 		console.log('===== MachineController.breakMachine START =====');
+		console.log(new Date());
 		try {
 			console.log('Request body:', req.body);
 			const { itemName, failureQuantity } = req.body;
@@ -46,7 +47,7 @@ export class MachineController {
 			console.log('Phone ID:', phoneId);
 
 			console.log('Retiring machines...');
-			await MachineRepository.retireMachinesByPhoneId(phoneId, failureQuantity);
+			await MachineRepository.retireMachinesByPhoneId(phoneId, quantity);
 			console.log('Machines retired successfully');
 
 			const response = { message: `${quantity} machines for ${itemName} retired.` };
