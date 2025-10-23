@@ -11,8 +11,6 @@ export class DashboardRepository {
             const partCostsOverTime = await this.fetchPartCostsOverTime();
             const currentMachines = await this.fetchCurrentMachines();
 
-            console.log("current machiens", currentMachines);
-
             return {
                 currentPartsInventory,
                 currentPhonesInventory,
@@ -268,9 +266,8 @@ export class DashboardRepository {
                     SUM(CASE WHEN m.date_retired IS NULL THEN m.rate_per_day ELSE 0 END) AS production_capacity
                 FROM machines m
                 JOIN phones p ON m.phone_id = p.phone_id
-                GROUP BY p.model, m.date_acquired;
-
-            `)
+                GROUP BY p.model;
+            `);
 
             return res.rows.map(row => ({
                 phoneName: row.model,
