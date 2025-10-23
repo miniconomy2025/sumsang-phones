@@ -28,7 +28,7 @@ export class MachineController {
 				phoneName = 'Cosmos Z25';
 			}
 			else if (itemName === 'cosmos_z25_ultra_machine') {
-				phoneName = 'Cosmos Z25 ultra';
+				phoneName = 'Cosmos Z25 Ultra';
 			}
 			else if (itemName === 'cosmos_z25_fe_machine') {
 				phoneName = 'Cosmos Z25 FE';
