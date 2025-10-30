@@ -55,385 +55,385 @@ jobs:
         run: terraform init -backend-config="bucket=${{ env.TF_BUCKET_NAME }}" -backend-config="key=terraformstate/terraform.tfstate" -backend-config="region=${{ env.AWS_REGION }}"
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform destroy -auto-approve
 
-      - name: Capture Terraform Outputs
-        id: tf_outputs
-        run: |
-          echo "dbhost=$(terraform output -raw db_host)" >> $GITHUB_OUTPUT
-          echo "ec2host=$(terraform output -raw ec2_host)" >> $GITHUB_OUTPUT
+      # - name: Capture Terraform Outputs
+      #   id: tf_outputs
+      #   run: |
+      #     echo "dbhost=$(terraform output -raw db_host)" >> $GITHUB_OUTPUT
+      #     echo "ec2host=$(terraform output -raw ec2_host)" >> $GITHUB_OUTPUT
 
-  run-tests:
-    name: Run Unit, Integration, Performance and Load Tests
-    needs:
-      - build-api
-      - build-front-end
-      - terraform
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  # run-tests:
+  #   name: Run Unit, Integration, Performance and Load Tests
+  #   needs:
+  #     - build-api
+  #     - build-front-end
+  #     - terraform
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Install K6
-        run: |
-          sudo gpg -k
-          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
-            --keyserver hkp://keyserver.ubuntu.com:80 \
-            --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
-            | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install -y k6
+  #     - name: Install K6
+  #       run: |
+  #         sudo gpg -k
+  #         sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg \
+  #           --keyserver hkp://keyserver.ubuntu.com:80 \
+  #           --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+  #         echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" \
+  #           | sudo tee /etc/apt/sources.list.d/k6.list
+  #         sudo apt-get update
+  #         sudo apt-get install -y k6
 
-      - name: Run frontend tests
-        run: cd sumsang-frontend && npm install && npm run test
+  #     - name: Run frontend tests
+  #       run: cd sumsang-frontend && npm install && npm run test
 
-      - name: Run backend tests
-        run: cd sumsang-backend && npm install && npm test
+  #     - name: Run backend tests
+  #       run: cd sumsang-backend && npm install && npm test
 
-      # - name: Run K6 Performance Test
-      #   run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
+  #     - name: Run K6 Performance Test
+  #       run: k6 run sumsang-backend/tests/performance-tests/PerformanceTests.js
 
-      # - name: Run K6 Load Test
-      #   run: k6 run sumsang-backend/tests/load-tests/LoadTests.js
+  #     - name: Run K6 Load Test
+  #       run: k6 run sumsang-backend/tests/load-tests/LoadTests.js
 
-  build-front-end:
-    name: Build front-end
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  # build-front-end:
+  #   name: Build front-end
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - name: Install required dependencies
-        run: npm install
-        working-directory: sumsang-frontend
+  #     - name: Install required dependencies
+  #       run: npm install
+  #       working-directory: sumsang-frontend
       
-      - name: Build application
-        run: npm run build
-        working-directory: sumsang-frontend
+  #     - name: Build application
+  #       run: npm run build
+  #       working-directory: sumsang-frontend
 
-      - name: Package application
-        working-directory: sumsang-frontend
-        run: |
-          mkdir -p front-end-build
-          cp -r build front-end-build/
-          cp package.json front-end-build/
-          zip -r front-end-build.zip front-end-build
+  #     - name: Package application
+  #       working-directory: sumsang-frontend
+  #       run: |
+  #         mkdir -p front-end-build
+  #         cp -r build front-end-build/
+  #         cp package.json front-end-build/
+  #         zip -r front-end-build.zip front-end-build
           
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: front-end-build
-          path: sumsang-frontend/front-end-build.zip
+  #     - name: Upload build artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: front-end-build
+  #         path: sumsang-frontend/front-end-build.zip
 
-  deploy-frontend:
-    name: Deploy front-end to EC2
-    permissions:
-      id-token: write
-      contents: read
-    needs: 
-      - build-front-end
-      - terraform
-      - run-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::957617350095:role/github-role
-          aws-region: ${{ env.AWS_REGION }}
+  # deploy-frontend:
+  #   name: Deploy front-end to EC2
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   needs: 
+  #     - build-front-end
+  #     - terraform
+  #     - run-tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         role-to-assume: arn:aws:iam::957617350095:role/github-role
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Get secrets from AWS Key Store
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            PRIVATE_KEY, privatekey
+  #     - name: Get secrets from AWS Key Store
+  #       uses: aws-actions/aws-secretsmanager-get-secrets@v2
+  #       with:
+  #         secret-ids: |
+  #           PRIVATE_KEY, privatekey
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: front-end-build
+  #     - name: Download build artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: front-end-build
 
-      - name: Setup private key
-        run: |
-          echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
-          chmod 0500 privatekey.pem
+  #     - name: Setup private key
+  #       run: |
+  #         echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
+  #         chmod 0500 privatekey.pem
 
-      - name: Deploy
-        run: |
-          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem ./front-end-build.zip "ubuntu@$EC2_HOST:front-end-build.zip"
+  #     - name: Deploy
+  #       run: |
+  #         EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #         scp -o StrictHostKeyChecking=no -i privatekey.pem ./front-end-build.zip "ubuntu@$EC2_HOST:front-end-build.zip"
           
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-            unzip -o front-end-build.zip && cd front-end-build/ &&
-            npm install
-          '
+  #         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+  #           unzip -o front-end-build.zip && cd front-end-build/ &&
+  #           npm install
+  #         '
 
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-          cat <<EOF > start-serve.sh
-          #!/bin/bash
-          npx serve -s build
-          EOF'
+  #         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+  #         cat <<EOF > start-serve.sh
+  #         #!/bin/bash
+  #         npx serve -s build
+  #         EOF'
 
-      - name: Make script executable 
-        run: |
-          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" '
-            mv start-serve.sh front-end-build/ && 
-            cd front-end-build/ &&
-            chmod +x start-serve.sh
-          '
+  #     - name: Make script executable 
+  #       run: |
+  #         EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" '
+  #           mv start-serve.sh front-end-build/ && 
+  #           cd front-end-build/ &&
+  #           chmod +x start-serve.sh
+  #         '
 
-      - name: Run with pm2
-        run: |
-          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" '
-            cd front-end-build/ && 
-            # Stop and delete existing pm2 process if it exists
-            if pm2 list | grep -q "sumsang-front-end"; then
-              pm2 delete sumsang-front-end;
-            fi && 
-            pm2 start ./start-serve.sh --name sumsang-front-end
-          '
+  #     - name: Run with pm2
+  #       run: |
+  #         EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" '
+  #           cd front-end-build/ && 
+  #           # Stop and delete existing pm2 process if it exists
+  #           if pm2 list | grep -q "sumsang-front-end"; then
+  #             pm2 delete sumsang-front-end;
+  #           fi && 
+  #           pm2 start ./start-serve.sh --name sumsang-front-end
+  #         '
 
-  build-api:
-    name: Build API
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  # build-api:
+  #   name: Build API
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - name: Install required dependencies
-        run: npm install
-        working-directory: sumsang-backend
+  #     - name: Install required dependencies
+  #       run: npm install
+  #       working-directory: sumsang-backend
       
-      - name: Compile Typescript to Javascript
-        run: npm run build-linux
-        working-directory: sumsang-backend
+  #     - name: Compile Typescript to Javascript
+  #       run: npm run build-linux
+  #       working-directory: sumsang-backend
 
-      - name: Package application
-        working-directory: sumsang-backend
-        run: |
-          mkdir -p api-build
-          cp -r dist api-build/
-          cp package.json api-build/
-          zip -r api-build.zip api-build
+  #     - name: Package application
+  #       working-directory: sumsang-backend
+  #       run: |
+  #         mkdir -p api-build
+  #         cp -r dist api-build/
+  #         cp package.json api-build/
+  #         zip -r api-build.zip api-build
           
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: api-build
-          path: sumsang-backend/api-build.zip
+  #     - name: Upload build artifact
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: api-build
+  #         path: sumsang-backend/api-build.zip
 
-  deploy-api:
-    name: Deploy API to EC2
-    permissions:
-      id-token: write
-      contents: read
-    needs: 
-      - build-api
-      - terraform
-      - run-tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::957617350095:role/github-role
-          aws-region: ${{ env.AWS_REGION }}
+  # deploy-api:
+  #   name: Deploy API to EC2
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   needs: 
+  #     - build-api
+  #     - terraform
+  #     - run-tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v2
+  #       with:
+  #         role-to-assume: arn:aws:iam::957617350095:role/github-role
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Get secrets from AWS Key Store
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            PRIVATE_KEY, privatekey
-            POSTGRES_USER, postgresuser
-            POSTGRES_PASS, postgrespass
-            DB_HOST, dbhost
-            DB_NAME, dbname
+  #     - name: Get secrets from AWS Key Store
+  #       uses: aws-actions/aws-secretsmanager-get-secrets@v2
+  #       with:
+  #         secret-ids: |
+  #           PRIVATE_KEY, privatekey
+  #           POSTGRES_USER, postgresuser
+  #           POSTGRES_PASS, postgrespass
+  #           DB_HOST, dbhost
+  #           DB_NAME, dbname
 
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: api-build
+  #     - name: Download build artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: api-build
 
-      - name: Setup private key
-        run: |
-          echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
-          chmod 0500 privatekey.pem
+  #     - name: Setup private key
+  #       run: |
+  #         echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
+  #         chmod 0500 privatekey.pem
 
-      - name: Set env variables
-        run: |
-              EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-              ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
-              sudo tee /etc/environment > /dev/null <<'ENV_VAR'
-              DB_USER=${{ env.POSTGRES_USER }}
-              DB_PASSWORD=${{ env.POSTGRES_PASS }}
-              DB_HOST=${{ env.DB_HOST }}
-              DB_NAME=${{ env.DB_NAME }}
-              NODE_ENV=production
-              USE_MANUAL_TICKS=false
-              USE_TEST_DB=false
-              USE_TEST_CONSUMER_DELIVERIES=false
-              USE_TEST_BULK_DELIVERIES=false
-              USE_TEST_COMMERCIAL_BANK=false
-              USE_TEST_RETAIL_BANK=false
-              USE_TEST_CASE_SUPPLIERS=false
-              USE_TEST_SCREEN_SUPPLIERS=false
-              USE_TEST_ELECTRONICS_SUPPLIERS=false
-              USE_TEST_THOH=false
-              ENV_VAR
-              EOF
+  #     - name: Set env variables
+  #       run: |
+  #             EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #             ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
+  #             sudo tee /etc/environment > /dev/null <<'ENV_VAR'
+  #             DB_USER=${{ env.POSTGRES_USER }}
+  #             DB_PASSWORD=${{ env.POSTGRES_PASS }}
+  #             DB_HOST=${{ env.DB_HOST }}
+  #             DB_NAME=${{ env.DB_NAME }}
+  #             NODE_ENV=production
+  #             USE_MANUAL_TICKS=false
+  #             USE_TEST_DB=false
+  #             USE_TEST_CONSUMER_DELIVERIES=false
+  #             USE_TEST_BULK_DELIVERIES=false
+  #             USE_TEST_COMMERCIAL_BANK=false
+  #             USE_TEST_RETAIL_BANK=false
+  #             USE_TEST_CASE_SUPPLIERS=false
+  #             USE_TEST_SCREEN_SUPPLIERS=false
+  #             USE_TEST_ELECTRONICS_SUPPLIERS=false
+  #             USE_TEST_THOH=false
+  #             ENV_VAR
+  #             EOF
               
       
-      - name: Deploy
-        run: |
-          EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-          scp -o StrictHostKeyChecking=no -i privatekey.pem ./api-build.zip "ubuntu@$EC2_HOST:api-build.zip"
+  #     - name: Deploy
+  #       run: |
+  #         EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #         scp -o StrictHostKeyChecking=no -i privatekey.pem ./api-build.zip "ubuntu@$EC2_HOST:api-build.zip"
           
-          ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-            unzip -o api-build.zip &&
+  #         ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+  #           unzip -o api-build.zip &&
 
-            cd api-build/ &&
+  #           cd api-build/ &&
 
-            npm install &&
+  #           npm install &&
             
-            # Stop and delete existing pm2 process if it exists
-            if pm2 list | grep -q "sumsang-api"; then
-              pm2 delete sumsang-api;
-            fi &&
+  #           # Stop and delete existing pm2 process if it exists
+  #           if pm2 list | grep -q "sumsang-api"; then
+  #             pm2 delete sumsang-api;
+  #           fi &&
             
-            cd dist &&
-            pm2 start index.js --name sumsang-api
-          '
+  #           cd dist &&
+  #           pm2 start index.js --name sumsang-api
+  #         '
 
-  reverse-proxy-setup:
-    needs:
-        - deploy-api
-        - terraform
-        - deploy-frontend
-    name: Setup reverse proxy
-    permissions:
-        id-token: write
-        contents: read
-    runs-on: ubuntu-latest
-    steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::957617350095:role/github-role
-        aws-region: ${{ env.AWS_REGION }}
+  # reverse-proxy-setup:
+  #   needs:
+  #       - deploy-api
+  #       - terraform
+  #       - deploy-frontend
+  #   name: Setup reverse proxy
+  #   permissions:
+  #       id-token: write
+  #       contents: read
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v2
+  #     with:
+  #       role-to-assume: arn:aws:iam::957617350095:role/github-role
+  #       aws-region: ${{ env.AWS_REGION }}
 
-    - name: Get secrets from AWS Key Store
-      uses: aws-actions/aws-secretsmanager-get-secrets@v2
-      with:
-        secret-ids: |
-          PRIVATE_KEY, privatekey
+  #   - name: Get secrets from AWS Key Store
+  #     uses: aws-actions/aws-secretsmanager-get-secrets@v2
+  #     with:
+  #       secret-ids: |
+  #         PRIVATE_KEY, privatekey
 
-    - name: Setup api private key
-      run: |
-        echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
-        chmod 0500 privatekey.pem
+  #   - name: Setup api private key
+  #     run: |
+  #       echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
+  #       chmod 0500 privatekey.pem
 
 
-    - name: Setup nginx proxy on EC2 host
-      run: |
-        EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #   - name: Setup nginx proxy on EC2 host
+  #     run: |
+  #       EC2_HOST=${{ needs.terraform.outputs.ec2host }}
 
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
-        sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
-        server {
-            listen 80;
-            server_name bbd-grad-project.co.za www.bbd-grad-project.co.za;
+  #       ssh -o StrictHostKeyChecking=no -i privatekey.pem ubuntu@$EC2_HOST 'bash -s' <<'EOF'
+  #       sudo tee /etc/nginx/sites-enabled/default > /dev/null <<'NGINX_CONF'
+  #       server {
+  #           listen 80;
+  #           server_name bbd-grad-project.co.za www.bbd-grad-project.co.za;
           
 
-        location / {
-            proxy_pass http://localhost:3000; # Front-end
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+  #       location / {
+  #           proxy_pass http://localhost:3000; # Front-end
+  #           proxy_http_version 1.1;
+  #           proxy_set_header Upgrade $http_upgrade;
+  #           proxy_set_header Connection 'upgrade';
+  #           proxy_set_header Host $host;
+  #           proxy_cache_bypass $http_upgrade;
+  #           proxy_set_header X-Real-IP $remote_addr;
+  #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  #           proxy_set_header X-Forwarded-Proto $scheme;
+  #       }
 
-        location /public-api/ {
-            proxy_pass http://localhost:3030;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+  #       location /public-api/ {
+  #           proxy_pass http://localhost:3030;
+  #           proxy_http_version 1.1;
+  #           proxy_set_header Upgrade $http_upgrade;
+  #           proxy_set_header Connection 'upgrade';
+  #           proxy_set_header Host $host;
+  #           proxy_cache_bypass $http_upgrade;
+  #           proxy_set_header X-Real-IP $remote_addr;
+  #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  #           proxy_set_header X-Forwarded-Proto $scheme;
+  #       }
 
-        location /internal-api/ {
-            proxy_pass http://localhost:3030;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_cache_bypass $http_upgrade;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
+  #       location /internal-api/ {
+  #           proxy_pass http://localhost:3030;
+  #           proxy_http_version 1.1;
+  #           proxy_set_header Upgrade $http_upgrade;
+  #           proxy_set_header Connection 'upgrade';
+  #           proxy_set_header Host $host;
+  #           proxy_cache_bypass $http_upgrade;
+  #           proxy_set_header X-Real-IP $remote_addr;
+  #           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  #           proxy_set_header X-Forwarded-Proto $scheme;
+  #       }
 
-        }
-        NGINX_CONF
-        EOF
+  #       }
+  #       NGINX_CONF
+  #       EOF
 
-    - name: Verify and Reload nginx on API
-      run: |
-        EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-          sudo nginx -t && sudo systemctl reload nginx
-        '
+  #   - name: Verify and Reload nginx on API
+  #     run: |
+  #       EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #       ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+  #         sudo nginx -t && sudo systemctl reload nginx
+  #       '
 
-  issue-certificates:
-    needs:
-    - deploy-api
-    - deploy-frontend
-    - terraform
-    permissions:
-        id-token: write
-        contents: read
-    name: Issue Certificates
-    runs-on: ubuntu-latest
-    steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::957617350095:role/github-role
-        aws-region: ${{ env.AWS_REGION }}
+  # issue-certificates:
+  #   needs:
+  #   - deploy-api
+  #   - deploy-frontend
+  #   - terraform
+  #   permissions:
+  #       id-token: write
+  #       contents: read
+  #   name: Issue Certificates
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Configure AWS credentials
+  #     uses: aws-actions/configure-aws-credentials@v2
+  #     with:
+  #       role-to-assume: arn:aws:iam::957617350095:role/github-role
+  #       aws-region: ${{ env.AWS_REGION }}
 
-    - name: Get secrets from AWS Key Store
-      uses: aws-actions/aws-secretsmanager-get-secrets@v2
-      with:
-        secret-ids: |
-          PRIVATE_KEY, privatekey
+  #   - name: Get secrets from AWS Key Store
+  #     uses: aws-actions/aws-secretsmanager-get-secrets@v2
+  #     with:
+  #       secret-ids: |
+  #         PRIVATE_KEY, privatekey
 
-    - name: Setup private key
-      run: |
-        echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
-        chmod 0500 privatekey.pem
+  #   - name: Setup private key
+  #     run: |
+  #       echo "${{ env.PRIVATE_KEY }}" > privatekey.pem
+  #       chmod 0500 privatekey.pem
 
-    - name: Cerbot
-      run: |
-        EC2_HOST=${{ needs.terraform.outputs.ec2host }}
-        ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
-          sudo apt install certbot python3-certbot-nginx -y &&
-          sudo certbot --nginx -d bbd-grad-project.co.za -d www.bbd-grad-project.co.za --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
-        '
+  #   - name: Cerbot
+  #     run: |
+  #       EC2_HOST=${{ needs.terraform.outputs.ec2host }}
+  #       ssh -o StrictHostKeyChecking=no -i privatekey.pem "ubuntu@$EC2_HOST" ' 
+  #         sudo apt install certbot python3-certbot-nginx -y &&
+  #         sudo certbot --nginx -d bbd-grad-project.co.za -d www.bbd-grad-project.co.za --non-interactive --agree-tos --email shashin.gounden@bbd.co.za
+  #       '
             
-  flyway:
+  # flyway:
     needs:
       - terraform
       - deploy-frontend
